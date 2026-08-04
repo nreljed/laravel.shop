@@ -39,9 +39,9 @@ jobs:
         id: core
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path "..\laravel" -Force | Out-Null
-          git clone --depth 1 --branch beta "https://x-access-token:${{ secrets.PACKAGE_TOKEN }}@github.com/nreljed/laravel.git" "..\laravel\app"
-          $sha = git -C "..\laravel\app" rev-parse HEAD
+          New-Item -ItemType Directory -Path "..\..\laravel" -Force | Out-Null
+          git clone --depth 1 --branch beta "https://x-access-token:${{ secrets.PACKAGE_TOKEN }}@github.com/nreljed/laravel.git" "..\..\laravel\app"
+          $sha = git -C "..\..\laravel\app" rev-parse HEAD
           echo "sha=$sha" >> $env:GITHUB_OUTPUT
 
       - name: Determine version

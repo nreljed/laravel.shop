@@ -35,9 +35,9 @@ jobs:
         id: core
         shell: bash
         run: |
-          mkdir -p ../laravel
-          git clone --depth 1 --branch beta "https://x-access-token:${{ secrets.PACKAGE_TOKEN }}@github.com/nreljed/laravel.git" ../laravel/app
-          echo "sha=$(git -C ../laravel/app rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          mkdir -p ../../laravel
+          git clone --depth 1 --branch beta "https://x-access-token:${{ secrets.PACKAGE_TOKEN }}@github.com/nreljed/laravel.git" ../../laravel/app
+          echo "sha=$(git -C ../../laravel/app rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer dependencies
         uses: actions/cache@v5
