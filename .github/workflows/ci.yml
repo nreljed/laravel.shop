@@ -31,11 +31,19 @@ jobs:
           node-version: "22"
           cache: "npm"
 
+      - name: Checkout dashboard-core package
+        id: core
+        shell: bash
+        run: |
+          mkdir -p ../laravel
+          git clone --depth 1 --branch beta https://github.com/nreljed/laravel.git ../laravel/app
+          echo "sha=$(git -C ../laravel/app rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Cache Composer dependencies
         uses: actions/cache@v5
         with:
           path: vendor
-          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}-${{ steps.core.outputs.sha }}
 
       - name: Cache npm dependencies
         uses: actions/cache@v5
