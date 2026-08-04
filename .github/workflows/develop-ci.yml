@@ -1,0 +1,10 @@
+name: Develop CI Validation
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit

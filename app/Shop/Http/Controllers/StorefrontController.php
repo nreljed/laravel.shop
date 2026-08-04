@@ -2,12 +2,12 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Product;
 use App\Shop\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class StorefrontController extends Controller
 {

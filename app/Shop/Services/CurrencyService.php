@@ -2,9 +2,9 @@
 
 namespace App\Shop\Services;
 
-use App\Services\SettingsService;
 use App\Shop\Models\Currency;
 use Illuminate\Support\Facades\Cache;
+use Nreljed\DashboardCore\Services\SettingsService;
 
 class CurrencyService
 {

@@ -2,11 +2,11 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Currency;
 use App\Shop\Services\CurrencyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class CurrenciesController extends Controller
 {

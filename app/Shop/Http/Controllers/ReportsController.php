@@ -2,12 +2,12 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Order;
 use App\Shop\Models\OrderItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class ReportsController extends Controller
 {

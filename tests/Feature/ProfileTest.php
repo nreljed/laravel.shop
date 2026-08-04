@@ -16,7 +16,7 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->get('/dashboard/profile');
+            ->get('/dashboard/account/profile');
 
         $response->assertOk();
     }
@@ -27,7 +27,7 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->patch('/dashboard/profile', [
+            ->patch('/dashboard/account/profile', [
                 'display_name' => 'Test User',
                 'first_name' => 'Test',
                 'last_name' => 'User',
@@ -35,7 +35,7 @@ class ProfileTest extends TestCase
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/dashboard/profile');
+            ->assertRedirect(route('dashboard.account.page.profile'));
 
         $user->refresh();
 
@@ -46,11 +46,11 @@ class ProfileTest extends TestCase
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['email_verified_at' => now()]);
 
         $response = $this
             ->actingAs($user)
-            ->patch('/dashboard/profile', [
+            ->patch('/dashboard/account/profile', [
                 'display_name' => 'Test User',
                 'first_name' => 'Test',
                 'last_name' => 'User',
@@ -58,7 +58,7 @@ class ProfileTest extends TestCase
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/dashboard/profile');
+            ->assertRedirect(route('dashboard.account.page.profile'));
 
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
@@ -69,8 +69,9 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->delete('/dashboard/profile', [
-                'password' => 'password',
+            ->delete('/dashboard/account', [
+                'confirmation' => 'delete my account',
+                'current_password' => 'password',
             ]);
 
         $response
@@ -87,14 +88,15 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from('/dashboard/profile')
-            ->delete('/dashboard/profile', [
-                'password' => 'wrong-password',
+            ->from('/dashboard/account/profile')
+            ->delete('/dashboard/account', [
+                'confirmation' => 'delete my account',
+                'current_password' => 'wrong-password',
             ]);
 
         $response
-            ->assertSessionHasErrors('password')
-            ->assertRedirect('/dashboard/profile');
+            ->assertSessionHasErrors('current_password')
+            ->assertRedirect('/dashboard/account/profile');
 
         $this->assertNotNull($user->fresh());
     }

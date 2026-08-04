@@ -2,12 +2,12 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\BackInStockSubscription;
 use App\Shop\Models\Product;
 use App\Shop\Models\ProductVariation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class NotifyBackInStockController extends Controller
 {

@@ -2,7 +2,6 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Product;
 use App\Shop\Models\ProductBrand;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class BrandsController extends Controller
 {

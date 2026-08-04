@@ -2,11 +2,11 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Shop\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class CustomersController extends Controller
 {

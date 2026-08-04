@@ -2,9 +2,9 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Setting;
 use Illuminate\Http\Request;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
+use Nreljed\DashboardCore\Models\Setting;
 
 class ShopSettingsController extends Controller
 {

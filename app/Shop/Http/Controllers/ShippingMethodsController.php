@@ -2,10 +2,10 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\ShippingMethod;
 use App\Shop\Requests\StoreShippingMethodRequest;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class ShippingMethodsController extends Controller
 {

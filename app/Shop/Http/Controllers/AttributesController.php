@@ -2,7 +2,6 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Attribute;
 use App\Shop\Models\AttributeTerm;
 use App\Shop\Models\Product;
@@ -10,6 +9,7 @@ use App\Shop\Requests\StoreAttributeRequest;
 use App\Shop\Requests\StoreAttributeTermRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class AttributesController extends Controller
 {

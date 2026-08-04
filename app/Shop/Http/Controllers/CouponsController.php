@@ -2,11 +2,11 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Coupon;
 use App\Shop\Models\CouponUsage;
 use App\Shop\Requests\StoreCouponRequest;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class CouponsController extends Controller
 {

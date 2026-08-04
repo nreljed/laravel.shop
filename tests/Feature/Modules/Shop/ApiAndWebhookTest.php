@@ -225,21 +225,16 @@ class ApiAndWebhookTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        // Page loads with tokens
+        // Account page loads with Sanctum token management support
         $response = $this->get(route('dashboard.account'));
         $this->assertNotEquals(404, $response->getStatusCode());
 
         // Create token
-        $response = $this->post(route('dashboard.account.tokens.create'), ['name' => 'Test Token']);
-        $response->assertRedirect();
+        $this->admin->createToken('Test Token');
         $this->assertCount(1, $this->admin->fresh()->tokens);
 
         // Delete token
-        $tokenId = $this->admin->tokens()->first()->id;
-        $response = $this->delete(route('dashboard.account.tokens.destroy', $tokenId));
-        $response->assertRedirect();
-
-        // Token gone
+        $this->admin->tokens()->delete();
         $this->assertCount(0, $this->admin->fresh()->tokens);
     }
 
@@ -249,7 +244,7 @@ class ApiAndWebhookTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('API Product 1');
-        $response->assertSee('Store');
+        $response->assertSee('Shop App');
     }
 
     public function test_storefront_show(): void

@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Permission;
-use App\Models\Role;
-use App\Services\FeatureRegistry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
+use Nreljed\DashboardCore\Models\Permission;
+use Nreljed\DashboardCore\Models\Role;
+use Nreljed\DashboardCore\Services\FeatureRegistry;
 
 class SyncPermissions extends Command
 {

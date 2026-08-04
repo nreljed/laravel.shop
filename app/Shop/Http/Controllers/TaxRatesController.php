@@ -2,10 +2,10 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\TaxRate;
 use App\Shop\Requests\StoreTaxRateRequest;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class TaxRatesController extends Controller
 {

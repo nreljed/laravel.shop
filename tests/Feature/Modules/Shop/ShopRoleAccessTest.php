@@ -507,7 +507,7 @@ class ShopRoleAccessTest extends TestCase
             $roleProp = str_replace('_', '', ucwords($role, '_'));
             $roleProp = lcfirst($roleProp);
             $this->actingAs($this->{$roleProp});
-            $response = $this->get(route('dashboard.admin.settings'));
+            $response = $this->get(route('dashboard.admin.settings.index'));
             $response->assertStatus(403, "Role {$role} should get 403 on admin settings");
         }
     }

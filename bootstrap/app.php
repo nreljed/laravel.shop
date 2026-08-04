@@ -1,9 +1,5 @@
 <?php
 
-use App\Http\Middleware\AdminMiddleware;
-use App\Http\Middleware\CheckPermission;
-use App\Http\Middleware\CheckRole;
-use App\Http\Middleware\ContentSecurityPolicy;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -11,6 +7,13 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Middleware\AdminMiddleware;
+use Nreljed\DashboardCore\Http\Middleware\CheckIpAccess;
+use Nreljed\DashboardCore\Http\Middleware\CheckMaintenanceMode;
+use Nreljed\DashboardCore\Http\Middleware\CheckPermission;
+use Nreljed\DashboardCore\Http\Middleware\CheckRole;
+use Nreljed\DashboardCore\Http\Middleware\ConfigureSessionLifetime;
+use Nreljed\DashboardCore\Http\Middleware\ContentSecurityPolicy;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -38,6 +41,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'role' => CheckRole::class,
             'permission' => CheckPermission::class,
+            'maintenance' => CheckMaintenanceMode::class,
+            'session-lifetime' => ConfigureSessionLifetime::class,
+            'ip-access' => CheckIpAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

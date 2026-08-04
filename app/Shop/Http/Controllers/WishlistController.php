@@ -2,11 +2,11 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Product;
 use App\Shop\Models\Wishlist;
 use Illuminate\Http\JsonResponse;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class WishlistController extends Controller
 {

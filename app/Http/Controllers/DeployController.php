@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class DeployController extends Controller
 {

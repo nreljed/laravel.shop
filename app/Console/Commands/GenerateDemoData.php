@@ -2,9 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Blog\Models\Post;
-use App\Blog\Models\PostCategory;
-use App\Blog\Models\PostTag;
 use App\Models\User;
 use App\Shop\Models\Coupon;
 use App\Shop\Models\CouponUsage;
@@ -21,6 +18,9 @@ use App\Shop\Models\TaxRate;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Nreljed\DashboardCore\Blog\Models\Post;
+use Nreljed\DashboardCore\Blog\Models\PostCategory;
+use Nreljed\DashboardCore\Blog\Models\PostTag;
 
 class GenerateDemoData extends Command
 {
@@ -904,7 +904,7 @@ class GenerateDemoData extends Command
 
     private function maybeCreatePosts(): void
     {
-        if (! class_exists('App\Blog\Models\Post')) {
+        if (! class_exists('Nreljed\DashboardCore\Blog\Models\Post')) {
             $this->line('[SKIP] Posts module not available');
 
             return;

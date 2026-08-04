@@ -2,12 +2,7 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Role;
 use App\Models\User;
-use App\Notifications\AppNotification;
-use App\Services\MailService;
-use App\Services\NotificationService;
 use App\Shop\Models\Cart;
 use App\Shop\Models\Order;
 use App\Shop\Models\OrderItem;
@@ -27,6 +22,11 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
+use Nreljed\DashboardCore\Models\Role;
+use Nreljed\DashboardCore\Notifications\AppNotification;
+use Nreljed\DashboardCore\Services\MailService;
+use Nreljed\DashboardCore\Services\NotificationService;
 
 class CheckoutController extends Controller
 {

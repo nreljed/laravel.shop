@@ -2,10 +2,10 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Order;
 use App\Shop\Services\StripeService;
 use Illuminate\Http\Request;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class StripeWebhookController extends Controller
 {

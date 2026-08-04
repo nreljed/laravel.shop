@@ -34,12 +34,13 @@ class AccountDeletionTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from('/dashboard/profile')
-            ->delete('/dashboard/profile', [
-                'password' => 'wrong-password',
+            ->from('/dashboard/account/profile')
+            ->delete('/dashboard/account', [
+                'confirmation' => 'delete my account',
+                'current_password' => 'wrong-password',
             ]);
 
-        $response->assertSessionHasErrors('password');
+        $response->assertSessionHasErrors('current_password');
         $this->assertNotNull($user->fresh());
     }
 
@@ -49,8 +50,9 @@ class AccountDeletionTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->delete('/dashboard/profile', [
-                'password' => 'password',
+            ->delete('/dashboard/account', [
+                'confirmation' => 'delete my account',
+                'current_password' => 'password',
             ]);
 
         $response->assertSessionHasNoErrors();
@@ -65,8 +67,8 @@ class AccountDeletionTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from('/dashboard/account')
-            ->post('/dashboard/account/delete', [
+            ->from('/dashboard/account/profile')
+            ->delete('/dashboard/account', [
                 'confirmation' => 'delete my account',
                 'current_password' => 'wrong-password',
             ]);
@@ -81,8 +83,8 @@ class AccountDeletionTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from('/dashboard/account')
-            ->post('/dashboard/account/delete', [
+            ->from('/dashboard/account/profile')
+            ->delete('/dashboard/account', [
                 'confirmation' => 'wrong string',
                 'current_password' => 'password',
             ]);
@@ -97,7 +99,7 @@ class AccountDeletionTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->post('/dashboard/account/delete', [
+            ->delete('/dashboard/account', [
                 'confirmation' => 'delete my account',
                 'current_password' => 'password',
             ]);

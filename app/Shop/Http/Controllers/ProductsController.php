@@ -2,11 +2,7 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\AppNotification;
-use App\Services\MediaService;
-use App\Services\NotificationService;
 use App\Shop\Models\Attribute;
 use App\Shop\Models\Product;
 use App\Shop\Models\ProductAttribute;
@@ -25,6 +21,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
+use Nreljed\DashboardCore\Notifications\AppNotification;
+use Nreljed\DashboardCore\Services\MediaService;
+use Nreljed\DashboardCore\Services\NotificationService;
 
 class ProductsController extends Controller
 {

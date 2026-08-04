@@ -2,11 +2,11 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\ShippingMethod;
 use App\Shop\Models\ShippingZone;
 use App\Shop\Requests\StoreShippingZoneRequest;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class ShippingZonesController extends Controller
 {

@@ -2,10 +2,10 @@
 
 namespace App\Shop\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Http\Resources\ProductResource;
 use App\Shop\Models\Product;
 use Illuminate\Http\Request;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class ProductsController extends Controller
 {

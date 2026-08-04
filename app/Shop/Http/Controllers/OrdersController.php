@@ -2,10 +2,7 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\AppNotification;
-use App\Services\NotificationService;
 use App\Shop\Models\Order;
 use App\Shop\Models\OrderNote;
 use App\Shop\Models\Product;
@@ -21,6 +18,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
+use Nreljed\DashboardCore\Notifications\AppNotification;
+use Nreljed\DashboardCore\Services\NotificationService;
 
 class OrdersController extends Controller
 {

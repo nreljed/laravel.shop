@@ -2,11 +2,11 @@
 
 namespace App\Shop\Services;
 
-use App\Services\MailService;
 use App\Shop\Models\Cart;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\URL;
+use Nreljed\DashboardCore\Services\MailService;
 
 class AbandonedCartService
 {

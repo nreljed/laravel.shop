@@ -2,10 +2,10 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Cart;
 use App\Shop\Services\AbandonedCartService;
 use Illuminate\Http\Request;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class AbandonedCartRecoveryController extends Controller
 {

@@ -2,7 +2,6 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Cart;
 use App\Shop\Models\CartItem;
 use App\Shop\Models\Coupon;
@@ -13,6 +12,7 @@ use App\Shop\Services\InventoryService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class CartController extends Controller
 {

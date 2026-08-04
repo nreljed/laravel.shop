@@ -2,12 +2,12 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\AttributeTerm;
 use App\Shop\Models\Product;
 use App\Shop\Models\ProductVariation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class ProductVariationsController extends Controller
 {

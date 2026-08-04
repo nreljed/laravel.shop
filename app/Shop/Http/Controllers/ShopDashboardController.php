@@ -2,10 +2,10 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Services\DashboardService;
 use App\Shop\Models\Product;
 use Inertia\Inertia;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
+use Nreljed\DashboardCore\Services\DashboardService;
 
 class ShopDashboardController extends Controller
 {

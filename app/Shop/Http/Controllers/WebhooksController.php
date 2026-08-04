@@ -2,13 +2,13 @@
 
 namespace App\Shop\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Shop\Models\Webhook;
 use App\Shop\Services\WebhookService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class WebhooksController extends Controller
 {
