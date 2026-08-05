@@ -28,6 +28,15 @@ Route::get('/deploy/cache-clear', [DeployController::class, 'cacheClear']);
 Route::match(['get', 'post'], '/deploy/check', [DeployController::class, 'check']);
 
 // ═══════════════════════════════════════════════════
+// CSP Report Endpoint — receives violation reports
+// ═══════════════════════════════════════════════════
+Route::post('/csp-report', function (Request $request) {
+    report(new Exception('CSP Violation: '.$request->input('csp-report.effective-directive', 'unknown')));
+
+    return response()->json(['status' => 'ok']);
+})->middleware('throttle:30,1')->name('csp.report');
+
+// ═══════════════════════════════════════════════════
 // FEATURE ROUTES — loaded by feature service providers
 // ═══════════════════════════════════════════════════
 // All dashboard, admin, auth, notification, account, and media routes
