@@ -73,26 +73,35 @@ jobs:
         run: |
           VER="v${{ steps.version.outputs.version }}"
           echo "Release: $VER"
-          # Capture upload response: check for JSON (real app) vs HTML (Cloudflare)
-          UPLOAD_RESP=$(curl -s -w "\n%{http_code}" --max-time 300 \
-            -F "file=@deploy.zip;filename=deploy.zip" \
-            "https://shop.laravel.tunispromo.tn/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}" 2>&1)
-          HTTP_CODE=$(echo "$UPLOAD_RESP" | tail -1)
-          BODY=$(echo "$UPLOAD_RESP" | sed '$d')
-          if [ "$HTTP_CODE" = "200" ] && echo "$BODY" | head -1 | grep -q '^{'; then
-            echo "Deployed via /deploy/upload"
-            echo "$BODY" | head -1
-          elif CHECK_RESP=$(curl -s -X POST --max-time 300 \
-            "https://shop.laravel.tunispromo.tn/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}" 2>&1) \
-            && echo "$CHECK_RESP" | head -1 | grep -q '^{'; then
+          # Prefer /deploy/check: the server pulls deploy.zip from the GitHub API itself,
+          # avoiding a large upload through the edge. Validate the real status, not just JSON.
+          CHECK_RESP=$(curl -s -X POST --max-time 300 \
+            "https://shop.laravel.tunispromo.tn/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}" 2>&1)
+          if echo "$CHECK_RESP" | head -1 | grep -q '"status":"deployed"'; then
             echo "Deployed via /deploy/check (GitHub API)"
             echo "$CHECK_RESP" | head -1
+          elif echo "$CHECK_RESP" | head -1 | grep -q '"status":"current"'; then
+            echo "Already on $VER via /deploy/check"
+            echo "$CHECK_RESP" | head -1
           else
-            echo "Deploy failed. Release created at:"
-            echo "https://github.com/nreljed/laravel.shop/releases/tag/$VER"
-            echo "Manual deploy: download deploy.zip from release, upload to server, extract, then visit:"
-            echo "https://shop.laravel.tunispromo.tn/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
-            exit 1
+            echo "check not usable: $(echo "$CHECK_RESP" | head -1 | cut -c1-160)"
+            # Fallback: direct upload (large file, can be flaky through edge/CDN)
+            UPLOAD_RESP=$(curl -s -w "\n%{http_code}" --max-time 300 \
+              -F "file=@deploy.zip;filename=deploy.zip" \
+              "https://shop.laravel.tunispromo.tn/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}" 2>&1)
+            HTTP_CODE=$(echo "$UPLOAD_RESP" | tail -1)
+            BODY=$(echo "$UPLOAD_RESP" | sed '$d')
+            if [ "$HTTP_CODE" = "200" ] && echo "$BODY" | head -1 | grep -q '"status":"deployed"'; then
+              echo "Deployed via /deploy/upload"
+              echo "$BODY" | head -1
+            else
+              echo "Upload failed (HTTP $HTTP_CODE)"
+              echo "Deploy failed. Release created at:"
+              echo "https://github.com/nreljed/laravel.shop/releases/tag/$VER"
+              echo "Manual deploy: download deploy.zip from release, upload to server, extract, then visit:"
+              echo "https://shop.laravel.tunispromo.tn/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
+              exit 1
+            fi
           fi
 
       - name: FTP Upload fallback (DirectAdmin)
