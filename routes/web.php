@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DeployController;
 use App\Http\Controllers\PublicController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
