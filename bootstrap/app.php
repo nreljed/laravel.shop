@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'profile/avatar',
             'deploy/*',
             'api/notifications/*',
+            'csp-report',
         ]);
 
         $middleware->alias([

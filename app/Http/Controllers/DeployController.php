@@ -47,6 +47,8 @@ class DeployController extends Controller
     public function cacheClear(Request $request)
     {
         $this->verifyToken($request);
+        set_time_limit(300);
+        ignore_user_abort(true);
 
         $output = [];
 
@@ -266,6 +268,7 @@ class DeployController extends Controller
     {
         $this->verifyToken($request);
         set_time_limit(300);
+        ignore_user_abort(true);
 
         $output = [];
         $envPath = base_path('.env');
@@ -404,6 +407,9 @@ class DeployController extends Controller
                 }
                 $output[] = "Removed $staleRemoved stale files";
             }
+
+            // Wipe all cached files so route:cache/config:cache rebuild from the new code
+            $this->wipeCache();
 
             $commands = [
                 'package:discover' => [[]],
