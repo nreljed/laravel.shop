@@ -8,7 +8,10 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../../laravel/app/packages/dashboard-core"
+            "url": "../../laravel/app/packages/dashboard-core",
+            "options": {
+                "symlink": false
+            }
         }
     ],
     "require": {
