@@ -1,6 +1,6 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+﻿import { Head, Link, useForm } from "@inertiajs/react";
 import { Package, ArrowLeft } from "lucide-react";
-import StoreLayout from "@/Layouts/StoreLayout";
+import StoreLayout from "@shop/Layouts/StoreLayout";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";

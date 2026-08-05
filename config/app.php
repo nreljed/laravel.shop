@@ -105,38 +105,9 @@ return [
         ),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Deploy Token
-    |--------------------------------------------------------------------------
-    |
-    | Token used by the deploy webhook endpoints to authenticate requests
-    | from the CI/CD pipeline. Set this in your .env file.
-    |
-    */
-
-    'deploy_token' => env('DEPLOY_TOKEN'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Maintenance Mode Driver
-    |--------------------------------------------------------------------------
-    |
-    | These configuration options determine the driver used to determine and
-    | manage Laravel's "maintenance mode" status. The "cache" driver will
-    | allow maintenance mode to be controlled across multiple machines.
-    |
-    | Supported drivers: "file", "cache"
-    |
-    */
-
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
-    'github_token' => env('GITHUB_TOKEN'),
-    'deploy_token' => env('DEPLOY_TOKEN'),
-    'deploy_repo' => 'nreljed/laravel.shop',
 
 ];

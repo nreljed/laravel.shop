@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Role;
+use Nreljed\DashboardCore\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

@@ -25,7 +25,7 @@ class SyncPermissions extends Command
         $existing = Permission::pluck('slug')->toArray();
         $synced = 0;
 
-        foreach ($registry->all() as $provider) {
+        foreach ($registry->allProviders() as $provider) {
             foreach ($provider->permissions() as $perm) {
                 if (! in_array($perm['slug'], $existing)) {
                     Permission::create([
@@ -43,7 +43,7 @@ class SyncPermissions extends Command
         $this->info("Synced {$synced} new permission(s).");
 
         $permSlugs = [];
-        foreach ($registry->all() as $provider) {
+        foreach ($registry->allProviders() as $provider) {
             foreach ($provider->permissions() as $perm) {
                 $permSlugs[] = $perm['slug'];
             }

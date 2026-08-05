@@ -7,9 +7,13 @@ use App\Shop\Models\Product;
 use App\Shop\Services\ShopService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Nreljed\DashboardCore\Concerns\InteractsWithFeatures;
+use Nreljed\DashboardCore\Contracts\FeatureProvider;
 
-class ShopServiceProvider extends ServiceProvider
+class ShopServiceProvider extends ServiceProvider implements FeatureProvider
 {
+    use InteractsWithFeatures;
+
     public function register(): void
     {
         $this->app->singleton(ShopService::class);
@@ -75,7 +79,7 @@ class ShopServiceProvider extends ServiceProvider
         // Admin/manager: show only Shop management
         if ($user->can('shop.products.create')) {
             try {
-                return [
+                return [[
                     'title' => 'Shop',
                     'url' => route('dashboard.shop.dashboard', [], false),
                     'icon' => 'ShoppingCart',
@@ -102,7 +106,7 @@ class ShopServiceProvider extends ServiceProvider
                         ['title' => 'Currencies', 'url' => route('dashboard.shop.currencies.index', [], false)],
                         ['title' => 'Webhooks', 'url' => route('dashboard.shop.webhooks.index', [], false)],
                     ],
-                ];
+                ]];
             } catch (\Throwable) {
                 return [];
             }
@@ -111,7 +115,7 @@ class ShopServiceProvider extends ServiceProvider
         // Customer: show only my account portal (links to existing dashboard pages)
         if ($user->can('shop.view')) {
             try {
-                return [
+                return [[
                     'title' => 'My Account',
                     'url' => route('dashboard.my.orders.index', [], false),
                     'icon' => 'User',
@@ -123,7 +127,7 @@ class ShopServiceProvider extends ServiceProvider
                         ['title' => 'My Cart', 'url' => route('dashboard.my.cart.index', [], false)],
                         ['title' => 'My Account', 'url' => route('dashboard.account', [], false)],
                     ],
-                ];
+                ]];
             } catch (\Throwable) {
                 return [];
             }
@@ -170,7 +174,7 @@ class ShopServiceProvider extends ServiceProvider
 
     public function getSettingsRoute(): ?string
     {
-        return route('dashboard.admin.settings', [], false);
+        return 'dashboard.admin.settings.general';
     }
 
     public function permissions(): array

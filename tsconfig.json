@@ -14,14 +14,31 @@
         "forceConsistentCasingInFileNames": false,
         "skipLibCheck": true,
         "noEmit": true,
+        "typeRoots": [
+            "./node_modules/@types"
+        ],
         "paths": {
-            "@/*": ["./resources/js/*"],
+            "@dashboard/*": ["../../laravel/app/packages/dashboard-core/resources/js/*"],
+            "@dashboard-blog/*": ["../../laravel/app/packages/dashboard-core/src/Blog/Resources/js/*"],
+            "@/*": ["../../laravel/app/packages/dashboard-core/resources/js/*"],
             "@shop": ["./app/Shop/Resources/js"],
             "@shop/*": ["./app/Shop/Resources/js/*"],
-            "@blog": ["./app/Blog/Resources/js"],
-            "@blog/*": ["./app/Blog/Resources/js/*"],
-            "ziggy-js": ["./vendor/tightenco/ziggy"]
+            "ziggy-js": ["./vendor/tightenco/ziggy"],
+            "@inertiajs/core": ["./node_modules/@inertiajs/core"],
+            "@inertiajs/react": ["./node_modules/@inertiajs/react"],
+            "@inertiajs/vite": ["./node_modules/@inertiajs/vite"],
+            "react": ["./node_modules/@types/react/index.d.ts"],
+            "react/*": ["./node_modules/@types/react/*"],
+            "react-dom": ["./node_modules/@types/react-dom/index.d.ts"],
+            "react-dom/*": ["./node_modules/@types/react-dom/*"]
         }
     },
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts"]
+    "include": [
+        "resources/js/**/*.ts",
+        "resources/js/**/*.tsx",
+        "resources/js/**/*.d.ts",
+        "../../laravel/app/packages/dashboard-core/resources/js/**/*.ts",
+        "../../laravel/app/packages/dashboard-core/resources/js/**/*.tsx",
+        "../../laravel/app/packages/dashboard-core/resources/js/**/*.d.ts"
+    ]
 }

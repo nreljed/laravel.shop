@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Modules\Shop;
 
-use App\Models\Permission;
-use App\Models\Role;
-use App\Services\FeatureRegistry;
+use Nreljed\DashboardCore\Models\Permission;
+use Nreljed\DashboardCore\Models\Role;
+use Nreljed\DashboardCore\Services\FeatureRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 use Tests\BootsFeatures;
@@ -23,7 +23,7 @@ class ShopPermissionMatrixTest extends TestCase
 
         // Collect all shop.* permission slugs from the registry
         $registry = app(FeatureRegistry::class);
-        foreach ($registry->all() as $module) {
+        foreach ($registry->allProviders() as $module) {
             if ($module->slug() === 'shop') {
                 foreach ($module->permissions() as $perm) {
                     $this->shopPermSlugs[] = $perm['slug'];

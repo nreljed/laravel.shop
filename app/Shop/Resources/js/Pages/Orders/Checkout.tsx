@@ -1,9 +1,9 @@
-import { Head, useForm } from "@inertiajs/react";
+﻿import { Head, useForm } from "@inertiajs/react";
 import { FormEventHandler, useState } from "react";
 import { ShoppingBag, CreditCard, Truck, Loader2, Check, ChevronLeft, ChevronRight, MapPin, User, Eye } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import StoreLayout from "@/Layouts/StoreLayout";
+import StoreLayout from "@shop/Layouts/StoreLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
@@ -525,7 +525,7 @@ export default function Checkout({ cart, shippingMethods, userBillingAddress, us
           <h4 className="text-sm font-semibold mb-2">Items</h4>
           {cart.items.map((item) => (
             <div key={item.id} className="flex justify-between text-sm py-1">
-              <span>{item.product.name} × {item.quantity}{item.variant_label ? ` (${item.variant_label})` : ""}</span>
+              <span>{item.product.name} Ã— {item.quantity}{item.variant_label ? ` (${item.variant_label})` : ""}</span>
               <span className="tabular-nums">{fmt(Number(item.unit_price) * item.quantity, currency)}</span>
             </div>
           ))}
@@ -577,7 +577,7 @@ export default function Checkout({ cart, shippingMethods, userBillingAddress, us
                             )}
                             {method.estimated_days_min && (
                               <p className="text-xs text-muted-foreground">
-                                Estimated {method.estimated_days_min}–{method.estimated_days_max} days
+                                Estimated {method.estimated_days_min}â€“{method.estimated_days_max} days
                               </p>
                             )}
                           </div>
@@ -620,7 +620,7 @@ export default function Checkout({ cart, shippingMethods, userBillingAddress, us
             <CardContent className="space-y-3">
               {cart.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
-                  <span className="truncate pr-2">{item.product.name} × {item.quantity}</span>
+                  <span className="truncate pr-2">{item.product.name} Ã— {item.quantity}</span>
                   <span className="tabular-nums shrink-0">{fmt(Number(item.unit_price) * item.quantity, currency)}</span>
                 </div>
               ))}

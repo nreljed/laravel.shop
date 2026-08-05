@@ -8,7 +8,7 @@ import { CSS } from "@dnd-kit/utilities";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 import { Button } from "@/Components/ui/button";
-import { Section, SectionField } from "@/Components/section";
+import { Section, SectionField } from "@/Components/shared/section";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -24,10 +24,10 @@ import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
 } from "@/Components/ui/breadcrumb";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/Components/ui/tooltip";
-import { PublishSection } from "@/Components/ui/publish-section";
+import { PublishSection } from "@/Components/shared/publish-section";
 import { GalleryUploader, type GalleryImage } from "@/Components/shared/gallery-uploader";
 import { TermsSelector } from "@/Components/shared/terms-selector";
-import { DateTimePicker } from "@/Components/ui/datetime-picker";
+import { DateTimePicker } from "@/Components/shared/datetime-picker";
 const VariationsManager = lazy(() => import("../../components/VariationsManager").then((m) => ({ default: m.VariationsManager })));
 
 interface Category { id: number; name: string }

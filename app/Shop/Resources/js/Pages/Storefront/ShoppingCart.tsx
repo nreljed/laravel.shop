@@ -1,8 +1,8 @@
-import { Head, Link, router } from "@inertiajs/react";
+﻿import { Head, Link, router } from "@inertiajs/react";
 import { Trash2, ShoppingCart, Minus, Plus, ArrowRight, Ticket, X, Package, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import StoreLayout from "@/Layouts/StoreLayout";
+import StoreLayout from "@shop/Layouts/StoreLayout";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";

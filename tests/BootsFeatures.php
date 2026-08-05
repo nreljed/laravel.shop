@@ -2,11 +2,11 @@
 
 namespace Tests;
 
-use App\Models\Permission;
-use App\Models\Role;
+use Nreljed\DashboardCore\Models\Permission;
+use Nreljed\DashboardCore\Models\Role;
 use App\Models\User;
-use App\Services\FeatureRegistry;
-use App\Services\PermissionCacheService;
+use Nreljed\DashboardCore\Services\FeatureRegistry;
+use Nreljed\DashboardCore\Services\PermissionCacheService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 
 trait BootsFeatures
@@ -21,7 +21,7 @@ trait BootsFeatures
 
         // Collect permission slugs from all registered feature providers
         $featureSlugs = [];
-        foreach ($registry->all() as $provider) {
+        foreach ($registry->allProviders() as $provider) {
             foreach ($provider->permissions() as $perm) {
                 $featureSlugs[] = $perm['slug'];
             }

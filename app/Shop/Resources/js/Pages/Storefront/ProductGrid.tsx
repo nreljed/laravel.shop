@@ -1,7 +1,7 @@
-import { Link, router, usePage, Head } from '@inertiajs/react'
+﻿import { Link, router, usePage, Head } from '@inertiajs/react'
 import { useState, useRef } from 'react'
 import { Search, ShoppingCart, SlidersHorizontal, Heart } from 'lucide-react'
-import StoreLayout from '@/Layouts/StoreLayout'
+import StoreLayout from '@shop/Layouts/StoreLayout'
 import { Button } from '@/Components/ui/button'
 import { Card, CardContent, CardFooter } from '@/Components/ui/card'
 import { Input } from '@/Components/ui/input'
@@ -130,8 +130,8 @@ export default function StorefrontIndex() {
                                     className="mb-2"
                                 />
                                 <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>{priceValue[0].toFixed(2)} €</span>
-                                    <span>{priceValue[1].toFixed(2)} €</span>
+                                    <span>{priceValue[0].toFixed(2)} â‚¬</span>
+                                    <span>{priceValue[1].toFixed(2)} â‚¬</span>
                                 </div>
                             </div>
                         )}
@@ -213,9 +213,9 @@ export default function StorefrontIndex() {
                                                 )}
                                             </CardContent>
                                             <CardFooter className="p-4 pt-0 flex items-center gap-2">
-                                                <span className="text-lg font-bold">{product.price.toFixed(2)} €</span>
+                                                <span className="text-lg font-bold">{product.price.toFixed(2)} â‚¬</span>
                                                 {product.compare_price && product.compare_price > product.price && (
-                                                    <span className="text-sm text-muted-foreground line-through">{product.compare_price.toFixed(2)} €</span>
+                                                    <span className="text-sm text-muted-foreground line-through">{product.compare_price.toFixed(2)} â‚¬</span>
                                                 )}
                                             </CardFooter>
                                         </Card>

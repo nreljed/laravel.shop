@@ -1,7 +1,7 @@
-import { Link, router, usePage, Head } from '@inertiajs/react'
+﻿import { Link, router, usePage, Head } from '@inertiajs/react'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { ArrowLeft, Minus, Plus, ShoppingBag, ShoppingCart, Star, Heart, ExternalLink, FileDown, Package, Expand, X, ChevronLeft, ChevronRight } from 'lucide-react'
-import StoreLayout from '@/Layouts/StoreLayout'
+import StoreLayout from '@shop/Layouts/StoreLayout'
 import { Button } from '@/Components/ui/button'
 import { Card, CardContent } from '@/Components/ui/card'
 import { Badge } from '@/Components/ui/badge'
@@ -106,7 +106,7 @@ function ProductGallery({ images, thumbnailUrl, productName, variationImageUrl }
                                 alt={`${productName} - Image ${activeIndex + 1}`}
                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
-                            {/* Arrows — shown on hover (desktop) or always (touch via opacity) */}
+                            {/* Arrows â€” shown on hover (desktop) or always (touch via opacity) */}
                             {hasNav && (
                                 <>
                                     <button type="button" onClick={prev}
@@ -232,11 +232,11 @@ function ProductInfo({ product, selectedVariation, priceRange, isVariable, isExt
     return (
         <div className="flex items-baseline gap-3">
             <span className={cn("text-3xl font-bold tracking-tight", hasSale && "text-destructive")}>
-                {displayPrice.current.toFixed(2)} €
+                {displayPrice.current.toFixed(2)} â‚¬
             </span>
             {hasSale && (
                 <>
-                    <span className="text-xl text-muted-foreground line-through">{wasPrice!.toFixed(2)} €</span>
+                    <span className="text-xl text-muted-foreground line-through">{wasPrice!.toFixed(2)} â‚¬</span>
                     <Badge variant="destructive" className="text-xs">-{savingsPercent}%</Badge>
                 </>
             )}
@@ -435,10 +435,10 @@ export default function StorefrontShow() {
                 </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
-                    {/* Left Column — Gallery */}
+                    {/* Left Column â€” Gallery */}
                     <ProductGallery images={allImages} thumbnailUrl={product.thumbnail_url} productName={product.name} variationImageUrl={variationImage} />
 
-                    {/* Right Column — Product Info */}
+                    {/* Right Column â€” Product Info */}
                     <div className="flex flex-col gap-6">
                         {/* Breadcrumb / Categories */}
                         <div className="flex flex-wrap items-center gap-2">
@@ -582,7 +582,7 @@ export default function StorefrontShow() {
                             )}
                         </div>
 
-                        {/* Accordion — Collapsible Details */}
+                        {/* Accordion â€” Collapsible Details */}
                         <Accordion type="multiple" defaultValue={['description']} className="border-t">
                             {product.description && (
                                 <AccordionItem value="description">
@@ -629,7 +629,7 @@ export default function StorefrontShow() {
                                             <p>This is a digital or service product. No physical shipping required. Delivery details will be provided after purchase.</p>
                                         ) : (
                                             <>
-                                                <p>Free shipping on orders over 50 €. Standard delivery within 3–5 business days.</p>
+                                                <p>Free shipping on orders over 50 â‚¬. Standard delivery within 3â€“5 business days.</p>
                                                 <p>Easy returns within 30 days of delivery. Items must be unused and in original packaging.</p>
                                             </>
                                         )}
@@ -647,7 +647,7 @@ export default function StorefrontShow() {
                                                     <span className="text-sm flex-1">{d.name}</span>
                                                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                                                         {d.download_limit === -1 ? 'Unlimited' : `Max ${d.download_limit}`}
-                                                        {d.download_expiry > 0 ? ` · ${d.download_expiry}d expiry` : ''}
+                                                        {d.download_expiry > 0 ? ` Â· ${d.download_expiry}d expiry` : ''}
                                                     </span>
                                                 </div>
                                             ))}
@@ -676,7 +676,7 @@ export default function StorefrontShow() {
                                                 <p className="text-xs text-muted-foreground">Qty: {child.pivot.quantity}</p>
                                             </div>
                                             {child.price && (
-                                                <span className="text-sm font-bold">{parseFloat(String(child.price)).toFixed(2)} €</span>
+                                                <span className="text-sm font-bold">{parseFloat(String(child.price)).toFixed(2)} â‚¬</span>
                                             )}
                                         </Link>
                                     ))}
@@ -733,7 +733,7 @@ export default function StorefrontShow() {
                                         </div>
                                         <CardContent className="p-3 space-y-1">
                                             <p className="text-sm font-medium line-clamp-2">{r.name}</p>
-                                            <p className="text-sm font-bold">{r.price.toFixed(2)} €</p>
+                                            <p className="text-sm font-bold">{r.price.toFixed(2)} â‚¬</p>
                                         </CardContent>
                                     </Card>
                                 </Link>

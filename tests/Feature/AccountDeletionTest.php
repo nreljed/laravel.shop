@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Role;
+use Nreljed\DashboardCore\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

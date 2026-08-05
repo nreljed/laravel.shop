@@ -19,7 +19,7 @@ class DeployCheckCoreVersionTest extends TestCase
     {
         parent::setUp();
         $this->token = 'test-deploy-token-'.Str::random(16);
-        Config::set('app.deploy_token', $this->token);
+        Config::set('deploy.token', $this->token);
     }
 
     public function test_check_reports_core_commit_when_recorded(): void
@@ -42,7 +42,8 @@ class DeployCheckCoreVersionTest extends TestCase
             $response->assertOk();
             $response->assertJsonPath('status', 'current');
             $response->assertJsonPath('tag', 'v0.1.34');
-            $response->assertJsonPath('core', '50e9c0fabcd1234567890');
+            $response->assertJsonPath('core.sha', '50e9c0fabcd1234567890');
+            $response->assertJsonPath('core.name', 'dashboard-core');
         } finally {
             File::delete($versionFile);
             File::delete(storage_path('app/core.sha'));
@@ -69,7 +70,7 @@ class DeployCheckCoreVersionTest extends TestCase
 
             $response->assertOk();
             $response->assertJsonPath('status', 'current');
-            $response->assertJsonPath('core', null);
+            $response->assertJsonPath('core.sha', null);
         } finally {
             File::delete($versionFile);
             File::delete($lockFile);

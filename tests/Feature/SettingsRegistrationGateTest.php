@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Services\SettingsService;
+use Nreljed\DashboardCore\Services\SettingsService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;

@@ -22,6 +22,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Inertia Request Middleware
+    |--------------------------------------------------------------------------
+    |
+    | Shared props handler appended to the web group. The shop overrides the
+    | core handler to add cart / wishlist / currency shared props.
+    |
+    */
+
+    'inertia_middleware' => App\Http\Middleware\HandleInertiaRequests::class,
+
+    /*
+    |--------------------------------------------------------------------------
     | Feature Service Providers
     |--------------------------------------------------------------------------
     |

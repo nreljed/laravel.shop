@@ -1,19 +1,10 @@
 <?php
 
-use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Nreljed\DashboardCore\Http\Middleware\AdminMiddleware;
-use Nreljed\DashboardCore\Http\Middleware\CheckIpAccess;
-use Nreljed\DashboardCore\Http\Middleware\CheckMaintenanceMode;
-use Nreljed\DashboardCore\Http\Middleware\CheckPermission;
-use Nreljed\DashboardCore\Http\Middleware\CheckRole;
-use Nreljed\DashboardCore\Http\Middleware\ConfigureSessionLifetime;
-use Nreljed\DashboardCore\Http\Middleware\ContentSecurityPolicy;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -25,27 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [
-            ContentSecurityPolicy::class,
-            HandleInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
-        ]);
-
-        $middleware->validateCsrfTokens(except: [
-            'profile/avatar',
-            'deploy/*',
-            'api/notifications/*',
-            'csp-report',
-        ]);
-
-        $middleware->alias([
-            'admin' => AdminMiddleware::class,
-            'role' => CheckRole::class,
-            'permission' => CheckPermission::class,
-            'maintenance' => CheckMaintenanceMode::class,
-            'session-lifetime' => ConfigureSessionLifetime::class,
-            'ip-access' => CheckIpAccess::class,
-        ]);
+        // Core middleware (aliases, web group appends, CSRF exceptions) is
+        // wired by Nreljed\DashboardCore\DashboardCoreServiceProvider.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -54,7 +26,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->renderable(function (HttpException $e, Request $request) {
             if ($request->inertia()) {
-                return Inertia::render('Error', ['status' => $e->getStatusCode()])
+                $retryAfter = (int) ($e->getHeaders()['Retry-After'] ?? 0);
+
+                return Inertia::render('Error', [
+                    'status' => $e->getStatusCode(),
+                    'retryAfter' => $retryAfter > 0 ? $retryAfter : null,
+                ])
                     ->toResponse($request)
                     ->setStatusCode($e->getStatusCode());
             }

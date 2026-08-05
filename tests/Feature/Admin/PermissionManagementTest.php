@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Models\Permission;
-use App\Models\Role;
+use Nreljed\DashboardCore\Models\Permission;
+use Nreljed\DashboardCore\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

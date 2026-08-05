@@ -29,7 +29,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/Components/ui/alert-dialog";
-import { DateTimePicker } from "@/Components/ui/datetime-picker";
+import { DateTimePicker } from "@/Components/shared/datetime-picker";
 import { Separator } from "@/Components/ui/separator";
 import { GalleryUploader } from "@/Components/shared/gallery-uploader";
 import type { GalleryImage } from "@/Components/shared/gallery-uploader";

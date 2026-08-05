@@ -1,6 +1,6 @@
-import { Link, router, usePage, Head } from '@inertiajs/react'
+﻿import { Link, router, usePage, Head } from '@inertiajs/react'
 import { Heart, ShoppingCart, ArrowLeft } from 'lucide-react'
-import StoreLayout from '@/Layouts/StoreLayout'
+import StoreLayout from '@shop/Layouts/StoreLayout'
 import { Button } from '@/Components/ui/button'
 import { Card, CardContent } from '@/Components/ui/card'
 import { WishlistButton } from '@shop/components/WishlistButton'
@@ -75,7 +75,7 @@ export default function WishlistIndex() {
                   <Link href={route('store.show', product.id)}>
                     <p className="text-sm font-medium line-clamp-2 hover:text-primary transition-colors">{product.name}</p>
                   </Link>
-                  <p className="text-sm font-bold mt-1">{product.price.toFixed(2)} €</p>
+                  <p className="text-sm font-bold mt-1">{product.price.toFixed(2)} â‚¬</p>
                   <Button size="sm" className="w-full mt-2" onClick={() => router.visit(route('store.show', product.id))}>
                     <ShoppingCart className="h-3.5 w-3.5 mr-1" /> View Product
                   </Button>
