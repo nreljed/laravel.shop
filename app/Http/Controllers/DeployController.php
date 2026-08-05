@@ -21,6 +21,19 @@ class DeployController extends Controller
         }
     }
 
+    protected function coreCommit(): ?string
+    {
+        $file = storage_path('app/core.sha');
+
+        if (! File::exists($file)) {
+            return null;
+        }
+
+        $sha = trim(File::get($file));
+
+        return $sha !== '' ? $sha : null;
+    }
+
     public function updateEnv(Request $request)
     {
         $this->verifyToken($request);
@@ -293,21 +306,21 @@ class DeployController extends Controller
         $repo = 'nreljed/laravel.shop';
 
         if (File::exists($lockFile) && (time() - File::lastModified($lockFile)) < 600) {
-            return response()->json(['status' => 'locked']);
+            return response()->json(['status' => 'locked', 'core' => $this->coreCommit()]);
         }
         File::put($lockFile, getmypid());
 
         try {
             $releases = $this->githubApi("https://api.github.com/repos/$repo/releases?per_page=1", $githubToken);
             if (! $releases || ! isset($releases[0]['tag_name'])) {
-                return response()->json(['status' => 'no-release']);
+                return response()->json(['status' => 'no-release', 'core' => $this->coreCommit()]);
             }
 
             $latestTag = $releases[0]['tag_name'];
             $currentTag = File::exists($versionFile) ? trim(File::get($versionFile)) : '';
 
             if ($latestTag === $currentTag) {
-                return response()->json(['status' => 'current', 'tag' => $latestTag]);
+                return response()->json(['status' => 'current', 'tag' => $latestTag, 'core' => $this->coreCommit()]);
             }
 
             $assetUrl = '';
@@ -438,7 +451,7 @@ class DeployController extends Controller
 
             Cache::forget('system_health_latest_version');
 
-            return response()->json(['status' => 'deployed', 'tag' => $latestTag, 'output' => $output]);
+            return response()->json(['status' => 'deployed', 'tag' => $latestTag, 'core' => $this->coreCommit(), 'output' => $output]);
         } finally {
             File::delete($lockFile);
         }

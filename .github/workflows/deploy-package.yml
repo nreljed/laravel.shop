@@ -44,6 +44,13 @@ jobs:
           $sha = git -C "..\..\laravel\app" rev-parse HEAD
           echo "sha=$sha" >> $env:GITHUB_OUTPUT
 
+      - name: Record dashboard-core commit
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "storage\app" -Force | Out-Null
+          Set-Content -Path "storage\app\core.sha" -Value "${{ steps.core.outputs.sha }}" -NoNewline -Encoding ASCII
+          Write-Output "core.sha recorded: ${{ steps.core.outputs.sha }}"
+
       - name: Determine version
         id: version
         shell: pwsh

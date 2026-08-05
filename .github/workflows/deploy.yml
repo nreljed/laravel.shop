@@ -74,30 +74,71 @@ jobs:
           VER="v${{ steps.version.outputs.version }}"
           echo "Release: $VER"
           CHECK_URL="https://shop.laravel.tunispromo.tn/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}"
+          UPLOAD_URL="https://shop.laravel.tunispromo.tn/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}"
 
           # Prefer /deploy/check: the server pulls deploy.zip from the GitHub API itself,
           # avoiding a large upload through the edge. Cloudflare cuts connections ~100s,
           # so the server may finish processing AFTER the response is lost — poll for it.
+          # During extraction the server returns HTML/500 transiently — that means "still busy".
           poll_check() {
-            for i in 1 2 3 4 5 6; do
+            for i in 1 2 3 4 5 6 7 8; do
               RESP=$(curl -s -X POST --max-time 120 "$CHECK_URL" 2>&1)
               FIRST=$(echo "$RESP" | head -1)
-              if echo "$FIRST" | grep -q '"status":"deployed"'; then
-                echo "Deployed via /deploy/check (GitHub API)"
-                echo "$FIRST"
-                return 0
-              fi
-              if echo "$FIRST" | grep -q '"status":"current"'; then
-                echo "Already on $VER via /deploy/check"
-                echo "$FIRST"
-                return 0
-              fi
-              if echo "$FIRST" | grep -q '"status":"locked"'; then
-                echo "[poll $i/6] server still working (locked): $(echo "$FIRST" | cut -c1-80)"
-              else
-                echo "[poll $i/6] check not usable: $(echo "$FIRST" | cut -c1-120)"
-              fi
-              [ "$i" -lt 6 ] && sleep 45
+              case "$FIRST" in
+                *'"status":"deployed"'*)
+                  echo "Deployed via /deploy/check (GitHub API)"
+                  echo "$FIRST"
+                  return 0
+                  ;;
+                *'"status":"current"'*)
+                  if echo "$FIRST" | grep -q "\"tag\":\"$VER\""; then
+                    echo "Confirmed on $VER via /deploy/check"
+                    echo "$FIRST"
+                    return 0
+                  fi
+                  CURRENT_TAG=$(echo "$FIRST" | sed 's/.*"tag":"\([^"]*\)".*/\1/')
+                  echo "[poll $i/8] server on ${CURRENT_TAG:-?}, waiting for $VER"
+                  ;;
+                *'"status":"locked"'*)
+                  echo "[poll $i/8] server still working (locked)"
+                  ;;
+                *)
+                  echo "[poll $i/8] server busy (response not JSON yet)"
+                  ;;
+              esac
+              [ "$i" -lt 8 ] && sleep 45
+            done
+            return 1
+          }
+
+          # Upload response can be lost mid-extract; confirm the deploy by polling /deploy/check
+          # until it reports current/deployed with the expected tag.
+          confirm_deployed() {
+            for i in 1 2 3 4 5 6 7 8; do
+              RESP=$(curl -s --max-time 120 "$CHECK_URL" 2>&1)
+              FIRST=$(echo "$RESP" | head -1)
+              case "$FIRST" in
+                *'"status":"deployed"'*)
+                  echo "Confirmed deployed via /deploy/check"
+                  echo "$FIRST"
+                  return 0
+                  ;;
+                *'"status":"current"'*)
+                  if echo "$FIRST" | grep -q "\"tag\":\"$VER\""; then
+                    echo "Confirmed on $VER via /deploy/check"
+                    echo "$FIRST"
+                    return 0
+                  fi
+                  echo "[confirm $i/8] tag not yet $VER, retrying"
+                  ;;
+                *'"status":"locked"'*)
+                  echo "[confirm $i/8] server still working (locked), retrying"
+                  ;;
+                *)
+                  echo "[confirm $i/8] server busy, retrying"
+                  ;;
+              esac
+              [ "$i" -lt 8 ] && sleep 45
             done
             return 1
           }
@@ -105,23 +146,29 @@ jobs:
           if poll_check; then
             echo "push-deploy OK (check path)"
           else
-            echo "check path exhausted, falling back to direct upload"
+            echo "check path did not confirm $VER, uploading deploy.zip directly"
             UPLOAD_RESP=$(curl -s -w "\n%{http_code}" --max-time 300 \
               -F "file=@deploy.zip;filename=deploy.zip" \
-              "https://shop.laravel.tunispromo.tn/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}" 2>&1)
+              "$UPLOAD_URL" 2>&1)
             HTTP_CODE=$(echo "$UPLOAD_RESP" | tail -1)
             BODY=$(echo "$UPLOAD_RESP" | sed '$d')
+            echo "Upload HTTP $HTTP_CODE"
             if [ "$HTTP_CODE" = "200" ] && echo "$BODY" | head -1 | grep -q '"status":"deployed"'; then
               echo "Deployed via /deploy/upload"
               echo "$BODY" | head -1
               echo "push-deploy OK (upload path)"
             else
-              echo "Upload failed (HTTP $HTTP_CODE)"
-              echo "Deploy failed. Release created at:"
-              echo "https://github.com/nreljed/laravel.shop/releases/tag/$VER"
-              echo "Manual deploy: download deploy.zip from release, upload to server, extract, then visit:"
-              echo "https://shop.laravel.tunispromo.tn/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
-              exit 1
+              # Response lost or transient HTML mid-extract; the deploy may still be in flight.
+              echo "Upload response not clean (HTTP $HTTP_CODE), confirming via /deploy/check..."
+              if confirm_deployed; then
+                echo "push-deploy OK (confirmed after upload)"
+              else
+                echo "Deploy not confirmed after upload. Release created at:"
+                echo "https://github.com/nreljed/laravel.shop/releases/tag/$VER"
+                echo "Manual deploy: download deploy.zip from release, upload to server, extract, then visit:"
+                echo "https://shop.laravel.tunispromo.tn/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
+                exit 1
+              fi
             fi
           fi
 
