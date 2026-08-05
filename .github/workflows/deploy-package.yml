@@ -154,6 +154,7 @@ jobs:
           FILESYSTEM_DISK=local
           QUEUE_CONNECTION=sync
           CACHE_STORE=file
+          GITHUB_REPO=nreljed/laravel.shop
           DEPLOY_TOKEN=${{ secrets.DEPLOY_TOKEN }}
           GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
           '@ | Set-Content -Path .env -Encoding UTF8
@@ -173,7 +174,7 @@ jobs:
           $items = @(
             "artisan", "composer.json", "composer.lock", "package.json", "package-lock.json",
             "app", "bootstrap", "config", "database", "public", "resources", "routes",
-            "storage", "vendor", ".env", "deploy.php", ".htaccess"
+            "storage", "vendor", "deploy.php", ".htaccess"
           )
           $fullPaths = $items | ForEach-Object { Join-Path $src $_ }
           Compress-Archive -Path $fullPaths -DestinationPath $zip -CompressionLevel Optimal
