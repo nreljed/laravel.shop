@@ -69,7 +69,11 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
-        "sync:core": "composer update nreljed/dashboard-core --with-all-dependencies",
+        "core:sync": [
+            "php scripts/core-sync.php",
+            "composer update nreljed/dashboard-core --with-all-dependencies"
+        ],
+        "core:check": "php scripts/core-sync.php --check",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
