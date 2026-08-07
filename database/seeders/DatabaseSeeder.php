@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Nreljed\DashboardCore\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Nreljed\DashboardCore\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {

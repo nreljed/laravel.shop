@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Modules\Shop;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 use Nreljed\DashboardCore\Models\Permission;
 use Nreljed\DashboardCore\Models\Role;
 use Nreljed\DashboardCore\Services\FeatureRegistry;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Gate;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

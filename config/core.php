@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Shop\Models\Product;
 use App\Shop\ShopServiceProvider;
 use Nreljed\DashboardCore\Blog\BlogServiceProvider;
@@ -30,7 +31,7 @@ return [
     |
     */
 
-    'inertia_middleware' => App\Http\Middleware\HandleInertiaRequests::class,
+    'inertia_middleware' => HandleInertiaRequests::class,
 
     /*
     |--------------------------------------------------------------------------

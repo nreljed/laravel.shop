@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Nreljed\DashboardCore\Models\NotificationPreference;
-use Nreljed\DashboardCore\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Nreljed\DashboardCore\Models\NotificationPreference;
+use Nreljed\DashboardCore\Models\Role;
 use Tests\TestCase;
 
 class DataIsolationTest extends TestCase

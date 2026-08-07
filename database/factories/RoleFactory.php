@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use Nreljed\DashboardCore\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Nreljed\DashboardCore\Models\Role;
 
 class RoleFactory extends Factory
 {

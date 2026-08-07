@@ -2,12 +2,12 @@
 
 namespace Tests;
 
+use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Nreljed\DashboardCore\Models\Permission;
 use Nreljed\DashboardCore\Models\Role;
-use App\Models\User;
 use Nreljed\DashboardCore\Services\FeatureRegistry;
 use Nreljed\DashboardCore\Services\PermissionCacheService;
-use Database\Seeders\RolesAndPermissionsSeeder;
 
 trait BootsFeatures
 {

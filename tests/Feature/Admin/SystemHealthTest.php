@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Admin;
 
-use Nreljed\DashboardCore\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Nreljed\DashboardCore\Models\Role;
 use Tests\TestCase;
 
 class SystemHealthTest extends TestCase

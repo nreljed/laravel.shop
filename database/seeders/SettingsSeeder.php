@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Nreljed\DashboardCore\Models\Setting;
 use Illuminate\Database\Seeder;
+use Nreljed\DashboardCore\Models\Setting;
 
 class SettingsSeeder extends Seeder
 {

@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use Nreljed\DashboardCore\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Nreljed\DashboardCore\Models\Role;
 use Tests\TestCase;
 
 class AdminUserManagementTest extends TestCase
