@@ -12,11 +12,14 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -26,7 +29,7 @@ jobs:
           tools: composer:v2
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: "npm"
@@ -40,13 +43,13 @@ jobs:
           echo "sha=$(git -C ../../laravel/app rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: vendor
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}-${{ steps.core.outputs.sha }}
 
       - name: Cache npm dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -60,6 +63,11 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction --no-scripts
 
+      - name: Composer audit (security advisories)
+        # Fails the build when composer.lock contains packages with known
+        # security advisories (Packagist Security Advisories database).
+        run: composer audit --no-interaction
+
       - name: Foundation check (core boundary)
         run: php ../../laravel/app/scripts/foundation-check.php "$(pwd)"
 
@@ -70,8 +78,12 @@ jobs:
         run: php artisan migrate --force
 
       - name: Install npm dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci --legacy-peer-deps
+
+      - name: npm audit (security advisories)
+        # Fails the build when package-lock.json contains packages with known
+        # vulnerabilities at or above the "high" severity level.
+        run: npm audit --audit-level=high
 
       - name: ESLint
         if: ${{ !inputs.skip-npm-tests }}
@@ -95,7 +107,7 @@ jobs:
 
       - name: PHP tests
         if: ${{ !inputs.skip-php-tests }}
-        run: php artisan test --compact
+        run: php artisan test --parallel --compact
 
       - name: Laravel Pint
         if: ${{ !inputs.skip-php-tests }}

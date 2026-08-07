@@ -4,6 +4,13 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-shop-production
+  cancel-in-progress: false
+
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
@@ -20,7 +27,7 @@ jobs:
     needs: package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -41,7 +48,7 @@ jobs:
           git-cliff -o CHANGELOG.md 2>/dev/null || true
 
       - name: Download deploy.zip artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: deploy-package
 
@@ -64,7 +71,7 @@ jobs:
         run: echo "version=${{ needs.package.outputs.version }}" >> $GITHUB_OUTPUT
 
       - name: Download deploy.zip artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: deploy-package
 
@@ -73,8 +80,8 @@ jobs:
         run: |
           VER="v${{ steps.version.outputs.version }}"
           echo "Release: $VER"
-          CHECK_URL="https://shop.laravel.tunispromo.tn/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}"
-          UPLOAD_URL="https://shop.laravel.tunispromo.tn/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}"
+          CHECK_URL="${{ vars.APP_URL }}/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}"
+          UPLOAD_URL="${{ vars.APP_URL }}/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}"
 
           # Prefer /deploy/check: the server pulls deploy.zip from the GitHub API itself,
           # avoiding a large upload through the edge. Cloudflare cuts connections ~100s,
@@ -164,9 +171,9 @@ jobs:
                 echo "push-deploy OK (confirmed after upload)"
               else
                 echo "Deploy not confirmed after upload. Release created at:"
-                echo "https://github.com/nreljed/laravel.shop/releases/tag/$VER"
+                echo "https://github.com/${{ github.repository }}/releases/tag/$VER"
                 echo "Manual deploy: download deploy.zip from release, upload to server, extract, then visit:"
-                echo "https://shop.laravel.tunispromo.tn/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
+                echo "${{ vars.APP_URL }}/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
                 exit 1
               fi
             fi
@@ -196,13 +203,13 @@ jobs:
             $resp.Close()
             Write-Output "---"
             Write-Output "Extract via DirectAdmin File Manager, then visit:"
-            Write-Output "https://shop.laravel.tunispromo.tn/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
+            Write-Output "${{ vars.APP_URL }}/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
           } catch {
             Write-Output "FTP upload failed: $_"
             $VER = "${{ steps.version.outputs.version }}"
             Write-Output "Manual steps:"
-            Write-Output "1. Download from: https://github.com/nreljed/laravel.shop/releases/download/v$VER/deploy.zip"
+            Write-Output "1. Download from: https://github.com/${{ github.repository }}/releases/download/v$VER/deploy.zip"
             Write-Output "2. Upload via DirectAdmin File Manager to public_html/"
             Write-Output "3. Extract, then visit:"
-            Write-Output "   https://shop.laravel.tunispromo.tn/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
+            Write-Output "   ${{ vars.APP_URL }}/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
           }
