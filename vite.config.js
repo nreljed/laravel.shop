@@ -17,7 +17,7 @@ export default defineConfig({
             ],
         refresh: [
             ...(typeof globalThis !== 'undefined' && globalThis.process?.env?.APP_ENV !== 'production'
-                ? [{ server: false, paths: ['app/Shop/Resources/js/**', '../../laravel/app/packages/dashboard-core/resources/js/**'] }]
+                ? [{ server: false, paths: ['app/Shop/Resources/js/**', 'packages/dashboard-core/resources/js/**'] }]
                 : []),
         ],
         }),
@@ -28,9 +28,9 @@ export default defineConfig({
     resolve: {
         dedupe: packageDedupes,
         alias: {
-            '@dashboard': path.resolve(__dirname, '../../laravel/app/packages/dashboard-core/resources/js'),
-            '@dashboard-blog': path.resolve(__dirname, '../../laravel/app/packages/dashboard-core/src/Blog/Resources/js'),
-            '@': path.resolve(__dirname, '../../laravel/app/packages/dashboard-core/resources/js'),
+            '@dashboard': path.resolve(__dirname, 'packages/dashboard-core/resources/js'),
+            '@dashboard-blog': path.resolve(__dirname, 'packages/dashboard-core/src/Blog/Resources/js'),
+            '@': path.resolve(__dirname, 'packages/dashboard-core/resources/js'),
             '@shop': path.resolve(__dirname, './app/Shop/Resources/js'),
         },
     },

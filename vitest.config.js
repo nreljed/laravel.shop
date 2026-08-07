@@ -6,17 +6,12 @@ import { packageDedupes } from "./vite.dedupe.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-    server: {
-        fs: {
-            allow: [path.resolve(__dirname, "../../laravel/app")],
-        },
-    },
     test: {
         environment: "jsdom",
         globals: true,
         include: [
             "resources/js/**/*.test.{ts,tsx}",
-            "../../laravel/app/packages/dashboard-core/resources/js/**/*.test.{ts,tsx}",
+            "packages/dashboard-core/resources/js/**/*.test.{ts,tsx}",
         ],
         setupFiles: ["./resources/js/test-setup.ts"],
         coverage: {
@@ -24,22 +19,22 @@ export default defineConfig({
             reporter: ["text", "lcov"],
             include: [
                 "resources/js/**/*.{ts,tsx}",
-                "../../laravel/app/packages/dashboard-core/resources/js/**/*.{ts,tsx}",
+                "packages/dashboard-core/resources/js/**/*.{ts,tsx}",
             ],
             exclude: [
                 "resources/js/**/__tests__/**",
                 "resources/js/**/*.test.*",
                 "resources/js/Components/ui/**",
-                "../../laravel/app/packages/dashboard-core/resources/js/**/__tests__/**",
-                "../../laravel/app/packages/dashboard-core/resources/js/**/*.test.*",
-                "../../laravel/app/packages/dashboard-core/resources/js/Components/ui/**",
+                "packages/dashboard-core/resources/js/**/__tests__/**",
+                "packages/dashboard-core/resources/js/**/*.test.*",
+                "packages/dashboard-core/resources/js/Components/ui/**",
             ],
         },
     },
     resolve: {
         dedupe: packageDedupes,
         alias: {
-            "@": path.resolve(__dirname, "../../laravel/app/packages/dashboard-core/resources/js"),
+            "@": path.resolve(__dirname, "packages/dashboard-core/resources/js"),
         },
     },
 });

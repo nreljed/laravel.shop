@@ -18,9 +18,9 @@
             "./node_modules/@types"
         ],
         "paths": {
-            "@dashboard/*": ["../../laravel/app/packages/dashboard-core/resources/js/*"],
-            "@dashboard-blog/*": ["../../laravel/app/packages/dashboard-core/src/Blog/Resources/js/*"],
-            "@/*": ["../../laravel/app/packages/dashboard-core/resources/js/*"],
+            "@dashboard/*": ["./packages/dashboard-core/resources/js/*"],
+            "@dashboard-blog/*": ["./packages/dashboard-core/src/Blog/Resources/js/*"],
+            "@/*": ["./packages/dashboard-core/resources/js/*"],
             "@shop": ["./app/Shop/Resources/js"],
             "@shop/*": ["./app/Shop/Resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"],
@@ -37,8 +37,11 @@
         "resources/js/**/*.ts",
         "resources/js/**/*.tsx",
         "resources/js/**/*.d.ts",
-        "../../laravel/app/packages/dashboard-core/resources/js/**/*.ts",
-        "../../laravel/app/packages/dashboard-core/resources/js/**/*.tsx",
-        "../../laravel/app/packages/dashboard-core/resources/js/**/*.d.ts"
+        "packages/dashboard-core/resources/js/**/*.ts",
+        "packages/dashboard-core/resources/js/**/*.tsx",
+        "packages/dashboard-core/resources/js/**/*.d.ts",
+        "packages/dashboard-core/src/**/Resources/js/**/*.ts",
+        "packages/dashboard-core/src/**/Resources/js/**/*.tsx",
+        "packages/dashboard-core/src/**/Resources/js/**/*.d.ts"
     ]
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "72ac69033c42cad14a9c648807d11bd5",
+    "content-hash": "913b95642d65f7ae54f7c4bb4590e8d8",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -3494,7 +3494,7 @@
             "version": "0.1.0",
             "dist": {
                 "type": "path",
-                "url": "../../laravel/app/packages/dashboard-core",
+                "url": "packages/dashboard-core",
                 "reference": "3694392c14164f7c68da93ce25bfd84cc310ed3a"
             },
             "require": {

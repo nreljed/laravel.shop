@@ -38,17 +38,6 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Checkout dashboard-core package
-        id: core
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path "..\..\laravel" -Force | Out-Null
-          git clone --branch main "https://x-access-token:${{ secrets.PACKAGE_TOKEN }}@github.com/nreljed/laravel.git" "..\..\laravel\app"
-          $sha = git -C "..\..\laravel\app" rev-parse HEAD
-          $version = (git -C "..\..\laravel\app" describe --tags --abbrev=0 --always 2>$null).Trim()
-          echo "sha=$sha" >> $env:GITHUB_OUTPUT
-          echo "version=$version" >> $env:GITHUB_OUTPUT
-
       - name: Determine version
         id: version
         shell: pwsh
@@ -108,7 +97,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}-${{ steps.core.outputs.sha }}
+          key: composer-${{ hashFiles('composer.lock') }}-${{ hashFiles('packages/dashboard-core/.core-sha') }}
 
       - name: Install Composer dependencies (no-dev)
         # --no-dev keeps dev-only packages (pint, pail, telescope...) out of the
@@ -179,9 +168,9 @@ jobs:
       - name: Record dashboard-core version and commit
         shell: pwsh
         run: |
-          $coreMeta = Get-Content "..\..\laravel\app\packages\dashboard-core\composer.json" -Raw | ConvertFrom-Json
+          $coreMeta = Get-Content "packages\dashboard-core\composer.json" -Raw | ConvertFrom-Json
           $coreVersion = $coreMeta.version
-          $coreSha = (git -C "..\..\laravel\app" log -1 --format="%H" -- packages/dashboard-core).Trim()
+          $coreSha = (Get-Content "packages\dashboard-core\.core-sha" -Raw).Trim()
           New-Item -ItemType Directory -Path "storage\app" -Force | Out-Null
           Set-Content -Path "storage\app\core.sha" -Value $coreSha -NoNewline -Encoding ASCII
           @{ name = "dashboard-core"; version = $coreVersion; sha = $coreSha } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
