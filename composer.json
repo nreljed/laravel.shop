@@ -7,16 +7,13 @@
     "license": "MIT",
     "repositories": [
         {
-            "type": "path",
-            "url": "packages/dashboard-core",
-            "options": {
-                "symlink": false
-            }
+            "type": "vcs",
+            "url": "https://github.com/nreljed/dashboard-core.git"
         }
     ],
     "require": {
         "php": "^8.4",
-        "nreljed/dashboard-core": "@dev",
+        "nreljed/dashboard-core": "^0.1",
         "inertiajs/inertia-laravel": "^3.1",
         "intervention/image-laravel": "^4.0",
         "laravel/ai": "^0.10",
@@ -69,11 +66,6 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
-        "core:sync": [
-            "php scripts/core-sync.php",
-            "composer update nreljed/dashboard-core --with-all-dependencies"
-        ],
-        "core:check": "php scripts/core-sync.php --check",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

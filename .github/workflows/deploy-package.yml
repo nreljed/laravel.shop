@@ -97,12 +97,15 @@ jobs:
         uses: actions/cache@v6
         with:
           path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}-${{ hashFiles('packages/dashboard-core/.core-sha') }}
+          key: composer-${{ hashFiles('composer.lock') }}
 
       - name: Install Composer dependencies (no-dev)
         # --no-dev keeps dev-only packages (pint, pail, telescope...) out of the
         # deploy.zip. A dev-built vendor was the source of boot failures on the
-        # server (dev-only providers referenced by the autoloader).
+        # server (dev-only providers referenced by the autoloader). dashboard-core
+        # is a private vcs repo; GH_TOKEN authenticates the clone.
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --no-dev --prefer-dist --no-interaction --no-scripts
 
       - name: Package Discover
@@ -127,6 +130,8 @@ jobs:
         run: npm run build
 
       - name: Optimize autoloader (no-dev)
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --no-dev --optimize-autoloader --no-scripts
 
       - name: Overwrite .env with production settings
@@ -165,16 +170,14 @@ jobs:
       - name: Copy deploy script
         run: Copy-Item -Path scripts/deploy-cron.php -Destination deploy.php
 
-      - name: Record dashboard-core version and commit
+      - name: Record dashboard-core version
         shell: pwsh
         run: |
-          $coreMeta = Get-Content "packages\dashboard-core\composer.json" -Raw | ConvertFrom-Json
+          $coreMeta = Get-Content "vendor\nreljed\dashboard-core\composer.json" -Raw | ConvertFrom-Json
           $coreVersion = $coreMeta.version
-          $coreSha = (Get-Content "packages\dashboard-core\.core-sha" -Raw).Trim()
           New-Item -ItemType Directory -Path "storage\app" -Force | Out-Null
-          Set-Content -Path "storage\app\core.sha" -Value $coreSha -NoNewline -Encoding ASCII
-          @{ name = "dashboard-core"; version = $coreVersion; sha = $coreSha } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
-          Write-Output "core.json recorded: dashboard-core $coreVersion @ $coreSha"
+          @{ name = "dashboard-core"; version = $coreVersion; sha = $null } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
+          Write-Output "core.json recorded: dashboard-core $coreVersion"
 
       - name: Create deploy.zip
         shell: pwsh

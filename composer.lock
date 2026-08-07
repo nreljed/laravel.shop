@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cd872437e34804f1c6119fc7ae8b1e9",
+    "content-hash": "0589877f0f26cf0b1c253e47e9f04ab0",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.391.0",
+            "version": "3.391.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7dbeb8684ae8c1388f0d5f26e803259299ae59eb"
+                "reference": "90920ce5518aa864e04da0224bb0ba0ee9e31d7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7dbeb8684ae8c1388f0d5f26e803259299ae59eb",
-                "reference": "7dbeb8684ae8c1388f0d5f26e803259299ae59eb",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/90920ce5518aa864e04da0224bb0ba0ee9e31d7f",
+                "reference": "90920ce5518aa864e04da0224bb0ba0ee9e31d7f",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.391.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.391.1"
             },
-            "time": "2026-08-06T18:26:00+00:00"
+            "time": "2026-08-07T20:18:18+00:00"
         },
         {
             "name": "barryvdh/laravel-dompdf",
@@ -3491,11 +3491,17 @@
         },
         {
             "name": "nreljed/dashboard-core",
-            "version": "0.1.0",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:nreljed/dashboard-core.git",
+                "reference": "13dafa70fe1a94a5e870c67571759940f71fcc94"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/dashboard-core",
-                "reference": "3694392c14164f7c68da93ce25bfd84cc310ed3a"
+                "type": "zip",
+                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/13dafa70fe1a94a5e870c67571759940f71fcc94",
+                "reference": "13dafa70fe1a94a5e870c67571759940f71fcc94",
+                "shasum": ""
             },
             "require": {
                 "inertiajs/inertia-laravel": "^3.0",
@@ -3539,10 +3545,11 @@
                 }
             ],
             "description": "Shared dashboard core for the Cost Breaker 360 product family (master app, Shop, Booking).",
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.1",
+                "issues": "https://github.com/nreljed/dashboard-core/issues"
+            },
+            "time": "2026-08-07T21:54:01+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -10973,9 +10980,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "nreljed/dashboard-core": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

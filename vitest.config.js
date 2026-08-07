@@ -11,7 +11,7 @@ export default defineConfig({
         globals: true,
         include: [
             "resources/js/**/*.test.{ts,tsx}",
-            "packages/dashboard-core/resources/js/**/*.test.{ts,tsx}",
+            "vendor/nreljed/dashboard-core/resources/js/**/*.test.{ts,tsx}",
         ],
         setupFiles: ["./resources/js/test-setup.ts"],
         coverage: {
@@ -19,22 +19,22 @@ export default defineConfig({
             reporter: ["text", "lcov"],
             include: [
                 "resources/js/**/*.{ts,tsx}",
-                "packages/dashboard-core/resources/js/**/*.{ts,tsx}",
+                "vendor/nreljed/dashboard-core/resources/js/**/*.{ts,tsx}",
             ],
             exclude: [
                 "resources/js/**/__tests__/**",
                 "resources/js/**/*.test.*",
                 "resources/js/Components/ui/**",
-                "packages/dashboard-core/resources/js/**/__tests__/**",
-                "packages/dashboard-core/resources/js/**/*.test.*",
-                "packages/dashboard-core/resources/js/Components/ui/**",
+                "vendor/nreljed/dashboard-core/resources/js/**/__tests__/**",
+                "vendor/nreljed/dashboard-core/resources/js/**/*.test.*",
+                "vendor/nreljed/dashboard-core/resources/js/Components/ui/**",
             ],
         },
     },
     resolve: {
         dedupe: packageDedupes,
         alias: {
-            "@": path.resolve(__dirname, "packages/dashboard-core/resources/js"),
+            "@": path.resolve(__dirname, "vendor/nreljed/dashboard-core/resources/js"),
         },
     },
 });

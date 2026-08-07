@@ -12,7 +12,7 @@
             <directory>tests/Feature</directory>
         </testsuite>
         <testsuite name="Core">
-            <directory>packages/dashboard-core/tests</directory>
+            <directory>vendor/nreljed/dashboard-core/tests</directory>
         </testsuite>
     </testsuites>
     <source>

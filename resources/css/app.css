@@ -1,11 +1,11 @@
 @import "tailwindcss" source(none);
 @source "../";
 @source "../../app/Shop/Resources/js/";
-@source "../../packages/dashboard-core/resources/js/";
-@source "../../packages/dashboard-core/src/Blog/Resources/js/";
+@source "../../vendor/nreljed/dashboard-core/resources/js/";
+@source "../../vendor/nreljed/dashboard-core/src/Blog/Resources/js/";
 
 @import "tw-animate-css";
-@import "../../packages/dashboard-core/resources/css/core.css";
+@import "../../vendor/nreljed/dashboard-core/resources/css/core.css";
 
 /* Shop-specific tokens — everything else (colors, sidebar, link, cell fills,
    map markers, radii, font, prose/editor/code-block styling) lives in
