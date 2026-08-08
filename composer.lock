@@ -3491,16 +3491,16 @@
         },
         {
             "name": "nreljed/dashboard-core",
-            "version": "0.1.2",
+            "version": "0.1.4",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/dashboard-core.git",
-                "reference": "7ba096111f874da9836a3e72f4ac4669c013b99b"
+                "reference": "b5403b14b1f2c2c4b8ee9c0ae1bbd8690900fe01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/7ba096111f874da9836a3e72f4ac4669c013b99b",
-                "reference": "7ba096111f874da9836a3e72f4ac4669c013b99b",
+                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/b5403b14b1f2c2c4b8ee9c0ae1bbd8690900fe01",
+                "reference": "b5403b14b1f2c2c4b8ee9c0ae1bbd8690900fe01",
                 "shasum": ""
             },
             "require": {
@@ -3546,10 +3546,10 @@
             ],
             "description": "Shared dashboard core for the Cost Breaker 360 product family (master app, Shop, Booking).",
             "support": {
-                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.2",
+                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.4",
                 "issues": "https://github.com/nreljed/dashboard-core/issues"
             },
-            "time": "2026-08-07T23:07:05+00:00"
+            "time": "2026-08-08T01:43:14+00:00"
         },
         {
             "name": "nunomaduro/termwind",
