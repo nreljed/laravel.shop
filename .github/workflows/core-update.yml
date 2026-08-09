@@ -74,8 +74,8 @@ jobs:
             --title "chore: update dashboard-core to v${{ steps.version.outputs.version }}" \
             --body "Automated update of \`nreljed/dashboard-core\` (scheduled \`core-update.yml\`).
 
-- Resolved version: v${{ steps.version.outputs.version }}
-- Only \`composer.lock\` changed; \`public/build\` is gitignored and rebuilt by CI.
+            - Resolved version: v${{ steps.version.outputs.version }}
+            - Only \`composer.lock\` changed; \`public/build\` is gitignored and rebuilt by CI.
 
-After merge, push to master triggers \`deploy.yml\` (build + release + deploy).
-"
+            After merge, push to master triggers \`deploy.yml\` (build + release + deploy).
+            "
