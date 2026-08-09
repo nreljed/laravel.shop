@@ -23,6 +23,7 @@
     "allowedHosts": ["*"]
   },
   "capabilities": ["core", "network", "storage", "testing"],
+  "imageResponses": "omit",
   "timeouts": {
     "action": 10000,
     "navigation": 30000,

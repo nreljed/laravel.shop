@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('output', 'profiles', 'npx', 'all')]
+    [ValidateSet('output', 'pngs', 'profiles', 'npx', 'all')]
     [string]$Target = 'all'
 )
 
@@ -9,6 +9,15 @@ switch ($Target) {
         if (Test-Path $dir) {
             Get-ChildItem $dir -Exclude '.gitkeep' | Remove-Item -Recurse -Force
             Write-Host "Cleaned Playwright output files"
+        }
+    }
+    'pngs' {
+        $dirs = @("$PSScriptRoot\..\storage\debug\playwright-output", "$env:TEMP\opencode\playwright\output")
+        foreach ($d in $dirs) {
+            if (Test-Path $d) {
+                Get-ChildItem $d -Filter *.png -File -ErrorAction SilentlyContinue | Remove-Item -Force
+                Write-Host "Removed PNG screenshots from $d"
+            }
         }
     }
     'profiles' {
@@ -27,6 +36,7 @@ switch ($Target) {
     }
     'all' {
         & $PSCommandPath -Target 'output'
+        & $PSCommandPath -Target 'pngs'
         & $PSCommandPath -Target 'profiles'
         & $PSCommandPath -Target 'npx'
     }

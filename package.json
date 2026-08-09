@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage",
     "check:ci": "npm run lint && npm run typecheck && npm run format:check && npm run test && php vendor/bin/pint && php artisan test",
     "playwright:clean-output": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/playwright-clean.ps1 -Target output",
+    "playwright:clean-pngs": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/playwright-clean.ps1 -Target pngs",
     "playwright:clean-profiles": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/playwright-clean.ps1 -Target profiles",
     "playwright:clean-npx": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/playwright-clean.ps1 -Target npx",
     "playwright:clean-all": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/playwright-clean.ps1 -Target all",

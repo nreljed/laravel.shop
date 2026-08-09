@@ -297,13 +297,14 @@ gh auth status
 
 ### Playwright MCP (Browser Testing)
 
-Playwright MCP (`@playwright/mcp` v0.0.77 by Microsoft) is installed globally and configured via `playwright-mcp.json` in the project root. The MCP server is registered in `~/.config/opencode/opencode.jsonc`.
+Playwright MCP (`@playwright/mcp` v0.0.78 by Microsoft) is installed globally and configured via `playwright-mcp.json` in the project root. The MCP server is registered in `~/.config/opencode/opencode.jsonc`.
 
 ### How It Works
 - Run headless Chromium via `npx @playwright/mcp --config playwright-mcp.json`
 - Accessible as MCP tools to interact with `http://shop-laravel.local/`
 - Config: headless, isolated profiles (no disk caching), `core+network+storage+testing` caps
 - Output dir: `storage/debug/playwright-output/` (auto-cleaned on size > 50MB via `outputMaxSize`)
+- **`imageResponses: "omit"`** — screenshots/image data are never sent to the client, since the model cannot view images. Do NOT call `browser_take_screenshot`; use `browser_snapshot` (accessibility tree) instead.
 
 ### Bloat Prevention (Why Playwright Eats Disk)
 Playwright's persistent Chrome profiles download massive ML models if not disabled. The config in `playwright-mcp.json` prevents this with:
@@ -315,6 +316,7 @@ Playwright's persistent Chrome profiles download massive ML models if not disabl
 ### Cleanup Commands
 ```bash
 npm run playwright:clean-output     # Clean test output files only
+npm run playwright:clean-pngs       # Remove PNG screenshots from output dirs
 npm run playwright:clean-profiles   # Delete persisted browser profiles (~5GB!)
 npm run playwright:clean-npx        # Clean npx download cache
 npm run playwright:clean-all        # All of the above
