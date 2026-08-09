@@ -553,7 +553,7 @@ export default function ProductsForm() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href={route("dashboard")}>Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href={route("dashboard.index")}>Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
