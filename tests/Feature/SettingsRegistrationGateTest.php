@@ -28,7 +28,7 @@ class SettingsRegistrationGateTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('dashboard.index', absolute: false));
         $this->assertDatabaseHas('users', ['email' => 'new@example.com']);
     }
 
