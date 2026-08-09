@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\Shop\Models\Cart;
 use App\Shop\Models\Wishlist;
-use App\Shop\Services\CurrencyService;
 use Illuminate\Http\Request;
 use Nreljed\DashboardCore\Http\Middleware\HandleInertiaRequests as CoreHandleInertiaRequests;
 
@@ -59,15 +58,5 @@ class HandleInertiaRequests extends CoreHandleInertiaRequests
                 ? Wishlist::where('user_id', $request->user()->id)->pluck('product_id')
                 : collect(),
         ];
-    }
-
-    #[\Override]
-    protected function getActiveCurrencies(): array
-    {
-        try {
-            return app(CurrencyService::class)->getAllForSelector();
-        } catch (\Throwable) {
-            return [['code' => 'EUR', 'name' => 'Euro', 'symbol' => '€', 'is_default' => true]];
-        }
     }
 }
