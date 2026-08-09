@@ -3491,16 +3491,16 @@
         },
         {
             "name": "nreljed/dashboard-core",
-            "version": "0.1.5",
+            "version": "0.1.6",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/dashboard-core.git",
-                "reference": "5a094f31f87bcd2ba811660a365cdfe46b361301"
+                "reference": "c183d45470c140ed490d902cfa5fe7f9fecb4fe0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/5a094f31f87bcd2ba811660a365cdfe46b361301",
-                "reference": "5a094f31f87bcd2ba811660a365cdfe46b361301",
+                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/c183d45470c140ed490d902cfa5fe7f9fecb4fe0",
+                "reference": "c183d45470c140ed490d902cfa5fe7f9fecb4fe0",
                 "shasum": ""
             },
             "require": {
@@ -3544,12 +3544,12 @@
                     "name": "Nreljed"
                 }
             ],
-            "description": "Shared dashboard core for the Cost Breaker 360 product family (master app, Shop, Booking).",
+            "description": "Shared dashboard core platform for Laravel apps (dashboard, admin, auth, blog, AI, deploy).",
             "support": {
-                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.5",
+                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.6",
                 "issues": "https://github.com/nreljed/dashboard-core/issues"
             },
-            "time": "2026-08-08T19:37:45+00:00"
+            "time": "2026-08-09T19:41:54+00:00"
         },
         {
             "name": "nunomaduro/termwind",
