@@ -5,6 +5,8 @@ on:
     # Weekly: Monday 09:00 UTC, matching the master repo's Dependabot cadence.
     - cron: "0 9 * * 1"
   workflow_dispatch:
+  repository_dispatch:
+    types: [core-updated]
 
 permissions:
   contents: write
