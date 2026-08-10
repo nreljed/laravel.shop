@@ -10,6 +10,10 @@ use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class CurrenciesController extends Controller
 {
+    public function __construct(
+        protected CurrencyService $currencyService,
+    ) {}
+
     public function index(CurrencyService $currencyService)
     {
         $this->authorize('viewAny', Currency::class);
@@ -41,6 +45,8 @@ class CurrenciesController extends Controller
 
         Currency::create($validated);
 
+        $this->currencyService->clearCache();
+
         return redirect()->back()->with('status', 'Currency created.');
     }
 
@@ -64,6 +70,8 @@ class CurrenciesController extends Controller
 
         $currency->update($validated);
 
+        $this->currencyService->clearCache();
+
         return redirect()->back()->with('status', 'Currency updated.');
     }
 
@@ -77,6 +85,8 @@ class CurrenciesController extends Controller
 
         $currency->delete();
 
+        $this->currencyService->clearCache();
+
         return redirect()->back()->with('status', 'Currency deleted.');
     }
 
@@ -89,6 +99,8 @@ class CurrenciesController extends Controller
         }
 
         $currency->update(['is_active' => ! $currency->is_active]);
+
+        $this->currencyService->clearCache();
 
         return redirect()->back()->with('status', $currency->is_active ? 'Currency activated.' : 'Currency deactivated.');
     }

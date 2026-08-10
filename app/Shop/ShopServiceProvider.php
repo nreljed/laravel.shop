@@ -4,11 +4,14 @@ namespace App\Shop;
 
 use App\Shop\Models\Order;
 use App\Shop\Models\Product;
+use App\Shop\Services\CurrencyService;
 use App\Shop\Services\ShopService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 use Nreljed\DashboardCore\Concerns\InteractsWithFeatures;
 use Nreljed\DashboardCore\Contracts\FeatureProvider;
+use Nreljed\DashboardCore\Services\SettingsService;
 
 class ShopServiceProvider extends ServiceProvider implements FeatureProvider
 {
@@ -22,6 +25,50 @@ class ShopServiceProvider extends ServiceProvider implements FeatureProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+
+        Inertia::share([
+            'currencies' => function () {
+                return app(CurrencyService::class)->getActiveCurrencies()
+                    ->map(fn ($currency) => [
+                        'code' => $currency->code,
+                        'name' => $currency->name,
+                        'symbol' => $currency->symbol,
+                        'exchange_rate' => $currency->exchange_rate,
+                        'decimal_places' => $currency->decimal_places,
+                        'is_default' => $currency->is_default,
+                    ])
+                    ->values()
+                    ->all();
+            },
+            'selectedCurrency' => function () {
+                $currencyService = app(CurrencyService::class);
+                $code = session('selected_currency');
+
+                if ($code && ($currency = $currencyService->getByCode($code)) && $currency->is_active) {
+                    return $currency->code;
+                }
+
+                if (! $code) {
+                    $active = $currencyService->getActiveCurrencies()->pluck('code')->all();
+                    $detected = $currencyService->detectFromAcceptLanguage(request()->header('Accept-Language'), $active);
+
+                    if ($detected && $detected !== ($currencyService->getDefaultCurrency()?->code ?? 'EUR')) {
+                        session(['selected_currency' => $detected]);
+
+                        return $detected;
+                    }
+                }
+
+                return $currencyService->getDefaultCurrency()?->code ?? 'EUR';
+            },
+            'currencyPosition' => function () {
+                try {
+                    return SettingsService::get('currency_position', 'before');
+                } catch (\Throwable) {
+                    return 'before';
+                }
+            },
+        ]);
     }
 
     public function name(): string

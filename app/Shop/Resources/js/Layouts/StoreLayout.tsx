@@ -1,53 +1,17 @@
 import { PropsWithChildren } from "react";
-import { usePage } from "@inertiajs/react";
-import { SiteHeader } from "@/Components/frontend/SiteHeader";
 import { SiteFooter } from "@/Components/frontend/SiteFooter";
-
-interface CartItemProduct {
-  id: number;
-  name: string;
-  slug: string;
-  thumbnail_url: string | null;
-}
-
-interface CartItemVariation {
-  id: number;
-  image_url: string | null;
-}
-
-interface CartItem {
-  id: number;
-  product_id: number;
-  quantity: number;
-  unit_price: number;
-  variant_label: string | null;
-  product: CartItemProduct | null;
-  variation: CartItemVariation | null;
-}
-
-interface CartData {
-  id: number;
-  items: CartItem[];
-  subtotal: number;
-  total: number;
-  coupon_code: string | null;
-  discount: number;
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-}
+import { StoreHeader } from "@shop/components/StoreHeader";
+import CurrencySwitcher from "@shop/Components/CurrencySwitcher";
 
 export default function StoreLayout({ children }: PropsWithChildren) {
-  const { props } = usePage();
-  const cart = (props.cart as CartData) || { items: [], subtotal: 0, total: 0 };
-  const categories = (props.categories as Category[]) || [];
-
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader variant="store" categories={categories} cart={cart} />
+      <div className="border-b bg-muted/40">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
+          <CurrencySwitcher />
+        </div>
+      </div>
+      <StoreHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
     </div>

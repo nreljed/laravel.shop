@@ -154,7 +154,9 @@ export default function Confirmation({ order }: Props) {
   if (isLoggedIn) {
     return (
       <AuthenticatedLayout header="Order Confirmation">
-        <Head title="Order Confirmation" />
+        <Head title="Order Confirmation">
+          <meta name="robots" content="noindex,nofollow" />
+        </Head>
         {content}
       </AuthenticatedLayout>
     );
@@ -162,7 +164,9 @@ export default function Confirmation({ order }: Props) {
 
   return (
     <>
-      <Head title="Order Confirmation" />
+      <Head title="Order Confirmation">
+        <meta name="robots" content="noindex,nofollow" />
+      </Head>
       <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="mx-auto max-w-2xl">
           {content}

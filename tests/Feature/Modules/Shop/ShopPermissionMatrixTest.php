@@ -94,13 +94,21 @@ class ShopPermissionMatrixTest extends TestCase
         }
     }
 
-    public function test_shop_manager_has_no_shop_permissions(): void
+    public function test_shop_manager_has_view_edit_shop_permissions(): void
     {
         $role = Role::where('slug', 'shop_manager')->first();
         $role->load('permissions');
         $slugs = $role->permissions->pluck('slug')->toArray();
 
-        foreach ($this->shopPermSlugs as $slug) {
+        // Shop manager can view the shop section and edit existing content
+        $allowed = ['shop.view', 'shop.products.edit', 'shop.orders.view', 'shop.orders.edit', 'posts.view', 'posts.edit'];
+        foreach ($allowed as $slug) {
+            $this->assertContains($slug, $slugs, "Shop Manager missing permission: {$slug}");
+        }
+
+        // But NOT manage/delete/refund operations
+        $forbidden = ['shop.products.create', 'shop.products.delete', 'shop.orders.refund', 'shop.tags.manage', 'shop.brands.manage', 'shop.coupons.manage', 'shop.reviews.moderate', 'shop.shipping.manage', 'shop.taxes.manage', 'shop.webhooks.manage', 'shop.currencies.manage'];
+        foreach ($forbidden as $slug) {
             $this->assertNotContains($slug, $slugs, "Shop Manager should NOT have permission: {$slug}");
         }
     }
@@ -171,7 +179,15 @@ class ShopPermissionMatrixTest extends TestCase
     {
         $user = $this->createUserWithRole('shop_manager');
 
-        foreach ($this->shopPermSlugs as $slug) {
+        // Shop manager can view the shop section and edit existing content
+        $allowed = ['shop.view', 'shop.products.edit', 'shop.orders.view', 'shop.orders.edit', 'posts.view', 'posts.edit'];
+        foreach ($allowed as $slug) {
+            $this->assertTrue($user->hasPermission($slug), "Shop Manager user missing permission: {$slug}");
+        }
+
+        // But NOT manage/delete/refund operations
+        $forbidden = ['shop.products.create', 'shop.products.delete', 'shop.orders.refund', 'shop.tags.manage', 'shop.brands.manage', 'shop.coupons.manage', 'shop.reviews.moderate', 'shop.shipping.manage', 'shop.taxes.manage', 'shop.webhooks.manage', 'shop.currencies.manage'];
+        foreach ($forbidden as $slug) {
             $this->assertFalse($user->hasPermission($slug), "Shop Manager user should NOT have permission: {$slug}");
         }
 

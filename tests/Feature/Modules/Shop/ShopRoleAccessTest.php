@@ -153,7 +153,7 @@ class ShopRoleAccessTest extends TestCase
             // Products
             'admin can view products list' => ['admin', 'dashboard.shop.products.index', 200, null],
             'shop_owner can view products list' => ['shop_owner', 'dashboard.shop.products.index', 200, null],
-            'shop_manager blocked from products list' => ['shop_manager', 'dashboard.shop.products.index', 403, null],
+            'shop_manager can view products list' => ['shop_manager', 'dashboard.shop.products.index', 200, null],
             'customer blocked from products list' => ['customer', 'dashboard.shop.products.index', 403, null],
             'guest redirect from products list' => ['guest', 'dashboard.shop.products.index', 302, null],
 
@@ -170,7 +170,7 @@ class ShopRoleAccessTest extends TestCase
             // Orders
             'admin can view orders list' => ['admin', 'dashboard.shop.orders.index', 200, null],
             'shop_owner can view orders list' => ['shop_owner', 'dashboard.shop.orders.index', 200, null],
-            'shop_manager blocked from orders list' => ['shop_manager', 'dashboard.shop.orders.index', 403, null],
+            'shop_manager can view orders list' => ['shop_manager', 'dashboard.shop.orders.index', 200, null],
 
             'admin can view order detail' => ['admin', 'dashboard.shop.orders.show', 200, 'order'],
             'shop_owner can view order detail' => ['shop_owner', 'dashboard.shop.orders.show', 200, 'order'],
@@ -228,7 +228,7 @@ class ShopRoleAccessTest extends TestCase
             // Dashboard
             'admin can view shop dashboard' => ['admin', 'dashboard.shop.dashboard', 200, null],
             'shop_owner can view shop dashboard' => ['shop_owner', 'dashboard.shop.dashboard', 200, null],
-            'shop_manager blocked from shop dashboard' => ['shop_manager', 'dashboard.shop.dashboard', 403, null],
+            'shop_manager can view shop dashboard' => ['shop_manager', 'dashboard.shop.dashboard', 200, null],
         ];
     }
 

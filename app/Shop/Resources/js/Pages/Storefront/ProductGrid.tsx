@@ -1,98 +1,187 @@
-﻿import { Link, router, usePage, Head } from '@inertiajs/react'
-import { useState, useRef } from 'react'
-import { Search, ShoppingCart, SlidersHorizontal, Heart } from 'lucide-react'
-import StoreLayout from '@shop/Layouts/StoreLayout'
-import { Button } from '@/Components/ui/button'
-import { Card, CardContent, CardFooter } from '@/Components/ui/card'
-import { Input } from '@/Components/ui/input'
-import { Badge } from '@/Components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select'
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/Components/ui/pagination'
-import { StarRating } from '@shop/components/StarRating'
-import { WishlistButton } from '@shop/components/WishlistButton'
-import { Slider } from '@/Components/ui/slider'
-
-interface Product {
-    id: number
-    name: string
-    slug: string
-    price: number
-    compare_price: number | null
-    type: string
-    virtual: boolean
-    downloadable: boolean
-    external_url: string | null
-    thumbnail_url: string | null
-    average_rating: number
-    reviews_count: number
-    stock_quantity: number
-    track_stock: boolean
-    backorders: string
-    stock_status: string | null
-    low_stock_threshold: number
-}
+﻿import { Link, router, usePage, Head } from "@inertiajs/react";
+import { useState, useRef } from "react";
+import { Search, ShoppingCart, SlidersHorizontal } from "lucide-react";
+import StoreLayout from "@shop/Layouts/StoreLayout";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/Components/ui/pagination";
+import { useCurrency } from "@shop/lib/currency";
+import { Slider } from "@/Components/ui/slider";
+import { cn } from "@/lib/utils";
+import { ProductCard, type Product } from "@shop/components/storefront/ProductCard";
 
 interface Category {
-    id: number
-    name: string
-    slug: string
+    id: number;
+    name: string;
+    slug: string;
+}
+
+interface Brand {
+    id: number;
+    name: string;
+    slug: string;
+    products_count: number;
+}
+
+interface AttributeTermFilter {
+    id: number;
+    name: string;
+    swatch_value: string | null;
+}
+
+interface AttributeFilter {
+    id: number;
+    name: string;
+    display_type: string;
+    terms: AttributeTermFilter[];
+}
+
+interface Filters {
+    search?: string | null;
+    category?: string | null;
+    brand?: string | null;
+    attribute_terms?: number[] | null;
+    min_price?: string | null;
+    max_price?: string | null;
+    sort?: string | null;
 }
 
 interface StorePage {
     products: { data: Product[]; current_page: number; last_page: number; prev_page_url: string | null; next_page_url: string | null; links: { url: string | null; label: string; active: boolean }[] }
-    categories: Category[]
-    filters: Record<string, string | null>
-    priceRange: [number, number]
-    activeCategory?: { id: number; name: string; slug: string } | null
+    categories: Category[];
+    brands: Brand[];
+    attributeFilters: AttributeFilter[];
+    filters: Filters;
+    priceRange: [number, number];
+    activeCategory?: { id: number; name: string; slug: string } | null;
+    seo?: { title?: string; description?: string; og_image?: string } | null;
 }
 
-export default function StorefrontIndex() {
+function AttributeTermToggle({ term, displayType, active, onToggle }: {
+    term: AttributeTermFilter
+    displayType: string
+    active: boolean
+    onToggle: (termId: number) => void
+}) {
+    if (displayType === "color" || displayType === "image") {
+        return (
+            <button
+                type="button"
+                onClick={() => onToggle(term.id)}
+                title={term.name}
+                aria-label={term.name}
+                className={cn(
+                    "h-8 w-8 rounded-full border-2 transition-all shrink-0",
+                    active ? "ring-2 ring-primary ring-offset-2" : "border-border hover:border-muted-foreground/50"
+                )}
+                style={displayType === "color" && term.swatch_value ? { backgroundColor: term.swatch_value } : undefined}
+            >
+                {displayType === "image" && term.swatch_value ? (
+                    <img src={term.swatch_value} alt={term.name} className="h-full w-full rounded-full object-cover" />
+                ) : null}
+            </button>
+        );
+    }
+    return (
+        <button
+            type="button"
+            onClick={() => onToggle(term.id)}
+            className={cn(
+                "px-3 py-1.5 text-xs rounded-full border transition-colors shrink-0",
+                active ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-muted-foreground/50"
+            )}
+        >
+            {term.name}
+        </button>
+    );
+}
+
+export default function StorefrontProducts() {
     const { props } = usePage<StorePage & { wishlistIds: number[] }>()
-    const { products, categories, filters, priceRange, activeCategory, wishlistIds } = props
+    const { products, categories, brands, attributeFilters, filters, priceRange, activeCategory, wishlistIds, seo } = props
+    const { money } = useCurrency();
     const [priceValue, setPriceValue] = useState<[number, number]>([priceRange[0], priceRange[1]])
     const [applyingPrice, setApplyingPrice] = useState(false)
     const debounceRef = useRef<ReturnType<typeof setTimeout>>()
 
     function applyPriceFilter() {
         setApplyingPrice(true)
-        applyFilter('min_price', String(priceValue[0]))
+        applyFilter("min_price", String(priceValue[0]))
         setTimeout(() => {
-            applyFilter('max_price', String(priceValue[1]))
+            applyFilter("max_price", String(priceValue[1]))
             setApplyingPrice(false)
         }, 50)
     }
 
     function applyFilter(key: string, value: string | null) {
-        router.get(route('store.index'), { ...filters, [key]: value || '' }, { preserveState: true, preserveScroll: true })
+        router.get(route("store.products"), { ...filters, [key]: value || "" }, { preserveState: true, preserveScroll: true })
+    }
+
+    function toggleAttributeTerm(termId: number) {
+        const current: number[] = Array.isArray(filters.attribute_terms) ? filters.attribute_terms : []
+        const next = current.includes(termId) ? current.filter((t) => t !== termId) : [...current, termId]
+        router.get(route("store.products"), { ...filters, attribute_terms: next }, { preserveState: true, preserveScroll: true })
     }
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault()
         const form = e.target as HTMLFormElement
-        const search = (new FormData(form).get('search') as string) || ''
-        router.get(route('store.index'), { ...filters, search }, { preserveState: true, preserveScroll: true })
+        const search = (new FormData(form).get("search") as string) || ""
+        router.get(route("store.products"), { ...filters, search }, { preserveState: true, preserveScroll: true })
     }
 
-    const pageTitle = activeCategory ? activeCategory.name : (filters.search ? `Search: ${filters.search}` : 'Store')
+    const pageTitle = activeCategory ? activeCategory.name : (filters.search ? `Search: ${filters.search}` : "All Products")
+    const activeTermIds: number[] = Array.isArray(filters.attribute_terms) ? filters.attribute_terms : []
+
+    const absoluteUrl = (path: string) => {
+        if (typeof window === "undefined") return ""
+        return /^https?:\/\//i.test(path) ? path : `${window.location.origin}${path}`
+    }
+    const pageUrl = activeCategory ? absoluteUrl(route("store.category", activeCategory.slug)) : absoluteUrl(route("store.products"))
+    const siteDescription = seo?.description || ""
+    const pageDescription = activeCategory
+        ? `Browse ${activeCategory.name} products`
+        : (filters.search ? `Search results for "${filters.search}"` : (siteDescription || "Browse our product catalog"))
+    const ogImage = seo?.og_image || ""
+
+    const itemListLd = JSON.stringify({
+        "@context": "https://schema.org/",
+        "@type": "ItemList",
+        itemListElement: (products.data || []).slice(0, 50).map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: p.name,
+            item: absoluteUrl(route("store.show", p.slug)),
+        })),
+    })
 
     return (
         <StoreLayout>
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <Head title={pageTitle}>
-                    <meta name="description" content={pageTitle === 'Store' ? 'Browse our product catalog' : `Browse ${pageTitle} products`} />
-                    {typeof window !== 'undefined' && <link rel="canonical" href={window.location.href} />}
+                    <meta name="description" content={pageDescription} />
+                    <link rel="canonical" href={pageUrl} />
+                    <meta property="og:title" content={pageTitle} />
+                    <meta property="og:description" content={pageDescription} />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:url" content={pageUrl} />
+                    {ogImage && <meta property="og:image" content={ogImage} />}
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: itemListLd }} />
                 </Head>
-                <div className="flex items-center justify-between mb-8">
+
+                <div className="flex items-center justify-between mt-8 mb-8">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
-                            {activeCategory ? activeCategory.name : 'Store'}
+                            {activeCategory ? activeCategory.name : "All Products"}
                         </h1>
                         <p className="text-muted-foreground mt-1">
-                            {products.data.length} product{products.data.length !== 1 ? 's' : ''}
+                            {products.data.length} product{products.data.length !== 1 ? "s" : ""}
                         </p>
                     </div>
                     <form onSubmit={handleSearch} className="flex gap-2">
-                        <Input name="search" defaultValue={filters.search ?? ''} placeholder="Search products..." className="w-64" />
+                        <Input name="search" defaultValue={filters.search ?? ""} placeholder="Search products..." className="w-64" />
                         <Button type="submit" variant="outline" size="icon"><Search className="h-4 w-4" /></Button>
                     </form>
                 </div>
@@ -104,18 +193,58 @@ export default function StorefrontIndex() {
                                 <SlidersHorizontal className="h-4 w-4" /> Categories
                             </h3>
                             <div className="space-y-1">
-                                <Link href={route('store.index')}
-                                    className={`block text-sm px-3 py-1.5 rounded-md ${!filters.category ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}>
+                                <Link href={route("store.products")}
+                                    className={`block text-sm px-3 py-1.5 rounded-md ${!filters.category ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}>
                                     All Products
                                 </Link>
                                 {categories.map((cat) => (
-                                    <Link key={cat.id} href={route('store.category', cat.slug)}
-                                        className={`block text-sm px-3 py-1.5 rounded-md ${filters.category === cat.slug ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}>
+                                    <Link key={cat.id} href={route("store.category", cat.slug)}
+                                        className={`block text-sm px-3 py-1.5 rounded-md ${filters.category === cat.slug ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}>
                                         {cat.name}
                                     </Link>
                                 ))}
                             </div>
                         </div>
+
+                        {brands.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-semibold mb-3">Brands</h3>
+                                <div className="space-y-1">
+                                    <button type="button" onClick={() => applyFilter("brand", null)}
+                                        className={`block w-full text-left text-sm px-3 py-1.5 rounded-md ${!filters.brand ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}>
+                                        All Brands
+                                    </button>
+                                    {brands.map((brand) => (
+                                        <button key={brand.id} type="button" onClick={() => applyFilter("brand", brand.slug)}
+                                            className={`block w-full text-left text-sm px-3 py-1.5 rounded-md ${filters.brand === brand.slug ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}>
+                                            {brand.name}
+                                            <span className="text-xs text-muted-foreground ml-1">({brand.products_count})</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {attributeFilters.length > 0 && (
+                            <div className="space-y-5">
+                                {attributeFilters.map((attr) => (
+                                    <div key={attr.id}>
+                                        <h3 className="text-sm font-semibold mb-3">{attr.name}</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {attr.terms.map((term) => (
+                                                <AttributeTermToggle
+                                                    key={term.id}
+                                                    term={term}
+                                                    displayType={attr.display_type}
+                                                    active={activeTermIds.includes(term.id)}
+                                                    onToggle={toggleAttributeTerm}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         {priceRange[0] < priceRange[1] && (
                             <div>
@@ -130,16 +259,16 @@ export default function StorefrontIndex() {
                                     className="mb-2"
                                 />
                                 <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>{priceValue[0].toFixed(2)} â‚¬</span>
-                                    <span>{priceValue[1].toFixed(2)} â‚¬</span>
+                                    <span>{money(priceValue[0])}</span>
+                                    <span>{money(priceValue[1])}</span>
                                 </div>
                             </div>
                         )}
 
                         <div>
                             <h3 className="text-sm font-semibold mb-3">Sort By</h3>
-                            <Select value={filters.sort ?? 'newest'}
-                                onValueChange={(v) => applyFilter('sort', v)}>
+                            <Select value={filters.sort ?? "newest"}
+                                onValueChange={(v) => applyFilter("sort", v)}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="newest">Newest</SelectItem>
@@ -161,65 +290,7 @@ export default function StorefrontIndex() {
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {products.data.map((product) => (
-                                        <Link key={product.id} href={route('store.show', product.slug)} className="group">
-                                        <Card className="overflow-hidden transition-shadow hover:shadow-lg relative">
-                                            <div className="absolute top-2 right-2 z-10" onClick={(e) => e.preventDefault()}>
-                                                <WishlistButton productId={product.id} initiallyActive={wishlistIds?.includes(product.id) ?? false} />
-                                            </div>
-                                            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                                                {product.compare_price && product.compare_price > product.price && (
-                                                    <Badge variant="destructive" className="text-[10px] px-1.5 py-0.5">
-                                                        -{Math.round(((product.compare_price - product.price) / product.compare_price) * 100)}%
-                                                    </Badge>
-                                                )}
-                                                {product.type !== 'simple' && (
-                                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 bg-background/80">{product.type}</Badge>
-                                                )}
-                                                {product.track_stock && product.stock_quantity <= 0 && product.backorders !== 'no' && (
-                                                    <>
-                                                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 text-amber-600 border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-                                                            On backorder
-                                                        </Badge>
-                                                        {product.backorders === 'notify' && (
-                                                            <span className="text-[10px] text-muted-foreground">Will ship when back in stock</span>
-                                                        )}
-                                                    </>
-                                                )}
-                                                {product.track_stock && product.stock_quantity <= 0 && product.backorders === 'no' && (
-                                                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 text-destructive">
-                                                        Out of stock
-                                                    </Badge>
-                                                )}
-                                                {product.track_stock && product.stock_quantity > 0 && product.stock_quantity <= (product.low_stock_threshold || 5) && (
-                                                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 text-orange-600 border-orange-300 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800">
-                                                        Only {product.stock_quantity} left
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <div className="aspect-square bg-muted flex items-center justify-center overflow-hidden">
-                                                {product.thumbnail_url ? (
-                                                    <img src={product.thumbnail_url} alt={product.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
-                                                ) : (
-                                                    <ShoppingCart className="h-12 w-12 text-muted-foreground/30" />
-                                                )}
-                                            </div>
-                                            <CardContent className="p-4">
-                                                <h3 className="font-semibold text-sm line-clamp-2">{product.name}</h3>
-                                                {product.reviews_count > 0 && (
-                                                    <div className="flex items-center gap-1 mt-1">
-                                                        <StarRating value={product.average_rating} size="sm" readonly />
-                                                        <span className="text-xs text-muted-foreground">({product.reviews_count})</span>
-                                                    </div>
-                                                )}
-                                            </CardContent>
-                                            <CardFooter className="p-4 pt-0 flex items-center gap-2">
-                                                <span className="text-lg font-bold">{product.price.toFixed(2)} â‚¬</span>
-                                                {product.compare_price && product.compare_price > product.price && (
-                                                    <span className="text-sm text-muted-foreground line-through">{product.compare_price.toFixed(2)} â‚¬</span>
-                                                )}
-                                            </CardFooter>
-                                        </Card>
-                                    </Link>
+                                    <ProductCard key={product.id} product={product} wishlistIds={wishlistIds} />
                                 ))}
                             </div>
                         )}

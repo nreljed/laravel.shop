@@ -10,16 +10,22 @@ class CurrencyService
 {
     public function getActiveCurrencies()
     {
-        return Cache::remember('currencies.active', 3600, function () {
-            return Currency::active()->orderBy('code')->get();
+        $rows = Cache::remember('currencies.active.v2', 3600, function () {
+            return Currency::active()->orderBy('code')->get()->toArray();
         });
+
+        return Currency::hydrate($rows);
     }
 
     public function getDefaultCurrency(): ?Currency
     {
-        return Cache::remember('currencies.default', 3600, function () {
-            return Currency::default()->first() ?? Currency::active()->first();
+        $row = Cache::remember('currencies.default.v2', 3600, function () {
+            $currency = Currency::default()->first() ?? Currency::active()->first();
+
+            return $currency ? $currency->toArray() : null;
         });
+
+        return $row ? Currency::hydrate([$row])->first() : null;
     }
 
     public function convert(float $amount, string $fromCode, string $toCode): float
@@ -43,6 +49,46 @@ class CurrencyService
     public function getByCode(string $code): ?Currency
     {
         return Currency::where('code', strtoupper($code))->first();
+    }
+
+    public function clearCache(): void
+    {
+        Cache::forget('currencies.active.v2');
+        Cache::forget('currencies.default.v2');
+    }
+
+    public function detectFromAcceptLanguage(?string $acceptLanguage, array $activeCodes = []): ?string
+    {
+        if (! $acceptLanguage) {
+            return null;
+        }
+
+        $activeCodes = array_map('strtoupper', $activeCodes);
+
+        foreach (preg_split('/\s*,\s*/', $acceptLanguage) as $tag) {
+            $tag = strtolower(explode(';', $tag)[0]);
+            $region = str_contains($tag, '-') ? strtoupper(explode('-', $tag)[1]) : '';
+
+            if ($region === '') {
+                continue;
+            }
+
+            $mapped = match ($region) {
+                'US', 'CA', 'AU' => 'USD',
+                'GB', 'JE', 'GG', 'IM' => 'GBP',
+                'TN' => 'TND',
+                'JP' => 'JPY',
+                'KR' => 'KRW',
+                'VN' => 'VND',
+                default => 'EUR',
+            };
+
+            if (in_array($mapped, $activeCodes, true)) {
+                return $mapped;
+            }
+        }
+
+        return null;
     }
 
     public function format(float $amount, string $code): string

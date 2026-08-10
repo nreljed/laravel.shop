@@ -684,6 +684,21 @@ class ProductsController extends Controller
             unset($validated['meta_description']);
         }
 
+        if (isset($validated['og_image'])) {
+            $seo['og_image'] = $validated['og_image'];
+            unset($validated['og_image']);
+        }
+
+        if (isset($validated['focus_keyword'])) {
+            $seo['focus_keyword'] = $validated['focus_keyword'];
+            unset($validated['focus_keyword']);
+        }
+
+        if (isset($validated['seo_metadata'])) {
+            $seo['seo_metadata'] = $validated['seo_metadata'];
+            unset($validated['seo_metadata']);
+        }
+
         if (! empty($seo)) {
             $validated['seo'] = $seo;
         }

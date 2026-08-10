@@ -240,7 +240,7 @@ class ApiAndWebhookTest extends TestCase
 
     public function test_storefront_index(): void
     {
-        $response = $this->get(route('store.index'));
+        $response = $this->get(route('store.products'));
 
         $response->assertOk();
         $response->assertSee('API Product 1');
@@ -267,7 +267,7 @@ class ApiAndWebhookTest extends TestCase
 
     public function test_storefront_search(): void
     {
-        $response = $this->get(route('store.index', ['search' => 'Product 2']));
+        $response = $this->get(route('store.products', ['search' => 'Product 2']));
 
         $response->assertOk();
         $response->assertSee('API Product 2');

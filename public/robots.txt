@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /dashboard
-Disallow: /deploy
-Disallow: /api
-
-Sitemap: https://shop-laravel.local/sitemap.xml

@@ -4,6 +4,7 @@ import { ShoppingBag, CreditCard, Truck, Loader2, Check, ChevronLeft, ChevronRig
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import StoreLayout from "@shop/Layouts/StoreLayout";
+import { useCurrency } from "@shop/lib/currency";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
@@ -106,7 +107,6 @@ interface Props {
   userBillingAddress: Address | null;
   userShippingAddress: Address | null;
   stripeKey: string;
-  currency: string;
   estimatedTax?: TaxResult;
   freeShippingThreshold?: number | null;
 }
@@ -174,10 +174,9 @@ function formatAddress(a: Address): string {
   return [parts, line1, line2, [cityState, postcode].filter(Boolean).join(" "), country].filter(Boolean).join("\n");
 }
 
-const fmt = (v: number, c: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: c }).format(v);
-
-export default function Checkout({ cart, shippingMethods, userBillingAddress, userShippingAddress, stripeKey, currency, estimatedTax, freeShippingThreshold }: Props) {
+export default function Checkout({ cart, shippingMethods, userBillingAddress, userShippingAddress, stripeKey, estimatedTax, freeShippingThreshold }: Props) {
   const { isLoggedIn, user } = useAuth();
+  const { money, active: activeCurrency, currencies } = useCurrency();
   const [step, setStep] = useState(0);
   const [stripeDialogOpen, setStripeDialogOpen] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
@@ -526,7 +525,7 @@ export default function Checkout({ cart, shippingMethods, userBillingAddress, us
           {cart.items.map((item) => (
             <div key={item.id} className="flex justify-between text-sm py-1">
               <span>{item.product.name} Ã— {item.quantity}{item.variant_label ? ` (${item.variant_label})` : ""}</span>
-              <span className="tabular-nums">{fmt(Number(item.unit_price) * item.quantity, currency)}</span>
+              <span className="tabular-nums">{money(Number(item.unit_price) * item.quantity)}</span>
             </div>
           ))}
         </div>
@@ -582,7 +581,7 @@ export default function Checkout({ cart, shippingMethods, userBillingAddress, us
                             )}
                           </div>
                           <span className="tabular-nums text-sm font-medium">
-                            {Number(method.price) === 0 ? "Free" : fmt(Number(method.price), currency)}
+                            {Number(method.price) === 0 ? "Free" : money(Number(method.price))}
                           </span>
                         </div>
                       ))}
@@ -621,33 +620,33 @@ export default function Checkout({ cart, shippingMethods, userBillingAddress, us
               {cart.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className="truncate pr-2">{item.product.name} Ã— {item.quantity}</span>
-                  <span className="tabular-nums shrink-0">{fmt(Number(item.unit_price) * item.quantity, currency)}</span>
+                  <span className="tabular-nums shrink-0">{money(Number(item.unit_price) * item.quantity)}</span>
                 </div>
               ))}
               <Separator />
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="tabular-nums">{fmt(cart.subtotal, currency)}</span>
+                <span className="tabular-nums">{money(cart.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Shipping</span>
-                <span className="tabular-nums">{shippingPrice === 0 ? "Free" : fmt(shippingPrice, currency)}</span>
+                <span className="tabular-nums">{shippingPrice === 0 ? "Free" : money(shippingPrice)}</span>
               </div>
               {freeShippingThreshold !== null && freeShippingThreshold !== undefined && cart.subtotal < Number(freeShippingThreshold) && (
                 <p className="text-xs text-muted-foreground">
-                  Free shipping on orders over {fmt(Number(freeShippingThreshold), currency)}
+                  Free shipping on orders over {money(Number(freeShippingThreshold))}
                 </p>
               )}
               {taxTotal > 0 && (
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax</span>
-                    <span className="tabular-nums">{fmt(taxTotal, currency)}</span>
+                    <span className="tabular-nums">{money(taxTotal)}</span>
                   </div>
                   {estimatedTax?.breakdown?.map((b, i) => (
                     <div key={i} className="flex justify-between text-xs text-muted-foreground pl-2">
                       <span>{b.name} ({b.type === 'percentage' ? `${b.rate}%` : b.rate})</span>
-                      <span>{fmt(b.amount, currency)}</span>
+                          <span>{money(b.amount)}</span>
                     </div>
                   ))}
                 </div>
@@ -655,8 +654,20 @@ export default function Checkout({ cart, shippingMethods, userBillingAddress, us
               <Separator />
               <div className="flex justify-between font-medium text-base">
                 <span>Total</span>
-                <span className="tabular-nums">{fmt(orderTotal, currency)}</span>
+                <span className="tabular-nums">{money(orderTotal)}</span>
               </div>
+              {(() => {
+                const defaultCurrency = currencies.find((c) => c.is_default);
+                if (defaultCurrency && activeCurrency && defaultCurrency.code !== activeCurrency.code) {
+                  return (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Amounts are shown in {activeCurrency.code}. Your payment will be charged in{" "}
+                      {defaultCurrency.code}.
+                    </p>
+                  );
+                }
+                return null;
+              })()}
             </CardContent>
           </Card>
 

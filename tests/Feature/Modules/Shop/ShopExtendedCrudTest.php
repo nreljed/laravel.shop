@@ -644,7 +644,7 @@ class ShopExtendedCrudTest extends TestCase
     {
         Product::create(['name' => 'Public Product', 'slug' => 'public', 'price' => 10, 'status' => 'published']);
 
-        $this->get(route('store.index'))
+        $this->get(route('store.products'))
             ->assertStatus(200)
             ->assertSee('Public Product');
     }

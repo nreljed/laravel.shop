@@ -12,47 +12,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Core Permission Catalog
+    | App-Specific Permission Catalog (delta)
     |--------------------------------------------------------------------------
     |
-    | Merges the base package permissions with Shop-specific permissions.
-    | Feature providers (ShopServiceProvider) also declare their own
-    | permissions via permissions() — the seeder merges everything.
+    | Only Shop-specific additions on top of the engine's base_permissions.
+    | RoleCatalog merges base_permissions + this delta + every feature
+    | provider's permissions(). To change a base entry, declare the same
+    | slug here — the app entry wins.
     |
     */
 
     'permissions' => [
-        // General
-        ['name' => 'View Dashboard', 'slug' => 'view-dashboard', 'description' => 'Access the main dashboard', 'group' => 'General'],
-        ['name' => 'View Profile', 'slug' => 'view-profile', 'description' => 'View own profile', 'group' => 'General'],
-        ['name' => 'Edit Profile', 'slug' => 'edit-profile', 'description' => 'Edit own name, email, password', 'group' => 'General'],
-        ['name' => 'Delete Account', 'slug' => 'delete-account', 'description' => 'Delete own account', 'group' => 'General'],
-        ['name' => 'View Notifications', 'slug' => 'view-notifications', 'description' => 'View notifications', 'group' => 'General'],
-        ['name' => 'Manage Notifications', 'slug' => 'manage-notifications', 'description' => 'Mark read, delete notifications', 'group' => 'General'],
-        // Blog
-        ['name' => 'Manage Categories', 'slug' => 'manage-categories', 'description' => 'Manage post categories', 'group' => 'Blog'],
-        ['name' => 'Manage Tags', 'slug' => 'manage-tags', 'description' => 'Manage post tags', 'group' => 'Blog'],
-        // Administration
-        ['name' => 'Manage Users', 'slug' => 'manage-users', 'description' => 'Create, edit, delete users', 'group' => 'Administration'],
-        ['name' => 'Impersonate Users', 'slug' => 'impersonate-users', 'description' => 'Sign in as another user to troubleshoot', 'group' => 'Administration'],
-        ['name' => 'Assign Roles', 'slug' => 'assign-roles', 'description' => 'Assign and remove roles on users', 'group' => 'Administration'],
-        ['name' => 'Manage Settings', 'slug' => 'manage-settings', 'description' => 'Change application settings', 'group' => 'Administration'],
-        ['name' => 'Manage Roles', 'slug' => 'manage-roles', 'description' => 'Create, edit, delete roles and permissions', 'group' => 'Administration'],
-        ['name' => 'View System Health', 'slug' => 'view-system-health', 'description' => 'View system diagnostics', 'group' => 'Administration'],
-        ['name' => 'Manage Options', 'slug' => 'manage-options', 'description' => 'Feature-level settings and system operations (admin only)', 'group' => 'Administration'],
+        // Legacy alias for manage-options (kept for backward-compat with
+        // existing role assignments, permission checks and tests).
         ['name' => 'Manage Options', 'slug' => 'manage_options', 'description' => 'Feature-level settings and system operations (admin only) — legacy alias', 'group' => 'Administration'],
-        ['name' => 'Manage Audit Logs', 'slug' => 'manage-audit-logs', 'description' => 'View system audit logs', 'group' => 'Administration'],
-        ['name' => 'Export Audit Logs', 'slug' => 'export-audit-logs', 'description' => 'Export audit log data as CSV', 'group' => 'Administration'],
-        ['name' => 'Manage Email Settings', 'slug' => 'manage-email-settings', 'description' => 'Configure email settings', 'group' => 'Administration'],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Role Catalog
+    | App Role Catalog (delta)
     |--------------------------------------------------------------------------
     |
-    | Uses * wildcard with ! exclusions for future-proof role definitions.
-    | Shop-specific permissions are auto-included via * unless excluded.
+    | Roles the Shop overrides (same slug as a base role wins) or adds on top
+    | of base_roles. The base user/author/editor/admin roles are inherited
+    | unless redeclared here.
     |
     */
 
@@ -122,13 +105,6 @@ return [
             ],
         ],
 
-        'admin' => [
-            'name' => 'Admin',
-            'description' => 'Full access to everything including admin panel',
-            'sort_order' => 0,
-            'permissions' => '*',
-        ],
-
         'shop_owner' => [
             'name' => 'Shop Owner',
             'description' => 'Full shop control: products, orders, categories, reviews, etc.',
@@ -140,6 +116,27 @@ return [
                 'delete-account',
                 'view-notifications',
                 'manage-notifications',
+                'shop.view',
+                'shop.products.create',
+                'shop.products.edit',
+                'shop.products.delete',
+                'shop.orders.view',
+                'shop.orders.edit',
+                'shop.orders.refund',
+                'shop.tags.manage',
+                'shop.brands.manage',
+                'shop.coupons.manage',
+                'shop.reviews.moderate',
+                'shop.shipping.manage',
+                'shop.taxes.manage',
+                'shop.webhooks.manage',
+                'shop.currencies.manage',
+                'posts.view',
+                'posts.create',
+                'posts.edit',
+                'posts.delete',
+                'manage-categories',
+                'manage-tags',
             ],
         ],
 
@@ -154,6 +151,12 @@ return [
                 'delete-account',
                 'view-notifications',
                 'manage-notifications',
+                'shop.view',
+                'shop.products.edit',
+                'shop.orders.view',
+                'shop.orders.edit',
+                'posts.view',
+                'posts.edit',
             ],
         ],
 

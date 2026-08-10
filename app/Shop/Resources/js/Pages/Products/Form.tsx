@@ -29,6 +29,7 @@ import { GalleryUploader, type GalleryImage } from "@/Components/shared/gallery-
 import { TermsSelector } from "@/Components/shared/terms-selector";
 import { DateTimePicker } from "@/Components/shared/datetime-picker";
 const VariationsManager = lazy(() => import("../../components/VariationsManager").then((m) => ({ default: m.VariationsManager })));
+const ProductSeoPanel = lazy(() => import("../../components/ProductSeoPanel").then((m) => ({ default: m.ProductSeoPanel })));
 
 interface Category { id: number; name: string }
 interface Tag { id: number; name: string }
@@ -73,6 +74,7 @@ interface Product {
   width: number | null; height: number | null; thumbnail_url: string | null;
   images: { url: string; path: string }[] | null; categories: Category[]; tags: Tag[]; brands: Brand[];
   publish_date: string | null; groupedItems?: GroupedItem[]; downloads?: DownloadItem[];
+  seo?: { meta_title?: string | null; meta_description?: string | null; og_image?: string | null; focus_keyword?: string | null; seo_metadata?: unknown | null } | null;
 }
 
 interface PageProps {
@@ -96,6 +98,7 @@ interface FormData {
   weight: string; length: string; width: string; height: string;
   categories: number[]; tags: number[]; brands: number[]; thumbnail_url: string; images: GalleryImage[];
   default_attributes: number[];
+  meta_title: string; meta_description: string; og_image: string; focus_keyword: string; seo_metadata: unknown | null;
   product_attributes: ProductAttributeItem[];
   grouped_items: { product_id: number; quantity: number; sort_order?: number; name?: string; sku?: string; price?: string | number }[];
   downloads: { id?: number; name: string; file: string; download_limit: number; download_expiry: number }[];
@@ -223,8 +226,25 @@ export default function ProductsForm() {
     thumbnail_url: product?.thumbnail_url || "",
     images: product?.images || [],
     default_attributes: product?.default_attributes || [],
+    meta_title: product?.seo?.meta_title || "",
+    meta_description: product?.seo?.meta_description || "",
+    og_image: product?.seo?.og_image || "",
+    focus_keyword: product?.seo?.focus_keyword || "",
+    seo_metadata: product?.seo?.seo_metadata ?? null,
     product_attributes: initialProductAttrs,
   });
+
+  const handleSeoChange = useCallback((field: string, value: string) => {
+    if (field === "keyword") {
+      form.setData("focus_keyword", value);
+    } else {
+      form.setData(field as keyof typeof form.data, value);
+    }
+  }, [form.setData]);
+
+  const handleSeoGenerated = useCallback((seoResponse: unknown) => {
+    form.setData("seo_metadata", seoResponse);
+  }, [form.setData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,7 +253,6 @@ export default function ProductsForm() {
     form.setData("product_attributes", attrList);
     form.setData("grouped_items", groupedItems);
     form.setData("downloads", downloads);
-
     const options = {
       preserveScroll: true,
       onError: (errs: Record<string, string>) => {
@@ -952,6 +971,20 @@ export default function ProductsForm() {
               </Section>
               )}
 
+              <Suspense fallback={null}>
+                <ProductSeoPanel
+                  title={form.data.name}
+                  content={form.data.description || ""}
+                  metaTitle={form.data.meta_title}
+                  metaDescription={form.data.meta_description}
+                  ogImage={form.data.og_image}
+                  keyword={form.data.focus_keyword}
+                  savedSeoData={form.data.seo_metadata as never}
+                  onChange={handleSeoChange}
+                  onSeoGenerated={handleSeoGenerated}
+                />
+              </Suspense>
+
               <Section title="Product Type" description="Choose how this product is sold" icon={Archive}>
                 <div className="grid grid-cols-2 gap-2">
                   <Button type="button" variant={form.data.type === "simple" ? "default" : "outline"} className="flex items-center gap-2" onClick={() => maybeChangeType("simple")}>
@@ -1184,13 +1217,10 @@ export default function ProductsForm() {
                 </div>
               </Section>
 
-              <Section title="SEO" description="Search engine optimization" icon={Search}>
+              <Section title="Social Image" description="Image used when shared on social media" icon={Search}>
                 <div className="space-y-4">
-                  <SectionField label="Meta Title" htmlFor="meta_title" description={`${(form.data.meta_title || '').length}/70 characters`}>
-                    <Input id="meta_title" maxLength={70} placeholder="SEO title (leave blank to use product name)" value={form.data.meta_title} onChange={(e) => form.setData("meta_title", e.target.value)} />
-                  </SectionField>
-                  <SectionField label="Meta Description" htmlFor="meta_description" description={`${(form.data.meta_description || '').length}/160 characters`}>
-                    <textarea id="meta_description" maxLength={160} rows={3} placeholder="Brief description for search results" value={form.data.meta_description} onChange={(e) => form.setData("meta_description", e.target.value)} className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm" />
+                  <SectionField label="Social Image URL" htmlFor="og_image" description="Falls back to product thumbnail if empty">
+                    <Input id="og_image" placeholder="https://..." value={form.data.og_image} onChange={(e) => form.setData("og_image", e.target.value)} />
                   </SectionField>
                 </div>
               </Section>

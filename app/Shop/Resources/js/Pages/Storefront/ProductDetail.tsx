@@ -11,6 +11,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import { StarRating } from '@shop/components/StarRating'
 import { WishlistButton } from '@shop/components/WishlistButton'
 import { AttributeSelector } from '../../components/AttributeSelector'
+import { useCurrency } from '@shop/lib/currency'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -58,6 +59,7 @@ interface ProductDetail {
     reviews: Review[];
     downloads?: DownloadItem[];
     groupedItems?: GroupedChild[];
+    seo?: { meta_title?: string | null; meta_description?: string | null; og_image?: string | null } | null;
 }
 
 interface VisibleAttr {
@@ -201,6 +203,7 @@ function ProductInfo({ product, selectedVariation, priceRange, isVariable, isExt
     isExternal: boolean;
     isGrouped: boolean;
 }) {
+    const { money } = useCurrency();
     const displayPrice = useMemo(() => {
         if (isExternal || isGrouped) {
             return { current: product.price, original: null, compareAt: null };
@@ -232,11 +235,11 @@ function ProductInfo({ product, selectedVariation, priceRange, isVariable, isExt
     return (
         <div className="flex items-baseline gap-3">
             <span className={cn("text-3xl font-bold tracking-tight", hasSale && "text-destructive")}>
-                {displayPrice.current.toFixed(2)} â‚¬
+                {money(displayPrice.current)}
             </span>
             {hasSale && (
                 <>
-                    <span className="text-xl text-muted-foreground line-through">{wasPrice!.toFixed(2)} â‚¬</span>
+                    <span className="text-xl text-muted-foreground line-through">{money(wasPrice!)}</span>
                     <Badge variant="destructive" className="text-xs">-{savingsPercent}%</Badge>
                 </>
             )}
@@ -247,6 +250,7 @@ function ProductInfo({ product, selectedVariation, priceRange, isVariable, isExt
 export default function StorefrontShow() {
     const { props } = usePage<ShowPage & { wishlistIds: number[] }>()
     const { product, related, variations, attributes, priceRange, defaultVariation, visibleAttributes, wishlistIds } = props
+    const { money, convert, selectedCode } = useCurrency()
     const [quantity, setQuantity] = useState(product.min_quantity || 1)
     const [addingToCart, setAddingToCart] = useState(false)
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null)
@@ -327,17 +331,44 @@ export default function StorefrontShow() {
     const avgRating = product.average_rating ?? 0
 
     const metaDescription = useMemo(() => {
-        const raw = product.short_description
+        const raw = product.seo?.meta_description
+            || product.short_description
             || (product.description ? product.description.replace(/<[^>]*>/g, '').trim().slice(0, 160) : null)
         return raw || `Shop ${product.name} at ${window.location.hostname}`
-    }, [product.short_description, product.description, product.name])
+    }, [product.seo?.meta_description, product.short_description, product.description, product.name])
+
+    const pageTitle = useMemo(() => product.seo?.meta_title?.trim() || product.name, [product.seo?.meta_title, product.name])
+
+    const ogImage = useMemo(() => product.seo?.og_image?.trim() || product.thumbnail_url, [product.seo?.og_image, product.thumbnail_url])
 
     const canonicalUrl = useMemo(() => {
         if (typeof window === 'undefined') return ''
-        const baseUrl = window.location.origin
-        const slug = product.slug || product.id
-        return `${baseUrl}${route('store.show', slug)}`
+        const path = route('store.show', product.slug || product.id)
+        return /^https?:\/\//i.test(path) ? path : `${window.location.origin}${path}`
     }, [product.slug, product.id])
+
+    const absoluteUrl = useCallback((path: string) => {
+        if (typeof window === 'undefined') return ''
+        return /^https?:\/\//i.test(path) ? path : `${window.location.origin}${path}`
+    }, [])
+
+    const breadcrumbLd = useMemo(() => {
+        const items = [
+            { '@type': 'ListItem', position: 1, name: 'Store', item: absoluteUrl(route('store.index')) },
+            ...product.categories.slice(0, 1).map((cat, i) => ({
+                '@type': 'ListItem',
+                position: i + 2,
+                name: cat.name,
+                item: absoluteUrl(route('store.category', cat.slug)),
+            })),
+            { '@type': 'ListItem', position: product.categories.length + 2, name: product.name },
+        ]
+        return JSON.stringify({
+            '@context': 'https://schema.org/',
+            '@type': 'BreadcrumbList',
+            itemListElement: items,
+        })
+    }, [product.name, product.categories, absoluteUrl])
 
     const jsonLd = useMemo(() => {
         const activePrice = selectedVariation
@@ -416,29 +447,30 @@ export default function StorefrontShow() {
     return (
         <StoreLayout>
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                <Head title={product.name}>
+                <Head title={pageTitle}>
                     <meta name="description" content={metaDescription} />
                     <link rel="canonical" href={canonicalUrl} />
-                    <meta property="og:title" content={product.name} />
+                    <meta property="og:title" content={pageTitle} />
                     <meta property="og:description" content={metaDescription} />
-                    {product.thumbnail_url && <meta property="og:image" content={product.thumbnail_url} />}
+                    {ogImage && <meta property="og:image" content={ogImage} />}
                     <meta property="og:type" content="product" />
                     <meta property="og:url" content={canonicalUrl} />
-                    <meta property="product:price:amount" content={(selectedVariation ? Number(selectedVariation.active_price ?? selectedVariation.price ?? 0) : product.active_price).toFixed(2)} />
-                    <meta property="product:price:currency" content="EUR" />
+                    <meta property="product:price:amount" content={convert(selectedVariation ? Number(selectedVariation.active_price ?? selectedVariation.price ?? 0) : product.active_price).toFixed(2)} />
+                    <meta property="product:price:currency" content={selectedCode ?? 'EUR'} />
                     <meta property="product:availability" content={inStock ? 'in stock' : 'out of stock'} />
                     <meta name="twitter:card" content="summary_large_image" />
                     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbLd }} />
                 </Head>
                 <Link href={route('store.index')} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-6">
                     <ArrowLeft className="h-4 w-4" /> Back to store
                 </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
-                    {/* Left Column â€” Gallery */}
+                    {/* Left Column — Gallery */}
                     <ProductGallery images={allImages} thumbnailUrl={product.thumbnail_url} productName={product.name} variationImageUrl={variationImage} />
 
-                    {/* Right Column â€” Product Info */}
+                    {/* Right Column — Product Info */}
                     <div className="flex flex-col gap-6">
                         {/* Breadcrumb / Categories */}
                         <div className="flex flex-wrap items-center gap-2">
@@ -629,7 +661,7 @@ export default function StorefrontShow() {
                                             <p>This is a digital or service product. No physical shipping required. Delivery details will be provided after purchase.</p>
                                         ) : (
                                             <>
-                                                <p>Free shipping on orders over 50 â‚¬. Standard delivery within 3â€“5 business days.</p>
+                                                <p>Free shipping on orders over {money(50)}. Standard delivery within 3â€“5 business days.</p>
                                                 <p>Easy returns within 30 days of delivery. Items must be unused and in original packaging.</p>
                                             </>
                                         )}
@@ -676,7 +708,7 @@ export default function StorefrontShow() {
                                                 <p className="text-xs text-muted-foreground">Qty: {child.pivot.quantity}</p>
                                             </div>
                                             {child.price && (
-                                                <span className="text-sm font-bold">{parseFloat(String(child.price)).toFixed(2)} â‚¬</span>
+                                                <span className="text-sm font-bold">{money(child.price)}</span>
                                             )}
                                         </Link>
                                     ))}
@@ -733,7 +765,7 @@ export default function StorefrontShow() {
                                         </div>
                                         <CardContent className="p-3 space-y-1">
                                             <p className="text-sm font-medium line-clamp-2">{r.name}</p>
-                                            <p className="text-sm font-bold">{r.price.toFixed(2)} â‚¬</p>
+                                            <p className="text-sm font-bold">{money(r.price)}</p>
                                         </CardContent>
                                     </Card>
                                 </Link>

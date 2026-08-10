@@ -2,8 +2,11 @@
 
 namespace App\Shop\Http\Controllers;
 
+use App\Shop\Models\Attribute;
 use App\Shop\Models\Product;
+use App\Shop\Models\ProductBrand;
 use App\Shop\Models\ProductCategory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -11,56 +14,19 @@ use Nreljed\DashboardCore\Http\Controllers\Controller;
 
 class StorefrontController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Product::where('status', 'published')
-            ->whereIn('catalog_visibility', ['visible', 'catalog']);
-
-        if ($request->filled('search')) {
-            $q = $request->search;
-            $query->where(function ($w) use ($q) {
-                $w->where('name', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%");
-            });
-        }
-
-        if ($request->filled('category')) {
-            $query->whereHas('categories', fn ($c) => $c->where('slug', $request->category));
-        }
-
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', (float) $request->min_price);
-        }
-
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', (float) $request->max_price);
-        }
-
-        $sortField = match ($request->sort) {
-            'price_asc' => 'price',
-            'price_desc' => 'price',
-            'name' => 'name',
-            default => 'created_at',
-        };
-        $sortDir = $request->sort === 'price_desc' ? 'desc' : 'asc';
-
-        $perPage = 12;
-        $products = $query->orderBy($sortField, $sortDir)->paginate($perPage)->withQueryString();
-
-        $categories = ProductCategory::select('id', 'name', 'slug')
-            ->whereHas('products')
-            ->orderBy('name')
-            ->get();
-
-        $minPrice = Product::where('status', 'published')->min('price');
-        $maxPrice = Product::where('status', 'published')->max('price');
-
-        return Inertia::render('shop/storefront/productgrid', [
-            'products' => $products,
-            'categories' => $categories,
-            'filters' => $request->only(['search', 'category', 'min_price', 'max_price', 'sort']),
-            'priceRange' => [(float) ($minPrice ?? 0), (float) ($maxPrice ?? 1000)],
+        return Inertia::render('shop/storefront/home', [
+            'homepage' => $this->homepageData(),
         ]);
+    }
+
+    public function products(Request $request)
+    {
+        $query = $this->baseQuery();
+        $this->applyFilters($query, $request);
+
+        return $this->renderCatalog($request, $query);
     }
 
     public function show(Product $product)
@@ -118,11 +84,7 @@ class StorefrontController extends Controller
             $defaultVariation = $product->getDefaultVariation();
         }
 
-        $related = Product::where('status', 'published')
-            ->where('id', '!=', $product->id)
-            ->inRandomOrder()
-            ->limit(4)
-            ->get();
+        $related = $this->relatedProducts($product);
 
         return Inertia::render('shop/storefront/productdetail', [
             'product' => $product,
@@ -139,23 +101,185 @@ class StorefrontController extends Controller
     {
         $category = ProductCategory::where('slug', $slug)->firstOrFail();
 
-        $query = Product::where('status', 'published')
+        $query = $this->baseQuery()
             ->whereHas('categories', fn ($c) => $c->where('slug', $slug));
+        $this->applyFilters($query, $request);
 
-        $perPage = 12;
-        $products = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+        return $this->renderCatalog($request, $query, [
+            'activeCategory' => $category->only('id', 'name', 'slug'),
+        ]);
+    }
+
+    protected function baseQuery(): Builder
+    {
+        return Product::where('status', 'published')
+            ->whereIn('catalog_visibility', ['visible', 'catalog']);
+    }
+
+    protected function applyFilters(Builder $query, Request $request): void
+    {
+        if ($request->filled('search')) {
+            $q = $request->search;
+            $query->where(function (Builder $w) use ($q) {
+                $w->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->whereHas('categories', fn ($c) => $c->where('slug', $request->category));
+        }
+
+        if ($request->filled('brand')) {
+            $query->whereHas('brands', fn ($b) => $b->where('slug', $request->brand));
+        }
+
+        if ($request->filled('attribute_terms')) {
+            $termIds = array_values(array_filter(array_map('intval', (array) $request->attribute_terms)));
+            if ($termIds) {
+                $query->whereHas('attributeTerms', fn ($t) => $t->whereIn('attribute_terms.id', $termIds));
+            }
+        }
+
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', (float) $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', (float) $request->max_price);
+        }
+    }
+
+    protected function renderCatalog(Request $request, Builder $query, array $options = [])
+    {
+        $sortField = match ($request->sort) {
+            'price_asc' => 'price',
+            'price_desc' => 'price',
+            'name' => 'name',
+            default => 'created_at',
+        };
+        $sortDir = match ($request->sort) {
+            'price_desc' => 'desc',
+            'price_asc' => 'asc',
+            'name' => 'asc',
+            default => 'desc',
+        };
+
+        $products = $query->orderBy($sortField, $sortDir)->paginate(12)->withQueryString();
 
         $categories = ProductCategory::select('id', 'name', 'slug')
             ->whereHas('products')
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('shop/storefront/productgrid', [
+        $brands = ProductBrand::where('is_active', true)
+            ->withCount(['products' => fn ($q) => $q->where('status', 'published')])
+            ->orderBy('name')
+            ->get()
+            ->filter(fn ($b) => $b->products_count > 0)
+            ->map(fn ($b) => [
+                'id' => $b->id,
+                'name' => $b->name,
+                'slug' => $b->slug,
+                'products_count' => $b->products_count,
+            ])
+            ->values();
+
+        $attributeFilters = Attribute::where('is_active', true)
+            ->whereHas('terms')
+            ->whereHas('products', fn ($q) => $q->where('status', 'published'))
+            ->with('terms')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn ($a) => [
+                'id' => $a->id,
+                'name' => $a->name,
+                'display_type' => $a->display_type,
+                'terms' => $a->terms->map(fn ($t) => [
+                    'id' => $t->id,
+                    'name' => $t->name,
+                    'swatch_value' => $t->swatch_value,
+                ])->values(),
+            ])
+            ->values();
+
+        $minPrice = Product::where('status', 'published')->min('price');
+        $maxPrice = Product::where('status', 'published')->max('price');
+
+        $data = [
             'products' => $products,
             'categories' => $categories,
-            'filters' => ['category' => $slug, 'search' => null, 'min_price' => null, 'max_price' => null, 'sort' => null],
-            'priceRange' => [0, 1000],
-            'activeCategory' => $category->only('id', 'name', 'slug'),
-        ]);
+            'brands' => $brands,
+            'attributeFilters' => $attributeFilters,
+            'filters' => $request->only(['search', 'category', 'brand', 'attribute_terms', 'min_price', 'max_price', 'sort']),
+            'priceRange' => [(float) ($minPrice ?? 0), (float) ($maxPrice ?? 1000)],
+        ];
+
+        if (! empty($options['activeCategory'])) {
+            $data['activeCategory'] = $options['activeCategory'];
+        }
+
+        return Inertia::render('shop/storefront/productgrid', $data);
+    }
+
+    protected function homepageData(): array
+    {
+        $featured = Product::where('status', 'published')
+            ->whereIn('catalog_visibility', ['visible', 'catalog'])
+            ->featured()
+            ->latest()
+            ->take(8)
+            ->get();
+
+        $newArrivals = Product::where('status', 'published')
+            ->whereIn('catalog_visibility', ['visible', 'catalog'])
+            ->latest()
+            ->take(8)
+            ->get();
+
+        $categoryGrid = ProductCategory::withCount(['products' => fn ($q) => $q->where('status', 'published')])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->filter(fn ($c) => $c->products_count > 0)
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'name' => $c->name,
+                'slug' => $c->slug,
+                'products_count' => $c->products_count,
+            ])
+            ->values();
+
+        return [
+            'hero' => config('shop.storefront.hero'),
+            'featured' => $featured,
+            'newArrivals' => $newArrivals,
+            'categories' => $categoryGrid,
+        ];
+    }
+
+    protected function relatedProducts(Product $product)
+    {
+        $categoryIds = $product->categories()->pluck('product_categories.id');
+
+        $related = Product::where('status', 'published')
+            ->where('id', '!=', $product->id)
+            ->when($categoryIds->isNotEmpty(), fn ($q) => $q->whereHas('categories', fn ($c) => $c->whereIn('product_categories.id', $categoryIds)))
+            ->inRandomOrder()
+            ->limit(4)
+            ->get();
+
+        if ($related->count() < 4) {
+            $extra = Product::where('status', 'published')
+                ->where('id', '!=', $product->id)
+                ->whereNotIn('id', $related->pluck('id'))
+                ->inRandomOrder()
+                ->limit(4 - $related->count())
+                ->get();
+            $related = $related->concat($extra);
+        }
+
+        return $related;
     }
 }

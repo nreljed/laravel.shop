@@ -23,4 +23,12 @@ return [
         'enabled' => env('SALE_SCHEDULING_ENABLED', true),
         'normalize_to_day_boundaries' => true,
     ],
+
+    'storefront' => [
+        'hero' => [
+            'title' => env('STORE_HERO_TITLE', 'Welcome to our store'),
+            'subtitle' => env('STORE_HERO_SUBTITLE', 'Discover quality products hand-picked for you. Free shipping on orders over 50 EUR.'),
+            'cta_label' => env('STORE_HERO_CTA', 'Shop now'),
+        ],
+    ],
 ];

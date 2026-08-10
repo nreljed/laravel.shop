@@ -1,6 +1,7 @@
 ﻿import { Link, router, usePage, Head } from '@inertiajs/react'
 import { Heart, ShoppingCart, ArrowLeft } from 'lucide-react'
 import StoreLayout from '@shop/Layouts/StoreLayout'
+import { useCurrency } from '@shop/lib/currency'
 import { Button } from '@/Components/ui/button'
 import { Card, CardContent } from '@/Components/ui/card'
 import { WishlistButton } from '@shop/components/WishlistButton'
@@ -22,11 +23,13 @@ interface PageProps {
 export default function WishlistIndex() {
   const { props } = usePage<PageProps>()
   const products = props.products
+  const { money } = useCurrency()
 
   return (
     <StoreLayout>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Head title="My Wishlist">
+          <meta name="robots" content="noindex,nofollow" />
           <meta name="description" content={products.total > 0 ? `${products.total} saved items in your wishlist` : 'Your wishlist is empty'} />
         </Head>
         <Link href={route('store.index')} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
@@ -75,7 +78,7 @@ export default function WishlistIndex() {
                   <Link href={route('store.show', product.id)}>
                     <p className="text-sm font-medium line-clamp-2 hover:text-primary transition-colors">{product.name}</p>
                   </Link>
-                  <p className="text-sm font-bold mt-1">{product.price.toFixed(2)} â‚¬</p>
+                  <p className="text-sm font-bold mt-1">{money(product.price)}</p>
                   <Button size="sm" className="w-full mt-2" onClick={() => router.visit(route('store.show', product.id))}>
                     <ShoppingCart className="h-3.5 w-3.5 mr-1" /> View Product
                   </Button>

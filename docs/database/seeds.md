@@ -43,7 +43,7 @@ php artisan app:create-admin
 
 | Component | What it does | Idempotent? |
 |-----------|-------------|-------------|
-| `RolesAndPermissionsSeeder` | Creates 4 roles + 11 core permissions. Migrates old `crm_user` → `customer`. Admin gets all perms; other roles get core (dashboard, profile, notifications). Module perms (shop.*, posts.*) are NOT seeded here — they come from `modules:sync-permissions` | Yes (`firstOrCreate`) |
+| `RolesAndPermissionsSeeder` | Creates 7 roles (admin, editor, author, user, shop_owner, shop_manager, customer) + core permissions. Migrates old `crm_user` → `customer`. Shop/blog module perms (shop.*, posts.*) are also synced here (via `FeatureRegistry` merge), and roles are assigned per `config/roles.php` | Yes (`firstOrCreate`) |
 | User factory (x4) | Creates `nstudio` (admin), `shop_owner`, `shop_manager`, `customer` — all password `azerty123/*` | No (creates every run) |
 | `SettingsSeeder` | 25 settings across 7 groups (general, registration, notifications, security, email, maintenance, localization, formatting) | Yes (`firstOrCreate`) |
 | `CurrencySeeder` | 4 currencies (EUR default, USD, GBP, TND) | Yes (`updateOrInsert`) |
@@ -127,7 +127,7 @@ Module permissions (e.g., `shop.products.*`, `posts.*`) are defined in each modu
 | `RolesAndPermissionsSeeder` | Yes | `firstOrCreate` by slug |
 | `SettingsSeeder` | Yes | `firstOrCreate` by key |
 | `CurrencySeeder` | Yes | `updateOrInsert` by code |
-| `ShopProductSeeder` | Yes | `firstOrCreate` by slug (brands, categories, tags, products) |
+| `ShopProductSeeder` | Yes | `firstOrCreate` by slug (brands, categories, tags, products, variations) |
 | `GenerateDemoData` | No | Use `--fresh` to clear before re-run |
 | `DatabaseSeeder` (users) | No | Creates duplicates each run; use `migrate:fresh` first |
 

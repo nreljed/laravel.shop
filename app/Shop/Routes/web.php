@@ -9,6 +9,7 @@ use App\Shop\Http\Controllers\CurrenciesController;
 use App\Shop\Http\Controllers\CustomersController;
 use App\Shop\Http\Controllers\OrdersController;
 use App\Shop\Http\Controllers\ProductsController;
+use App\Shop\Http\Controllers\ProductSeoController;
 use App\Shop\Http\Controllers\ProductVariationsController;
 use App\Shop\Http\Controllers\ReportsController;
 use App\Shop\Http\Controllers\ReviewsController;
@@ -39,6 +40,7 @@ Route::delete('/products/{product}', [ProductsController::class, 'destroy'])->na
 Route::patch('/products/{product}/status', [ProductsController::class, 'updateStatus'])->name('products.update-status');
 Route::post('/products/{product}/adjust-stock', [ProductsController::class, 'adjustStock'])->name('products.adjust-stock');
 Route::get('/products/{product}/stock-history', [ProductsController::class, 'stockHistory'])->name('products.stock-history');
+Route::post('/products/seo/generate', [ProductSeoController::class, 'generate'])->name('products.seo.generate');
 
 // Variations
 Route::get('/products/{product}/variations', [ProductVariationsController::class, 'index'])->name('products.variations.index');

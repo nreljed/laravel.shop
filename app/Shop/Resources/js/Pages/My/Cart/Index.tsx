@@ -3,6 +3,7 @@ import { Trash2, ShoppingCart, Minus, Plus, ArrowRight, Package, Ticket, X } fro
 import { useState } from "react";
 import { toast } from "sonner";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { useCurrency } from "@shop/lib/currency";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
@@ -46,6 +47,7 @@ export default function MyCartIndex({ cart }: Props) {
   const [updating, setUpdating] = useState<Record<number, boolean>>({});
   const [couponCode, setCouponCode] = useState(cart.coupon_code || "");
   const [couponApplying, setCouponApplying] = useState(false);
+  const { money } = useCurrency();
 
   const applyCoupon = async () => {
     if (!couponCode.trim() || couponApplying) return;
@@ -157,9 +159,7 @@ export default function MyCartIndex({ cart }: Props) {
                       <p className="text-xs text-muted-foreground">SKU: {item.product.sku}</p>
                     )}
                     <p className="text-sm font-medium mt-1">
-                      {new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(
-                        Number(item.unit_price),
-                      )}
+                      {money(Number(item.unit_price))}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -192,9 +192,7 @@ export default function MyCartIndex({ cart }: Props) {
                   </div>
                   <div className="text-right shrink-0 min-w-[80px]">
                     <p className="font-medium tabular-nums">
-                      {new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(
-                        Number(item.unit_price) * item.quantity,
-                      )}
+                      {money(Number(item.unit_price) * item.quantity)}
                     </p>
                     <Button
                       variant="ghost"
@@ -237,14 +235,14 @@ export default function MyCartIndex({ cart }: Props) {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="tabular-nums">
-                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(cart.subtotal)}
+                    {money(cart.subtotal)}
                   </span>
                 </div>
                 {cart.discount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Discount ({cart.coupon_code})</span>
                     <span className="tabular-nums text-destructive">
-                      -{new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(cart.discount)}
+                      -{money(cart.discount)}
                     </span>
                   </div>
                 )}
@@ -252,7 +250,7 @@ export default function MyCartIndex({ cart }: Props) {
                 <div className="flex justify-between font-medium">
                   <span>Total</span>
                   <span className="tabular-nums">
-                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(cart.total)}
+                    {money(cart.total)}
                   </span>
                 </div>
                 <Link href={route("dashboard.my.checkout.index")}>
