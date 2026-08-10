@@ -14,15 +14,18 @@ use App\Shop\Models\ProductReview;
 use App\Shop\Models\ProductTag;
 use App\Shop\Models\ProductVariation;
 use Carbon\Carbon;
+use Database\Seeders\Concerns\BootstrapsAdmin;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class ShopProductSeeder extends Seeder
 {
+    use BootstrapsAdmin;
+
     public function run(): void
     {
-        $admin = User::first();
-        $adminId = $admin ? $admin->id : 1;
+        $admin = $this->ensureAdminUser();
+        $adminId = $admin->id;
 
         $brands = $this->createBrands();
         $categories = $this->createCategories();
