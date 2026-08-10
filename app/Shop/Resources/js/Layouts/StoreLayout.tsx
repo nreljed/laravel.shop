@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 import { SiteFooter } from "@/Components/frontend/SiteFooter";
 import { StoreHeader } from "@shop/components/StoreHeader";
-import CurrencySwitcher from "@shop/Components/CurrencySwitcher";
+import CurrencySwitcher from "@shop/components/CurrencySwitcher";
 
 export default function StoreLayout({ children }: PropsWithChildren) {
   return (
