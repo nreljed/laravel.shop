@@ -67,7 +67,7 @@ app/                          # Core Laravel application
     NotificationService.php
     DashboardService.php  # Stats + Analytics cache (5-min TTL)
     FormattingService.php # Price formatting
-  Shop/                   # (legacy tree — Shop now lives in packages/shop-module, see Feature Architecture)
+  Shop/                   # (legacy tree — Shop now lives in the nreljed/shop-module repo, see Feature Architecture)
   Blog/                   # Blog domain (namespace App\Blog)
     BlogServiceProvider.php   # Registers nav, permissions, email templates, notification types, shared data
     Models/               # Post, PostCategory, PostTag, ContentBlock
@@ -108,7 +108,7 @@ routes/
   auth.php                # Breeze auth routes + profile + switch-mode
   blog.php                # Blog dashboard routes (loaded by BlogServiceProvider)
 
-> Shop routes are self-loaded by the `shop-module` package provider (`packages/shop-module/src/ShopServiceProvider.php`); there are no `routes/shop*.php` files in the host.
+> Shop routes are self-loaded by the `shop-module` package provider (`vendor/nreljed/shop-module/src/ShopServiceProvider.php`); there are no `routes/shop*.php` files in the host.
 
 ## Routes
 
@@ -145,7 +145,7 @@ The old `app/Modules/*/` module system has been consolidated into two feature pr
 
 | Feature | Namespace | Directory | Service Provider | Slug |
 |---------|-----------|-----------|------------------|------|
-| Shop | `Nreljed\ShopModule` | `packages/shop-module/src/` (composer pkg `nreljed/shop-module`, mirrored to `vendor/nreljed/shop-module`) | `ShopServiceProvider` | `shop` |
+| Shop | `Nreljed\ShopModule` | `vendor/nreljed/shop-module/src/` (private GitHub repo `nreljed/shop-module`, composer pkg `nreljed/shop-module`, installed via VCS) | `ShopServiceProvider` | `shop` |
 | Blog | `Nreljed\DashboardCore\Blog` | `vendor/nreljed/dashboard-core/src/Blog/` | `BlogServiceProvider` | `posts` |
 
 Each service provider implements `Nreljed\DashboardCore\Contracts\FeatureProvider` (via `InteractsWithFeatures`): `name()`, `slug()`, `permissions()`, `getNavItems()`, `getSharedData()`, `getEmailTemplates()`, `getNotificationTypes()`, `getDashboardData()`, `onUserDelete()`, etc., aggregated by the core `FeatureRegistry`.
@@ -159,7 +159,7 @@ Each service provider implements `Nreljed\DashboardCore\Contracts\FeatureProvide
 ### Route Loading
 Each feature provider self-loads its own routes from its own `Routes/` directory in `boot()`:
 - Blog: `Nreljed\DashboardCore\Blog\BlogServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/web.php')` (prefix `dashboard/posts`, name `dashboard.posts.`) + public routes (prefix `blog`)
-- Shop: `packages/shop-module/src/Routes/*.php` (11 files: web, admin, storefront, store-cart, store-checkout, store-wishlist, store-notify, recovery, customer-portal, api, api-auth), loaded by `Nreljed\ShopModule\ShopServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/…')`, grouped with `web` middleware + `permission:shop.view` + prefixes `dashboard.shop.` / `admin.shop.` / `store.*`
+- Shop: `vendor/nreljed/shop-module/src/Routes/*.php` (11 files: web, admin, storefront, store-cart, store-checkout, store-wishlist, store-notify, recovery, customer-portal, api, api-auth), loaded by `Nreljed\ShopModule\ShopServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/…')`, grouped with `web` middleware + `permission:shop.view` + prefixes `dashboard.shop.` / `admin.shop.` / `store.*`
 - Shop JSON API: the package registers `api.*` routes (products/orders/categories, `auth:sanctum`) — the host's `routes/api.php` does NOT require shop files
 
 ### Frontend Page Loading

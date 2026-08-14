@@ -1,6 +1,6 @@
 # Shop Module
 
-> **Canonical documentation:** [`packages/shop-module/README.md`](../../../packages/shop-module/README.md) — the package README is the authoritative, always-current reference. This page is a condensed quick-reference for the host repo.
+> **Canonical documentation:** [`nreljed/shop-module`](https://github.com/nreljed/shop-module) (`README.md`) — the package README is the authoritative, always-current reference. This page is a condensed quick-reference for the host repo.
 
 Manage your online store: products, orders, inventory, and customers.
 

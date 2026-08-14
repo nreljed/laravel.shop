@@ -1,0 +1,81 @@
+name: Shop Update (shop-module)
+
+on:
+  schedule:
+    # Weekly: Monday 09:15 UTC, matching the dashboard-core cadence.
+    - cron: "15 9 * * 1"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [shop-updated]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: shop-update
+  cancel-in-progress: true
+
+jobs:
+  shop-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer:v2
+
+      # shop-module is a private vcs repo; GH_TOKEN (Contents: Read on
+      # nreljed/shop-module) authenticates the clone. --no-scripts avoids
+      # booting Laravel in a bare checkout (no .env needed for the lock update).
+      - name: Update shop-module
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
+        run: composer update nreljed/shop-module --with-dependencies --no-scripts --no-interaction
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --exit-code -- composer.lock > /dev/null; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Shop module is already up to date."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "New shop-module version available."
+          fi
+
+      - name: Read resolved shop-module version
+        if: steps.check.outputs.changed == 'true'
+        id: version
+        run: |
+          VER=$(php -r 'echo json_decode(file_get_contents("vendor/nreljed/shop-module/composer.json"), true)["version"] ?? "unknown";')
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      # Only composer.lock ships in the PR. public/build is gitignored and CI
+      # (pr.yml -> ci.yml) rebuilds assets + runs the full validation suite.
+      - name: Create pull request
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="shop/update-v${{ steps.version.outputs.version }}"
+          git checkout -b "$BRANCH"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add composer.lock
+          git commit -m "chore: update shop-module to v${{ steps.version.outputs.version }}"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --base master \
+            --head "$BRANCH" \
+            --title "chore: update shop-module to v${{ steps.version.outputs.version }}" \
+            --body "Automated update of \`nreljed/shop-module\` (scheduled \`shop-update.yml\`).
+
+            - Resolved version: v${{ steps.version.outputs.version }}
+            - Only \`composer.lock\` changed; \`public/build\` is gitignored and rebuilt by CI.
+
+            After merge, push to master triggers \`deploy.yml\` (build + release + deploy).
+            "

@@ -543,7 +543,7 @@ Policies: `ProductPolicy`, `OrderPolicy`, `CouponPolicy`, `ProductReviewPolicy`,
 
 Stored in `settings` table with `group = 'shop'`. Managed via `ShopSettingsController` at `GET|PUT /admin/shop/settings`, rendered by the `shop/settings/index` Inertia page (`Settings/Index.tsx` — accordion sections: Store Profile, Selling Locations, Currency & Pricing, Tax Options, Inventory, Checkout, Units of Measure, Features & Automation).
 
-Typed access via `ShopSettingsService` (`packages/shop-module/src/Services/ShopSettingsService.php`) — getters with defaults, `baseCountry()`, `guestCheckoutEnabled()`, `requireCompanyField()`, `requireTerms()`, `checkoutDefaultCountry()`, `pricesIncludeTax()`, `taxBasedOn()`, `taxShipping()`, `taxDisplay()`, `currencyFormat()`, `isCountryAllowed()`, `clearCache()`. Country lists come from `Countries` support class (ISO 3166 alpha-2, served as the `countries` prop).
+Typed access via `ShopSettingsService` (`vendor/nreljed/shop-module/src/Services/ShopSettingsService.php`) — getters with defaults, `baseCountry()`, `guestCheckoutEnabled()`, `requireCompanyField()`, `requireTerms()`, `checkoutDefaultCountry()`, `pricesIncludeTax()`, `taxBasedOn()`, `taxShipping()`, `taxDisplay()`, `currencyFormat()`, `isCountryAllowed()`, `clearCache()`. Country lists come from `Countries` support class (ISO 3166 alpha-2, served as the `countries` prop).
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|

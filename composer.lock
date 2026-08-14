@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "91f4d5edbff8a538b6a12a3e02ac4108",
+    "content-hash": "005c0646ad75f279ee17178b0f579461",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -3554,10 +3554,16 @@
         {
             "name": "nreljed/shop-module",
             "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:nreljed/shop-module.git",
+                "reference": "dbac9f7d5f77ff6983b31aa44e1842623231309e"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/shop-module",
-                "reference": "6797ba70edf9928ef34c204f7c51fd535d057230"
+                "type": "zip",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/dbac9f7d5f77ff6983b31aa44e1842623231309e",
+                "reference": "dbac9f7d5f77ff6983b31aa44e1842623231309e",
+                "shasum": ""
             },
             "require": {
                 "barryvdh/laravel-dompdf": "^3.1",
@@ -3598,10 +3604,11 @@
                 }
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/nreljed/shop-module/tree/v0.1.0",
+                "issues": "https://github.com/nreljed/shop-module/issues"
+            },
+            "time": "2026-08-14T18:08:56+00:00"
         },
         {
             "name": "nunomaduro/termwind",
