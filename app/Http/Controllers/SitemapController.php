@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Shop\Models\Product;
-use App\Shop\Models\ProductCategory;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Nreljed\DashboardCore\Blog\Models\Post;
 use Nreljed\DashboardCore\Blog\Models\PostCategory;
 use Nreljed\DashboardCore\Blog\Models\PostTag;
 use Nreljed\DashboardCore\Http\Controllers\SitemapController as BaseSitemapController;
 use Nreljed\DashboardCore\Services\SettingsService;
+use Nreljed\ShopModule\Models\Product;
+use Nreljed\ShopModule\Models\ProductCategory;
 
 class SitemapController extends BaseSitemapController
 {

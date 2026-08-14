@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Shop\Models\Order;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Nreljed\DashboardCore\Models\User as CoreUser;
+use Nreljed\ShopModule\Models\Order;
 
 /**
  * @method \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> users()

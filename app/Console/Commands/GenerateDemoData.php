@@ -3,24 +3,26 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
-use App\Shop\Models\Coupon;
-use App\Shop\Models\CouponUsage;
-use App\Shop\Models\Order;
-use App\Shop\Models\OrderAction;
-use App\Shop\Models\OrderItem;
-use App\Shop\Models\OrderNote;
-use App\Shop\Models\OrderRefund;
-use App\Shop\Models\Product;
-use App\Shop\Models\ProductReview;
-use App\Shop\Models\ShippingMethod;
-use App\Shop\Models\StockAdjustment;
-use App\Shop\Models\TaxRate;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Nreljed\DashboardCore\Blog\Models\Post;
 use Nreljed\DashboardCore\Blog\Models\PostCategory;
 use Nreljed\DashboardCore\Blog\Models\PostTag;
+use Nreljed\ShopModule\Models\Coupon;
+use Nreljed\ShopModule\Models\CouponUsage;
+use Nreljed\ShopModule\Models\Order;
+use Nreljed\ShopModule\Models\OrderAction;
+use Nreljed\ShopModule\Models\OrderItem;
+use Nreljed\ShopModule\Models\OrderNote;
+use Nreljed\ShopModule\Models\OrderRefund;
+use Nreljed\ShopModule\Models\Product;
+use Nreljed\ShopModule\Models\ProductReview;
+use Nreljed\ShopModule\Models\ShippingMethod;
+use Nreljed\ShopModule\Models\StockAdjustment;
+use Nreljed\ShopModule\Models\TaxRate;
 
 class GenerateDemoData extends Command
 {
@@ -46,55 +48,59 @@ class GenerateDemoData extends Command
 
     private array $addresses = [
         [
-            'street' => 'Rue de la Liberté',
+            'address_line1' => 'Rue de la Liberté',
             'city' => 'Tunis',
             'state' => 'Tunis',
-            'zip' => '1001',
+            'postcode' => '1001',
             'country' => 'TN',
         ],
         [
-            'street' => 'Avenue Habib Bourguiba',
+            'address_line1' => 'Avenue Habib Bourguiba',
             'city' => 'Sfax',
             'state' => 'Sfax',
-            'zip' => '3000',
+            'postcode' => '3000',
             'country' => 'TN',
         ],
         [
-            'street' => 'Boulevard du 14 Janvier',
+            'address_line1' => 'Boulevard du 14 Janvier',
             'city' => 'Sousse',
             'state' => 'Sousse',
-            'zip' => '4000',
+            'postcode' => '4000',
             'country' => 'TN',
         ],
         [
-            'street' => 'Rue de la Kasbah',
+            'address_line1' => 'Rue de la Kasbah',
             'city' => 'Tunis',
             'state' => 'Tunis',
-            'zip' => '1008',
+            'postcode' => '1008',
             'country' => 'TN',
         ],
         [
-            'street' => 'Avenue de Paris',
+            'address_line1' => 'Avenue de Paris',
             'city' => 'Bizerte',
             'state' => 'Bizerte',
-            'zip' => '7000',
+            'postcode' => '7000',
             'country' => 'TN',
         ],
         [
-            'street' => 'Rue Farhat Hached',
+            'address_line1' => 'Rue Farhat Hached',
             'city' => 'Nabeul',
             'state' => 'Nabeul',
-            'zip' => '8000',
+            'postcode' => '8000',
             'country' => 'TN',
         ],
         [
-            'street' => 'Rue Mongi Slim',
+            'address_line1' => 'Rue Mongi Slim',
             'city' => 'Gabès',
             'state' => 'Gabès',
-            'zip' => '6000',
+            'postcode' => '6000',
             'country' => 'TN',
         ],
     ];
+
+    private array $addressFirstNames = ['Amine', 'Sarra', 'Mehdi', 'Nadia', 'Omar', 'Lina', 'Youssef', 'Inès', 'Khaled', 'Rim', 'Aya', 'Ilyes'];
+
+    private array $addressLastNames = ['Ben Ali', 'Mansour', 'Khelifi', 'Trabelsi', 'Haddad', 'Bouazizi', 'Mhiri', 'Chtourou', 'Jelliti', 'Gharbi', 'Saidi', 'Ben Salah'];
 
     public function handle(): int
     {
@@ -108,7 +114,11 @@ class GenerateDemoData extends Command
             $this->newLine();
         }
 
-        $this->adminUser = User::where('email', 'admin@example.com')->first()
+        $this->adminUser = config('admin.email')
+            ? User::where('email', config('admin.email'))->first()
+            : null;
+
+        $this->adminUser = $this->adminUser
             ?? User::whereHas('roles', fn ($q) => $q->where('slug', 'admin'))->first();
 
         if (! $this->adminUser) {
@@ -127,7 +137,7 @@ class GenerateDemoData extends Command
         $this->createOrders();
         $this->createProductReviews();
         $this->createStockHistory();
-        // $this->createBlogPosts();
+        $this->createBlogPosts();
 
         $this->newLine();
         $this->info('=== Demo data generation complete! ===');
@@ -144,41 +154,79 @@ class GenerateDemoData extends Command
         $this->info('Creating customers...');
 
         $customers = [
-            ['name' => 'Amine Ben Ali', 'email' => 'amine.benali@example.com'],
-            ['name' => 'Sarra Mansour', 'email' => 'sarra.mansour@example.com'],
-            ['name' => 'Mehdi Khelifi', 'email' => 'mehdi.khelifi@example.com'],
-            ['name' => 'Nadia Trabelsi', 'email' => 'nadia.trabelsi@example.com'],
-            ['name' => 'Omar Haddad', 'email' => 'omar.haddad@example.com'],
-            ['name' => 'Lina Bouazizi', 'email' => 'lina.bouazizi@example.com'],
-            ['name' => 'Youssef Mhiri', 'email' => 'youssef.mhiri@example.com'],
-            ['name' => 'Ines Chtourou', 'email' => 'ines.chtourou@example.com'],
-            ['name' => 'Khaled Jelliti', 'email' => 'khaled.jelliti@example.com'],
-            ['name' => 'Rim Gharbi', 'email' => 'rim.gharbi@example.com'],
-            ['name' => 'Walid Saidi', 'email' => 'walid.saidi@example.com'],
-            ['name' => 'Mariem Frikha', 'email' => 'mariem.frikha@example.com'],
+            ['name' => 'Emma Johnson', 'email' => 'emma.johnson@example.com'],
+            ['name' => 'Liam Anderson', 'email' => 'liam.anderson@example.com'],
         ];
 
         $bar = $this->output->createProgressBar(count($customers));
         $bar->start();
 
         foreach ($customers as $data) {
+            $name = $data['name'];
+            [$first, $last] = array_pad(explode(' ', $name, 2), 2, '');
+
             $user = User::firstOrCreate(
                 ['email' => $data['email']],
                 [
-                    'name' => $data['name'],
-                    'username' => Str::slug($data['name']),
+                    'name' => $name,
+                    'first_name' => $first,
+                    'last_name' => $last,
+                    'display_name' => $name,
+                    'username' => Str::slug($name),
                     'password' => bcrypt('password'),
                     'email_verified_at' => now()->subDays(rand(10, 90)),
-                    'billing_address' => $this->randomAddress(),
-                    'shipping_address' => $this->randomAddress(),
+                    'phone' => '+1 '.rand(200, 999).' '.rand(200, 999).' '.str_pad((string) rand(0, 9999), 4, '0', STR_PAD_LEFT),
+                    'contact_email' => $data['email'],
+                    'bio' => "{$name} is a demo customer who enjoys exploring our catalog and leaving honest feedback on every purchase.",
+                    'social_links' => [
+                        'twitter' => 'https://twitter.com/'.Str::slug($name),
+                        'facebook' => null,
+                        'instagram' => 'https://instagram.com/'.Str::slug($name),
+                        'linkedin' => null,
+                        'tiktok' => null,
+                        'youtube' => null,
+                        'whatsapp' => null,
+                    ],
+                    'avatar' => $this->downloadAvatar(Str::slug($name)),
+                    'billing_address' => $this->randomAddress($first, $last),
+                    'shipping_address' => $this->randomAddress($first, $last),
                 ]
             );
+
+            $user->forceFill([
+                'billing_address' => $this->randomAddress($first, $last),
+                'shipping_address' => $this->randomAddress($first, $last),
+                'email_verified_at' => $user->email_verified_at ?? now()->subDays(rand(10, 90)),
+            ])->save();
+
+            $user->assignRole(config('roles.default_role', 'customer'));
             $this->customerUsers[] = $user;
             $bar->advance();
         }
 
         $bar->finish();
         $this->newLine();
+    }
+
+    private function downloadAvatar(string $seed): ?string
+    {
+        try {
+            $response = Http::timeout(15)->get("https://picsum.photos/seed/{$seed}/200/200");
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $filename = $seed.'-'.Str::random(8).'.jpg';
+
+            Storage::disk('avatars')->put($filename, $response->body());
+
+            return $filename;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return null;
+        }
     }
 
     private function createShippingMethods(): void
@@ -315,8 +363,6 @@ class GenerateDemoData extends Command
             return;
         }
 
-        $soloCustomer = $this->customerUsers[0];
-
         // Realistic order scenarios
         $scenarios = $this->buildOrderScenarios();
 
@@ -340,13 +386,14 @@ class GenerateDemoData extends Command
         $customers = $this->customerUsers;
         $methods = $this->shippingMethods;
         $method = fn ($offset) => $methods[$offset % count($methods)];
+        $cust = fn ($offset) => $customers[$offset % count($customers)];
         $today = now();
 
         $scenarios = [];
 
         // Scenario 1: Recent completed order with notes — the Solo user
         $scenarios[] = [
-            'customer' => $customers[0],
+            'customer' => $cust(0),
             'status' => 'completed',
             'payment_method' => 'stripe',
             'items' => [
@@ -366,7 +413,7 @@ class GenerateDemoData extends Command
 
         // Scenario 2: Pending order waiting payment
         $scenarios[] = [
-            'customer' => $customers[1],
+            'customer' => $cust(1),
             'status' => 'pending',
             'payment_method' => 'bank_transfer',
             'items' => [
@@ -380,7 +427,7 @@ class GenerateDemoData extends Command
 
         // Scenario 3: Processing order
         $scenarios[] = [
-            'customer' => $customers[2],
+            'customer' => $cust(2),
             'status' => 'processing',
             'payment_method' => 'stripe',
             'items' => [
@@ -399,7 +446,7 @@ class GenerateDemoData extends Command
 
         // Scenario 4: Confirmed order
         $scenarios[] = [
-            'customer' => $customers[3],
+            'customer' => $cust(3),
             'status' => 'confirmed',
             'payment_method' => 'cash_on_delivery',
             'items' => [
@@ -413,7 +460,7 @@ class GenerateDemoData extends Command
 
         // Scenario 5: Cancelled order
         $scenarios[] = [
-            'customer' => $customers[4],
+            'customer' => $cust(4),
             'status' => 'cancelled',
             'payment_method' => 'stripe',
             'items' => [
@@ -431,7 +478,7 @@ class GenerateDemoData extends Command
 
         // Scenario 6: Refunded order
         $scenarios[] = [
-            'customer' => $customers[5],
+            'customer' => $cust(5),
             'status' => 'refunded',
             'payment_method' => 'stripe',
             'items' => [
@@ -456,7 +503,7 @@ class GenerateDemoData extends Command
 
         // Scenario 7: On-hold order
         $scenarios[] = [
-            'customer' => $customers[6],
+            'customer' => $cust(6),
             'status' => 'on-hold',
             'payment_method' => 'bank_transfer',
             'items' => [
@@ -473,7 +520,7 @@ class GenerateDemoData extends Command
 
         // Scenario 8: Failed payment order
         $scenarios[] = [
-            'customer' => $customers[7],
+            'customer' => $cust(7),
             'status' => 'failed',
             'payment_method' => 'stripe',
             'items' => [
@@ -489,7 +536,7 @@ class GenerateDemoData extends Command
 
         // Scenario 9: Large completed order with no coupon, guest-style
         $scenarios[] = [
-            'customer' => $customers[8],
+            'customer' => $cust(8),
             'status' => 'completed',
             'payment_method' => 'stripe',
             'items' => [
@@ -507,7 +554,7 @@ class GenerateDemoData extends Command
 
         // Scenario 10: Pending order with coupon
         $scenarios[] = [
-            'customer' => $customers[9],
+            'customer' => $cust(9),
             'status' => 'pending',
             'payment_method' => 'cash_on_delivery',
             'items' => [
@@ -551,8 +598,8 @@ class GenerateDemoData extends Command
         $completedAt = $scenario['completed_at'] ?? null;
         $refundedAt = $scenario['refunded_at'] ?? null;
 
-        $billing = $customer->billing_address ?? $this->randomAddress();
-        $shipping = $customer->shipping_address ?? $this->randomAddress();
+        $billing = $customer->billing_address ?? $this->randomAddress($customer->first_name, $customer->last_name);
+        $shipping = $customer->shipping_address ?? $this->randomAddress($customer->first_name, $customer->last_name);
 
         $subtotal = 0;
         $orderItemsData = [];
@@ -902,7 +949,7 @@ class GenerateDemoData extends Command
         $this->newLine();
     }
 
-    private function maybeCreatePosts(): void
+    private function createBlogPosts(): void
     {
         if (! class_exists('Nreljed\DashboardCore\Blog\Models\Post')) {
             $this->line('[SKIP] Posts module not available');
@@ -913,49 +960,86 @@ class GenerateDemoData extends Command
         $this->info('Creating blog posts...');
 
         $categoriesData = [
-            ['name' => 'Technology', 'description' => 'Latest tech news and reviews'],
+            ['name' => 'Technology', 'description' => 'Latest tech news, launches and deep dives'],
             ['name' => 'Tutorials', 'description' => 'Step-by-step guides and how-tos'],
-            ['name' => 'Industry News', 'description' => 'Updates from the industry'],
-            ['name' => 'Tips & Tricks', 'description' => 'Helpful tips for our customers'],
+            ['name' => 'Industry News', 'description' => 'Updates and announcements from the industry'],
+            ['name' => 'Tips & Tricks', 'description' => 'Helpful tips for getting the most out of our store'],
+            ['name' => 'Product Reviews', 'description' => 'Honest, hands-on reviews of the products we sell'],
         ];
 
-        $tagsData = ['Featured', 'Popular', 'New', 'Trending', 'How-to'];
+        $tagsData = ['Featured', 'Popular', 'New', 'Trending', 'How-to', 'Reviews', 'News'];
 
         $postsData = [
             [
                 'title' => 'Getting Started with Our Platform',
-                'content' => 'Welcome to our platform! This guide will walk you through the basics of setting up your account, browsing products, and making your first purchase.\n\n## Step 1: Create Your Account\nSign up with your email address and choose a secure password.\n\n## Step 2: Browse Products\nExplore our catalog with advanced filtering options.\n\n## Step 3: Place Your Order\nAdd items to your cart and proceed to checkout.',
+                'content' => '<p>Welcome to our platform! This guide will walk you through the basics of setting up your account, browsing products, and making your first purchase.</p><h2>Step 1: Create your account</h2><p>Sign up with your email address and choose a secure password. You can verify your email in one click and start shopping immediately.</p><h2>Step 2: Browse products</h2><p>Explore our catalog with advanced filtering. Filter by category, price range, brand and availability, or use the search bar for a direct lookup.</p><h2>Step 3: Place your order</h2><ul><li>Add items to your cart and apply a discount code</li><li>Enter your billing and shipping address</li><li>Pick a shipping method and review your order</li><li>Confirm and track your delivery</li></ul><blockquote><p>All orders over 50 EUR ship for free with our standard method.</p></blockquote>',
                 'excerpt' => 'New to our platform? Here is everything you need to know.',
                 'category' => 'Tutorials',
                 'tags' => ['Featured', 'New'],
+                'status' => 'published',
+                'days_ago' => 7,
+                'focus_keyword' => 'getting started shopping platform',
             ],
             [
                 'title' => '5 Tips for a Better Shopping Experience',
-                'content' => 'Shopping online should be enjoyable. Here are our top tips:\n\n1. **Use filters** - Narrow down products by category, price, and features\n2. **Check reviews** - Learn from other customers experiences\n3. **Coupon stacking** - Combine multiple coupons for maximum savings\n4. **Wishlist** - Save items for later and get notified of price drops\n5. **Express checkout** - Save your address and payment details for faster checkout',
-                'excerpt' => 'Make the most of your shopping with these simple tips.',
+                'content' => "<p>Shopping online should be enjoyable. Here are our top five tips to save time and money:</p><ol><li><strong>Use filters</strong> - Narrow down products by category, price and features</li><li><strong>Check reviews</strong> - Learn from other customers' experiences</li><li><strong>Apply coupons</strong> - Combine active discount codes for maximum savings</li><li><strong>Use your wishlist</strong> - Save items for later and revisit them</li><li><strong>Prefill your address</strong> - Store your billing and shipping details for faster checkout</li></ol><p>These small habits turn a chore into a delight.</p>",
+                'excerpt' => 'Make the most of every visit to the store with these simple tips.',
                 'category' => 'Tips & Tricks',
                 'tags' => ['Popular', 'Trending'],
+                'status' => 'published',
+                'days_ago' => 6,
+                'focus_keyword' => 'better online shopping experience',
             ],
             [
                 'title' => 'Understanding Our Shipping Policy',
-                'content' => 'We offer multiple shipping options to suit your needs:\n\n- **Standard Shipping**: 5-7 business days - Free on orders over 50 EUR\n- **Express Shipping**: 2-3 business days - Free on orders over 100 EUR\n- **Next Day Delivery**: Order before 2 PM\n\nAll orders are tracked and insured.',
-                'excerpt' => 'Everything you need to know about shipping times and costs.',
+                'content' => '<p>We offer multiple shipping options to suit every need:</p><ul><li><strong>Standard Shipping</strong> - 5-7 business days, free on orders over 50 EUR</li><li><strong>Express Shipping</strong> - 2-3 business days, free on orders over 100 EUR</li><li><strong>Next Day Delivery</strong> - order before 2 PM</li></ul><p>Every order is tracked and insured from the moment it leaves our warehouse.</p><h2>Returning an item</h2><p>Changed your mind? You have 14 days from delivery to request a return. Refunds are processed to your original payment method within 5 business days.</p>',
+                'excerpt' => 'Everything you need to know about shipping times, costs and returns.',
                 'category' => 'Industry News',
-                'tags' => ['How-to'],
+                'tags' => ['How-to', 'News'],
+                'status' => 'published',
+                'days_ago' => 5,
+                'focus_keyword' => 'shipping policy and returns',
             ],
             [
                 'title' => 'New Product Line: Smart Home Devices',
-                'content' => 'We are excited to announce our new line of smart home devices!\n\nOur new collection includes:\n- Smart speakers\n- Home automation hubs\n- Security cameras\n- Smart lighting\n\nAll devices are compatible with major smart home ecosystems.',
+                'content' => '<p>We are excited to announce a brand new line of smart home devices, now live in the store.</p><p>The collection includes:</p><ul><li>Smart speakers</li><li>Home automation hubs</li><li>Security cameras</li><li>Smart lighting kits</li></ul><p>All devices are compatible with the major smart home ecosystems and are covered by a two-year warranty.</p>',
                 'excerpt' => 'Discover our latest collection of smart home products.',
                 'category' => 'Technology',
                 'tags' => ['Featured', 'New', 'Trending'],
+                'status' => 'published',
+                'days_ago' => 4,
+                'focus_keyword' => 'smart home devices collection',
             ],
             [
                 'title' => 'How to Choose the Right Product for Your Needs',
-                'content' => 'Choosing the right product can be overwhelming. Follow this framework:\n\n1. **Identify your needs** - What problem are you solving?\n2. **Set a budget** - How much are you willing to spend?\n3. **Research** - Read reviews and compare specifications\n4. **Check compatibility** - Does it work with your existing setup?\n5. **Consider future use** - Will it still meet your needs in 6 months?',
-                'excerpt' => 'A practical guide to making informed purchase decisions.',
+                'content' => '<p>Choosing the right product can be overwhelming. Follow this simple framework to make an informed decision:</p><ol><li><strong>Identify your needs</strong> - What problem are you solving?</li><li><strong>Set a budget</strong> - How much are you willing to spend?</li><li><strong>Research</strong> - Read reviews and compare specifications</li><li><strong>Check compatibility</strong> - Does it work with your existing setup?</li><li><strong>Consider future use</strong> - Will it still meet your needs in six months?</li></ol><p>Take your time; the right product pays for itself.</p>',
+                'excerpt' => 'A practical framework for making confident purchase decisions.',
                 'category' => 'Tips & Tricks',
                 'tags' => ['Popular', 'How-to'],
+                'status' => 'published',
+                'days_ago' => 3,
+                'focus_keyword' => 'how to choose a product',
+            ],
+            [
+                'title' => 'Xiaomi 14 Pro Review: Our Honest Take',
+                'content' => '<p>We spent two weeks with the Xiaomi 14 Pro as our daily driver. Here is the short version: it is excellent.</p><h2>What we loved</h2><ul><li>Outstanding 120Hz LTPO display with superb brightness</li><li>Fast, consistent Leica-tuned cameras</li><li>All-day battery with 90W charging</li></ul><h2>What could be better</h2><ul><li>No wireless charging in all regions</li><li>HyperOS adds a layer of software polish that not everyone needs</li></ul><p>Overall, this is one of the best value flagships of the year. Full review drops soon.</p>',
+                'excerpt' => 'Two weeks with the Xiaomi 14 Pro - what we loved and what we did not.',
+                'category' => 'Product Reviews',
+                'tags' => ['Reviews', 'Trending'],
+                'status' => 'draft',
+                'days_ago' => null,
+                'focus_keyword' => 'xiaomi 14 pro review',
+            ],
+            [
+                'title' => 'Upcoming Sale: Exclusive Autumn Discounts',
+                'content' => '<p>Mark your calendar! A week of exclusive autumn discounts is coming to the store.</p><p>Here is a preview of what to expect:</p><ul><li>Up to 30% off selected smartphones</li><li>Free express shipping on orders over 75 EUR</li><li>Exclusive coupon codes for newsletter subscribers</li></ul><p>This post will go live automatically on the first day of the sale.</p>',
+                'excerpt' => 'A preview of the upcoming autumn sale and how to get the best deals.',
+                'category' => 'Industry News',
+                'tags' => ['New', 'News'],
+                'status' => 'future',
+                'days_ago' => null,
+                'publish_in_days' => 7,
+                'focus_keyword' => 'autumn sale discounts',
             ],
         ];
 
@@ -985,16 +1069,40 @@ class GenerateDemoData extends Command
             $catIdx = array_search($postData['category'], array_column($categoriesData, 'name'));
             $categoryId = $categories[$catIdx]->id ?? null;
 
+            $seed = Str::slug($postData['title']);
+            $status = $postData['status'];
+            $publishedAt = match ($status) {
+                'published' => now()->subDays($postData['days_ago']),
+                'future' => now()->addDays($postData['publish_in_days'] ?? 7),
+                default => null,
+            };
+            $metaTitle = Str::limit($postData['title'], 60, '');
+            $metaDescription = Str::limit($postData['excerpt'], 160, '');
+
             $post = Post::firstOrCreate(
-                ['slug' => Str::slug($postData['title'])],
+                ['slug' => $seed],
                 [
                     'user_id' => $this->adminUser->id,
                     'title' => $postData['title'],
                     'content' => $postData['content'],
                     'excerpt' => $postData['excerpt'],
-                    'status' => 'published',
-                    'published_at' => now()->subDays(count($postsData) - $i),
+                    'featured_image' => "https://picsum.photos/seed/{$seed}/1200/630",
+                    'og_image' => "https://picsum.photos/seed/{$seed}-og/1200/630",
+                    'status' => $status,
+                    'published_at' => $publishedAt,
                     'category_id' => $categoryId,
+                    'meta_title' => $metaTitle,
+                    'meta_description' => $metaDescription,
+                    'focus_keyword' => $postData['focus_keyword'],
+                    'metadata' => [
+                        'seo' => [
+                            'seo_score' => rand(70, 95),
+                            'primary_keyword' => $postData['focus_keyword'],
+                            'secondary_keywords' => [Str::slug($postData['focus_keyword']), Str::slug($postData['title'])],
+                            'recommendations' => [],
+                        ],
+                        'seo_generated_at' => now()->toISOString(),
+                    ],
                 ]
             );
 
@@ -1012,22 +1120,31 @@ class GenerateDemoData extends Command
         $this->newLine();
     }
 
-    private function randomAddress(): array
+    private function randomAddress(?string $firstName = null, ?string $lastName = null): array
     {
         $addr = $this->addresses[array_rand($this->addresses)];
+        $firstName ??= $this->addressFirstNames[array_rand($this->addressFirstNames)];
+        $lastName ??= $this->addressLastNames[array_rand($this->addressLastNames)];
 
         return [
-            'street' => $addr['street'].' '.rand(1, 200),
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'company' => null,
+            'address_line1' => $addr['address_line1'].' '.rand(1, 200),
+            'address_line2' => null,
             'city' => $addr['city'],
             'state' => $addr['state'],
-            'zip' => $addr['zip'],
+            'postcode' => $addr['postcode'],
             'country' => $addr['country'],
+            'phone' => '+216 '.rand(20, 99).' '.rand(100, 999).' '.rand(100, 999),
         ];
     }
 
     private function clearDemoData(): void
     {
         $demoEmails = [
+            'emma.johnson@example.com', 'liam.anderson@example.com',
+            // Legacy demo customers removed in 2026-07 rework
             'amine.benali@example.com', 'sarra.mansour@example.com',
             'mehdi.khelifi@example.com', 'nadia.trabelsi@example.com',
             'omar.haddad@example.com', 'lina.bouazizi@example.com',
@@ -1054,8 +1171,8 @@ class GenerateDemoData extends Command
 
         // Delete demo posts
         Post::where('user_id', $this->adminUser?->id)->delete();
-        PostCategory::whereIn('slug', ['technology', 'tutorials', 'industry-news', 'tips-tricks'])->delete();
-        PostTag::whereIn('slug', ['featured', 'popular', 'new', 'trending', 'how-to'])->delete();
+        PostCategory::whereIn('slug', ['technology', 'tutorials', 'industry-news', 'tips-tricks', 'product-reviews'])->delete();
+        PostTag::whereIn('slug', ['featured', 'popular', 'new', 'trending', 'how-to', 'reviews', 'news'])->delete();
 
         // Delete demo shipping methods and tax rates
         ShippingMethod::whereIn('name', ['Standard Shipping', 'Express Shipping', 'Next Day Delivery', 'Free Pickup'])->delete();

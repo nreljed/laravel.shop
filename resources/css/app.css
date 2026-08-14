@@ -1,6 +1,6 @@
 @import "tailwindcss" source(none);
 @source "../";
-@source "../../app/Shop/Resources/js/";
+@source "../../vendor/nreljed/shop-module/src/Resources/js/";
 @source "../../vendor/nreljed/dashboard-core/resources/js/";
 @source "../../vendor/nreljed/dashboard-core/src/Blog/Resources/js/";
 

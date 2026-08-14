@@ -3,20 +3,22 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Shop\Models\Attribute;
-use App\Shop\Models\AttributeTerm;
-use App\Shop\Models\Product;
-use App\Shop\Models\ProductAttribute;
-use App\Shop\Models\ProductBrand;
-use App\Shop\Models\ProductCategory;
-use App\Shop\Models\ProductDownload;
-use App\Shop\Models\ProductReview;
-use App\Shop\Models\ProductTag;
-use App\Shop\Models\ProductVariation;
 use Carbon\Carbon;
 use Database\Seeders\Concerns\BootstrapsAdmin;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Nreljed\ShopModule\Models\Attribute;
+use Nreljed\ShopModule\Models\AttributeTerm;
+use Nreljed\ShopModule\Models\Product;
+use Nreljed\ShopModule\Models\ProductAttribute;
+use Nreljed\ShopModule\Models\ProductBrand;
+use Nreljed\ShopModule\Models\ProductCategory;
+use Nreljed\ShopModule\Models\ProductDownload;
+use Nreljed\ShopModule\Models\ProductReview;
+use Nreljed\ShopModule\Models\ProductTag;
+use Nreljed\ShopModule\Models\ProductVariation;
 
 class ShopProductSeeder extends Seeder
 {
@@ -715,16 +717,48 @@ class ShopProductSeeder extends Seeder
 
     private function createReviews(int $adminId): void
     {
+        // Remove legacy review users (renamed in the 2026-07 rework)
+        User::where('email', 'like', '%@review.example.com')
+            ->where('email', 'not like', 'olivia.carter@review.example.com')
+            ->where('email', 'not like', 'noah.mitchell@review.example.com')
+            ->where('email', 'not like', 'ava.rodriguez@review.example.com')
+            ->delete();
+
         $reviewUsers = [];
-        foreach (['Power User', 'Tech Reviewer', 'Gadget Fan'] as $name) {
+        foreach ([
+            ['name' => 'Olivia Carter', 'email' => 'olivia.carter@review.example.com'],
+            ['name' => 'Noah Mitchell', 'email' => 'noah.mitchell@review.example.com'],
+            ['name' => 'Ava Rodriguez', 'email' => 'ava.rodriguez@review.example.com'],
+        ] as $data) {
+            [$first, $last] = array_pad(explode(' ', $data['name'], 2), 2, '');
+
             $user = User::firstOrCreate(
-                ['email' => strtolower(str_replace(' ', '.', $name)).'@review.example.com'],
+                ['email' => $data['email']],
                 [
-                    'name' => $name,
+                    'name' => $data['name'],
+                    'first_name' => $first,
+                    'last_name' => $last,
+                    'display_name' => $data['name'],
+                    'username' => strtolower($first).'.'.strtolower($last),
                     'password' => bcrypt('password'),
                     'email_verified_at' => now(),
+                    'phone' => '+1 '.rand(200, 999).' '.rand(200, 999).' '.str_pad((string) rand(0, 9999), 4, '0', STR_PAD_LEFT),
+                    'contact_email' => $data['email'],
+                    'bio' => "{$data['name']} is a verified reviewer sharing hands-on experience with our products.",
+                    'social_links' => [
+                        'twitter' => 'https://twitter.com/'.strtolower($first),
+                        'facebook' => null,
+                        'instagram' => null,
+                        'linkedin' => 'https://linkedin.com/in/'.strtolower($first).'-'.strtolower($last),
+                        'tiktok' => null,
+                        'youtube' => null,
+                        'whatsapp' => null,
+                    ],
+                    'avatar' => $this->downloadAvatar(strtolower($first).'-'.strtolower($last)),
                 ]
             );
+
+            $user->assignRole(config('roles.default_role', 'customer'));
             $reviewUsers[] = $user->id;
         }
 
@@ -813,5 +847,26 @@ class ShopProductSeeder extends Seeder
         }
 
         return 'outofstock';
+    }
+
+    private function downloadAvatar(string $seed): ?string
+    {
+        try {
+            $response = Http::timeout(15)->get("https://picsum.photos/seed/{$seed}/200/200");
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $filename = $seed.'-'.Str::random(8).'.jpg';
+
+            Storage::disk('avatars')->put($filename, $response->body());
+
+            return $filename;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return null;
+        }
     }
 }

@@ -28,11 +28,12 @@
 
 | Method | Route | Purpose | Access |
 |--------|-------|---------|--------|
+| `index()` | `GET /admin/shop/settings` | Render settings page (`shop/settings/index`) with `settings`/`countries`/`currencies` | Admin |
 | `update()` | `PUT /admin/shop/settings` | Save Shop settings | Admin + `shop.view` |
 
-Validates 14 fields across 4 groups: Product Defaults (status, backorder), Currency & Units (currency, position, weight, dimension), Inventory Management (inventory_enabled, low_stock_threshold, hold_stock_enabled, hold_stock_minutes), Feature Toggles (show_out_of_stock, enable_reviews, enable_wishlist, auto_complete_orders).
+Validates the full settings set: Store Profile (name, email, address), Selling Locations (mode + country list), Currency & Pricing (currency, symbol, position, separators, decimals), Tax Options (prices_include_tax, tax_based_on, tax_shipping, tax_display), Inventory (inventory_enabled, low_stock_threshold, hold_stock_enabled, hold_stock_minutes, default_product_status, backorder_default), Checkout (enable_guest_checkout, require_company_field, require_terms, checkout_default_country), Units (weight, dimension), Features (show_out_of_stock, enable_reviews, enable_wishlist, auto_complete_orders, abandoned cart, sale scheduling).
 
-Stores settings with `group = 'shop'` in the `settings` table via `Setting::updateOrCreate()`. Booleans cast to `"1"`/`"0"` before storage.
+Stores settings with `group = 'shop'` in the `settings` table via `Setting::updateOrCreate()`. Booleans cast to `"1"`/`"0"` before storage; arrays JSON-encoded. Clears both `SettingsService` and `ShopSettingsService` caches after save. Typed reads via `ShopSettingsService`.
 
 ## ProductsController
 

@@ -67,14 +67,7 @@ app/                          # Core Laravel application
     NotificationService.php
     DashboardService.php  # Stats + Analytics cache (5-min TTL)
     FormattingService.php # Price formatting
-  Shop/                   # Shop domain (namespace App\Shop)
-    ShopServiceProvider.php  # Registers nav, permissions, email templates, notification types, shared data
-    Models/               # Product, Order, Cart, Coupon, Shipping*, TaxRate, Webhook, etc.
-    Controllers/          # CartController, CheckoutController, OrdersController, ProductsController, etc.
-    Services/             # InventoryService, CheckoutService, CouponService, ShippingService, TaxService, WebhookService, CurrencyService
-    Resources/js/Pages/   # Inertia page components (aliased as @shop/Pages/...)
-    Resources/js/components/  # Module-specific React components (aliased as @shop/components/...)
-    database/migrations/  # Shop-specific migrations
+  Shop/                   # (legacy tree — Shop now lives in packages/shop-module, see Feature Architecture)
   Blog/                   # Blog domain (namespace App\Blog)
     BlogServiceProvider.php   # Registers nav, permissions, email templates, notification types, shared data
     Models/               # Post, PostCategory, PostTag, ContentBlock
@@ -113,9 +106,9 @@ resources/js/
 routes/
   web.php                 # Dashboard, admin, public, deploy routes
   auth.php                # Breeze auth routes + profile + switch-mode
-  shop.php                # Shop dashboard routes (loaded by ShopServiceProvider)
-  shop-api.php            # Shop JSON API routes
   blog.php                # Blog dashboard routes (loaded by BlogServiceProvider)
+
+> Shop routes are self-loaded by the `shop-module` package provider (`packages/shop-module/src/ShopServiceProvider.php`); there are no `routes/shop*.php` files in the host.
 
 ## Routes
 
@@ -135,7 +128,7 @@ routes/
 
 - **Shared props**: `HandleInertiaRequests` shares `auth.user`, `latestNotifications`, `notificationUnreadCount`, `flash`, `userMode`, `canSwitchMode`, `sharedData` (from FeatureRegistry), `featureNavItems` (with `groupLabel`), `userCapabilities`, `repeaterConfigs`, `profileFieldConfigs`, `emailSettings`, `brand`, `impersonating`
 - **Admin check**: `useAuth().isAdmin` + `admin` middleware + `User::isAdmin()`
-- **Component imports**: Use `@/Components/...` alias (NOT `@/components/...`) — Windows case-insensitive FS workaround; use `@shop` for Shop modules, `@blog` for Blog modules
+- **Component imports**: Use `@/Components/...` alias (NOT `@/components/...`) — Windows case-insensitive FS workaround; use `@shop` for Shop modules. There is NO `@blog` alias — Blog pages come from the core package glob
 - **No ShadCN `asChild`**: Avoid `Slot` pattern when possible; use plain `<Link>` instead
 - **Authorization**: Route groups use `permission:{slug}` middleware. Individual create/edit/delete actions are authorized via Policy + `$this->authorize()` in controllers or FormRequest `authorize()`
 - **Policies**: Registered in `AppServiceProvider` via `Gate::policy()`
@@ -148,30 +141,33 @@ routes/
 
 ## Feature Architecture
 
-The old `app/Modules/*/` module system has been consolidated into two first-class Laravel domains:
+The old `app/Modules/*/` module system has been consolidated into two feature providers:
 
-| Domain | Namespace | Directory | Service Provider | Slug |
-|--------|-----------|-----------|-----------------|------|
-| Shop | `App\Shop` | `app/Shop/` | `ShopServiceProvider` | `shop` |
-| Blog | `App\Blog` | `app/Blog/` | `BlogServiceProvider` | `posts` |
+| Feature | Namespace | Directory | Service Provider | Slug |
+|---------|-----------|-----------|------------------|------|
+| Shop | `Nreljed\ShopModule` | `packages/shop-module/src/` (composer pkg `nreljed/shop-module`, mirrored to `vendor/nreljed/shop-module`) | `ShopServiceProvider` | `shop` |
+| Blog | `Nreljed\DashboardCore\Blog` | `vendor/nreljed/dashboard-core/src/Blog/` | `BlogServiceProvider` | `posts` |
 
-Each service provider implements provider methods (`name()`, `slug()`, `version()`, `permissions()`, `getNavItems()`, `getSharedData()`, `getEmailTemplates()`, `getNotificationTypes()`, `getDashboardData()`, `onUserDelete()`) that are aggregated by `FeatureRegistry`.
+Each service provider implements `Nreljed\DashboardCore\Contracts\FeatureProvider` (via `InteractsWithFeatures`): `name()`, `slug()`, `permissions()`, `getNavItems()`, `getSharedData()`, `getEmailTemplates()`, `getNotificationTypes()`, `getDashboardData()`, `onUserDelete()`, etc., aggregated by the core `FeatureRegistry`.
 
 ### FeatureRegistry
-`App\Services\FeatureRegistry` replaces the old `ModuleRegistry`. It:
-- Collects `ShopServiceProvider` + `BlogServiceProvider` in its constructor via `app()->getProvider()`
+`Nreljed\DashboardCore\Services\FeatureRegistry` (in the `dashboard-core` package) replaces the old `ModuleRegistry`. It:
+- Collects the feature providers listed in `config/core.php` `features` (host adds `Nreljed\ShopModule\ShopServiceProvider` alongside the core `BlogServiceProvider`)
 - Exposes `all()`, `get(string $slug)`, `getAllNavItems()`, `getAllSharedData()`, `permissions()`, etc.
 - Used by `HandleInertiaRequests`, `PermissionGateServiceProvider`, `DashboardService`, `FormattingService`, `NotificationTypeRegistry`, `EmailSettingsController`, and other services
 
 ### Route Loading
-Routes are loaded via conventional route files (`routes/shop.php`, `routes/blog.php`, `routes/shop-api.php`, `routes/api.php`), loaded by the providers' `boot()` method or directly via `bootstrap/app.php`. No more `HasRoutes` trait or `ModuleInterface`.
+Each feature provider self-loads its own routes from its own `Routes/` directory in `boot()`:
+- Blog: `Nreljed\DashboardCore\Blog\BlogServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/web.php')` (prefix `dashboard/posts`, name `dashboard.posts.`) + public routes (prefix `blog`)
+- Shop: `packages/shop-module/src/Routes/*.php` (11 files: web, admin, storefront, store-cart, store-checkout, store-wishlist, store-notify, recovery, customer-portal, api, api-auth), loaded by `Nreljed\ShopModule\ShopServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/…')`, grouped with `web` middleware + `permission:shop.view` + prefixes `dashboard.shop.` / `admin.shop.` / `store.*`
+- Shop JSON API: the package registers `api.*` routes (products/orders/categories, `auth:sanctum`) — the host's `routes/api.php` does NOT require shop files
 
 ### Frontend Page Loading
-Inertia pages are loaded via Vite glob imports in `app.tsx`:
-- `@shop/Pages/**/*.tsx` → registered under `shop/*` page keys
-- `@blog/Pages/**/*.tsx` → registered under `blog/*` page keys
+Inertia pages are loaded via Vite glob imports:
+- Core dashboard/admin/account/auth pages: `registerCoreTemplates()` in `resources/js/app.tsx` (globs `vendor/nreljed/dashboard-core/resources/js/Pages` + in-core feature pages under `src/*/Resources/js/Pages` — Blog included)
+- Shop pages: `import.meta.glob("@shop/Pages/**/*.tsx")` → registered under `shop/*` page keys (`projectPrefix: "shop"`)
 
-Alias mappings: `@shop` → `app/Shop/Resources/js/`, `@blog` → `app/Blog/Resources/js/`
+Alias mappings: `@shop` → `vendor/nreljed/shop-module/src/Resources/js/`; `@`/`@dashboard` → `vendor/nreljed/dashboard-core/resources/js/`
 
 ## Dev Environment
 
@@ -1229,7 +1225,7 @@ MODIFIED:
 Refactored the Shop settings from a self-contained local-state component to a proper props-driven section wired to the database-backed settings system.
 
 ### Backend
-- `ShopSettingsController::update()` — validates 14 fields (added `hold_stock_enabled`, `hold_stock_minutes`, `backorder_default`, `inventory_enabled`), stores with `group = 'shop'` via `Setting::updateOrCreate()`, booleans cast to `"1"`/`"0"` for DB
+- `ShopSettingsController::update()` — validates 14 fields (added `hold_stock_enabled`, `hold_stock_minutes`, `backorder_default`, `inventory_enabled`), stores with `group\ =\ 'shop'` via `Setting::updateOrCreate()`, booleans cast to `"1"`/`"0"` for DB
 - `SettingsService::clearCache()` — added `'shop'` to group cache clear list
 
 ### Frontend
@@ -1244,6 +1240,50 @@ MODIFIED:
   resources/js/Pages/dashboard/admin/settings.tsx                          # Shop state + submit handler
   app/Services/SettingsService.php                                         # +Shop in clearCache
 ```
+
+## Recent Changes — Flexible Shop Settings (Full Set + Settings UI)
+
+**Date:** 2026-08-14
+
+Replaced the small embedded `ShopSection` with a full **dedicated Shop Settings page** (`/admin/shop/settings`, page key `shop/settings/index`) covering store profile, selling locations, currency & pricing, tax options, checkout behaviour, plus the existing inventory/features toggles.
+
+### New Backend
+- `packages/shop-module/src/Support/Countries.php` — ISO 3166 alpha-2 map (`all()`, `name()`, `exists()`), served as `countries` prop.
+- `packages/shop-module/src/Services/ShopSettingsService.php` — typed getters + defaults over `settings` table `group\ =\ 'shop'` (`baseCountry()`, `guestCheckoutEnabled()`, `requireCompanyField()`, `requireTerms()`, `checkoutDefaultCountry()`, `pricesIncludeTax()`, `taxBasedOn()`, `taxShipping()`, `taxDisplay()`, `currencyFormat()`, `isCountryAllowed()`, `clearCache()`).
+- `ShopSettingsController::index()` — renders `shop/settings/index` with `settings`/`countries`/`currencies`; `update()` validates all groups (base_country `size:2`, selling_locations_mode `all|specific|except`, currency_position 4-way, separators, decimals, tax options, checkout toggles, units).
+- Routes (`Routes/admin.php`): `GET /settings` → `settings.index`, `PUT /settings` → `settings.update` (both `admin.shop.*` prefix).
+- **Service wiring**: `TaxService` (country by `tax_based_on` billing/shipping, inc-tax back-calc, `tax_shipping`), `ShippingService` (base-country fallback), `CheckoutService` (tax computed after coupon loop with shipping address + shipping total), `CurrencyService::format()` (4-way symbol position + separators/decimals via `currencyFormat()`).
+- **Checkout guards** (`CheckoutController`): guest checkout redirect/login when disabled; `billing_address.company` required when `require_company_field`; `accepted_terms` accepted when `require_terms`; selling-locations policy enforced on billing + shipping country (`ValidationException`).
+- **Shared props** (`ShopServiceProvider`): `shopSettings` (full array), `currencyFormat` (position/separators/decimals). Admin-only "Settings" nav item → `admin.shop.settings.index`.
+- `config/shop.php` — `checkout`, `tax`, `selling_locations`, `formatting`, `store` default arrays.
+
+### Frontend
+- `Pages/Settings/Index.tsx` — accordion sections: Store Profile, Selling Locations, Currency & Pricing, Tax Options, Inventory, Checkout, Units of Measure, Features & Automation; typed `SettingsForm`; "None" country mapping for checkout default; PUT to `admin.shop.settings.update`.
+- `Pages/Orders/Checkout.tsx` — `cart.discount` line, terms checkbox (when `require_terms`), company label, default country prefill, `orderTotal = cart.total + shippingPrice + taxTotal`.
+- `lib/currency.ts` — rewritten to consume `currencyFormat` (thousands/decimal separators, 4-way position).
+
+### Tests
+- `tests/Feature/Modules/Shop/ShopSettingsTest.php` — 8 tests: page access, persistence via `ShopSettingsService`, validation, guest-checkout-off, require_terms, require_company_field, selling-locations block. **Note:** don't use `->component()` in Inertia assertions for shop pages (page files aren't resolvable in tests) — assert props only.
+
+### Files Changed
+```
+NEW:
+  packages/shop-module/src/Support/Countries.php
+  packages/shop-module/src/Services/ShopSettingsService.php
+  packages/shop-module/src/Resources/js/Pages/Settings/Index.tsx
+  tests/Feature/Modules/Shop/ShopSettingsTest.php
+
+MODIFIED:
+  packages/shop-module/src/Http/Controllers/ShopSettingsController.php  # index() + extended update()
+  packages/shop-module/src/Routes/admin.php                              # GET/PUT settings routes
+  packages/shop-module/src/Http/Controllers/CheckoutController.php       # guest/company/terms/locations guards, auto-discount folding
+  packages/shop-module/src/Services/TaxService.php, ShippingService.php, CheckoutService.php, CurrencyService.php
+  packages/shop-module/src/ShopServiceProvider.php                       # Settings nav + shopSettings/currencyFormat shared props
+  packages/shop-module/config/shop.php                                   # new settings defaults
+  packages/shop-module/src/Resources/js/Pages/Orders/Checkout.tsx        # discount line, terms, company, default country
+  packages/shop-module/src/Resources/js/lib/currency.ts                  # currencyFormat-aware formatting
+```
+
 
 ## Recent Changes — Variation Attribute Pivot Table
 

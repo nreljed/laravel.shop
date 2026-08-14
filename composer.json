@@ -9,11 +9,22 @@
         {
             "type": "vcs",
             "url": "https://github.com/nreljed/dashboard-core.git"
+        },
+        {
+            "type": "path",
+            "url": "packages/shop-module",
+            "options": {
+                "symlink": false,
+                "versions": {
+                    "nreljed/shop-module": "0.1.0"
+                }
+            }
         }
     ],
     "require": {
         "php": "^8.4",
         "nreljed/dashboard-core": "^0.1",
+        "nreljed/shop-module": "0.1.0",
         "inertiajs/inertia-laravel": "^3.1",
         "intervention/image-laravel": "^4.0",
         "laravel/ai": "^0.10",

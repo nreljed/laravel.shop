@@ -3,10 +3,10 @@
 namespace Tests\Feature\Modules\Shop;
 
 use App\Models\User;
-use App\Shop\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Nreljed\ShopModule\Models\Product;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

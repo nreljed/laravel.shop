@@ -1,3 +1,3 @@
 <?php
 
-require __DIR__.'/shop-api.php';
+// Shop JSON API routes are registered by Nreljed\ShopModule\ShopServiceProvider.

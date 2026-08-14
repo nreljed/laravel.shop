@@ -3,10 +3,10 @@
 namespace Tests\Feature\Modules\Shop;
 
 use App\Models\User;
-use App\Shop\Models\Product;
-use App\Shop\Models\Webhook;
-use App\Shop\Services\WebhookService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Nreljed\ShopModule\Models\Product;
+use Nreljed\ShopModule\Models\Webhook;
+use Nreljed\ShopModule\Services\WebhookService;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Shop\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Nreljed\ShopModule\Http\Controllers\StorefrontController;
 
 /**
  * Registers project-level public routes that must take precedence over the

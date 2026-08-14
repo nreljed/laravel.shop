@@ -12,6 +12,3 @@ use Illuminate\Support\Facades\Route;
 // routes through their feature service providers.
 //
 // Route::get('/example', fn () => view('example'))->name('example');
-
-// Shop feature routes
-require __DIR__.'/shop.php';

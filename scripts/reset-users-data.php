@@ -19,11 +19,11 @@ $kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
 use App\Models\User;
-use App\Shop\Models\Order;
-use App\Shop\Models\Product;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Nreljed\ShopModule\Models\Order;
+use Nreljed\ShopModule\Models\Product;
 
 echo "=== User Data Reset ===\n\n";
 

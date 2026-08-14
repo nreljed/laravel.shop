@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0589877f0f26cf0b1c253e47e9f04ab0",
+    "content-hash": "91f4d5edbff8a538b6a12a3e02ac4108",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -3550,6 +3550,58 @@
                 "issues": "https://github.com/nreljed/dashboard-core/issues"
             },
             "time": "2026-08-10T18:36:17+00:00"
+        },
+        {
+            "name": "nreljed/shop-module",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/shop-module",
+                "reference": "6797ba70edf9928ef34c204f7c51fd535d057230"
+            },
+            "require": {
+                "barryvdh/laravel-dompdf": "^3.1",
+                "laravel/framework": "^13.0",
+                "nreljed/dashboard-core": "^0.1",
+                "php": "^8.4",
+                "stripe/stripe-php": "^20.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "nunomaduro/collision": "^8.6",
+                "phpunit/phpunit": "^13.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Nreljed\\ShopModule\\ShopServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nreljed\\ShopModule\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Nreljed\\ShopModule\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Nreljed"
+                }
+            ],
+            "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "nunomaduro/termwind",

@@ -19,10 +19,9 @@
         ],
         "paths": {
             "@dashboard/*": ["./vendor/nreljed/dashboard-core/resources/js/*"],
-            "@dashboard-blog/*": ["./vendor/nreljed/dashboard-core/src/Blog/Resources/js/*"],
             "@/*": ["./vendor/nreljed/dashboard-core/resources/js/*"],
-            "@shop": ["./app/Shop/Resources/js"],
-            "@shop/*": ["./app/Shop/Resources/js/*"],
+            "@shop": ["./vendor/nreljed/shop-module/src/Resources/js"],
+            "@shop/*": ["./vendor/nreljed/shop-module/src/Resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"],
             "@inertiajs/core": ["./node_modules/@inertiajs/core"],
             "@inertiajs/react": ["./node_modules/@inertiajs/react"],

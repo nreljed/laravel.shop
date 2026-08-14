@@ -3,15 +3,15 @@
 namespace Tests\Feature\Modules\Shop;
 
 use App\Models\User;
-use App\Shop\Models\Attribute;
-use App\Shop\Models\AttributeTerm;
-use App\Shop\Models\Order;
-use App\Shop\Models\OrderNote;
-use App\Shop\Models\Product;
-use App\Shop\Models\ProductAttribute;
-use App\Shop\Models\ProductCategory;
-use App\Shop\Models\ProductTag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Nreljed\ShopModule\Models\Attribute;
+use Nreljed\ShopModule\Models\AttributeTerm;
+use Nreljed\ShopModule\Models\Order;
+use Nreljed\ShopModule\Models\OrderNote;
+use Nreljed\ShopModule\Models\Product;
+use Nreljed\ShopModule\Models\ProductAttribute;
+use Nreljed\ShopModule\Models\ProductCategory;
+use Nreljed\ShopModule\Models\ProductTag;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

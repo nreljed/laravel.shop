@@ -541,24 +541,51 @@ Policies: `ProductPolicy`, `OrderPolicy`, `CouponPolicy`, `ProductReviewPolicy`,
 
 ## Settings
 
-Stored in `settings` table with `group = 'shop'`. Managed via `ShopSettingsController` at `PUT /admin/shop/settings`.
+Stored in `settings` table with `group = 'shop'`. Managed via `ShopSettingsController` at `GET|PUT /admin/shop/settings`, rendered by the `shop/settings/index` Inertia page (`Settings/Index.tsx` — accordion sections: Store Profile, Selling Locations, Currency & Pricing, Tax Options, Inventory, Checkout, Units of Measure, Features & Automation).
+
+Typed access via `ShopSettingsService` (`packages/shop-module/src/Services/ShopSettingsService.php`) — getters with defaults, `baseCountry()`, `guestCheckoutEnabled()`, `requireCompanyField()`, `requireTerms()`, `checkoutDefaultCountry()`, `pricesIncludeTax()`, `taxBasedOn()`, `taxShipping()`, `taxDisplay()`, `currencyFormat()`, `isCountryAllowed()`, `clearCache()`. Country lists come from `Countries` support class (ISO 3166 alpha-2, served as the `countries` prop).
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| `store_name` | string | `null` | Store name shown across storefront |
+| `store_email` | string | `null` | Store contact email |
+| `store_address_line1/2`, `store_city`, `store_postcode` | string | `null` | Registered store address |
+| `base_country` | select | `TN` | Country the store sells from (shipping fallback) |
+| `selling_locations_mode` | select | `all` | `all` \| `specific` \| `except` (checked in `CheckoutController::store()`) |
+| `selling_locations` | json | `[]` | Allowed/blocked country list |
 | `default_product_status` | select | `draft` | New product default status |
 | `backorder_default` | select | `do_not_allow` | Default backorder behavior |
 | `currency` | select | `EUR` | Store currency |
-| `currency_position` | select | `before` | Currency symbol position |
+| `currency_symbol` | string | `€` | Symbol used by `CurrencyService::format()` |
+| `currency_position` | select | `before` | `before` \| `after` \| `space_before` \| `space_after` |
+| `thousands_separator` | string | `,` | Number grouping separator |
+| `decimal_separator` | string | `.` | Decimal separator |
+| `price_decimals` | int | `2` | Decimal places |
+| `prices_include_tax` | bool | `0` | Prices entered include tax (back-calculated by `TaxService`) |
+| `tax_based_on` | select | `billing` | `billing` \| `shipping` — address used for tax |
+| `tax_shipping` | bool | `0` | Apply tax to shipping total |
+| `tax_display` | select | `exc` | `exc` \| `inc` display mode |
 | `weight_unit` | select | `kg` | Default weight unit |
 | `dimension_unit` | select | `cm` | Default dimension unit |
 | `inventory_enabled` | bool | `1` | Enable inventory tracking globally |
 | `low_stock_threshold` | int | `5` | Default low stock warning threshold |
 | `hold_stock_enabled` | bool | `1` | Enable hold stock on pending orders |
 | `hold_stock_minutes` | int | `60` | Minutes before releasing held stock |
-| `show_out_of_stock` | bool | `0` | Show out-of-stock products on storefront |
+| `show_out_of_stock` | bool | `1` | Show out-of-stock products on storefront |
 | `enable_reviews` | bool | `1` | Enable product reviews |
 | `enable_wishlist` | bool | `1` | Enable wishlist feature |
 | `auto_complete_orders` | bool | `0` | Auto-complete paid orders |
+| `abandoned_cart_enabled` | bool | `1` | Enable abandoned cart recovery |
+| `abandoned_cart_hours_until_abandoned` | int | `1` | Hours of inactivity before a cart is abandoned |
+| `abandoned_cart_sequence_hours` | string | `1,24,72` | Recovery email sequence |
+| `sale_scheduling_enabled` | bool | `1` | Enable sale scheduling |
+| `sale_scheduling_normalize_to_day_boundaries` | bool | `1` | Normalize sale windows to day boundaries |
+| `enable_guest_checkout` | bool | `1` | Allow guest checkout (guard redirects to login when off) |
+| `require_company_field` | bool | `0` | Company mandatory at checkout (B2B) |
+| `require_terms` | bool | `0` | Customers must accept terms at checkout |
+| `checkout_default_country` | select | `null` | Pre-selected country for new checkouts |
+
+Shared props exposed by `ShopServiceProvider`: `shopSettings` (full array) and `currencyFormat` (position/separators/decimals) — consumed by `lib/currency.ts` (`formatNumber` + 4-way symbol placement).
 
 ---
 
@@ -608,7 +635,8 @@ Shop                    (SidebarGroupLabel)
       ├─ Shipping Methods
       ├─ Shipping Zones
       ├─ Tax Rates
-      └─ Webhooks
+      ├─ Webhooks
+      └─ Settings (admin-only, route `admin.shop.settings.index`)
 ```
 
 ---
@@ -882,6 +910,7 @@ MODIFIED:
 | — | Code Audit & Phase 20 Completion | ✅ Done | 2026-07-05 |
 | — | Variation WC Parity (P0 + P1) | ✅ Done | 2026-07-05 |
 | — | Variation WC Parity Tests (13 tests, 117 assertions) | ✅ Done | 2026-07-05 |
+| — | Flexible Shop Settings (full set + Settings UI) | ✅ Done | 2026-08-14 |
 | 19 | Product Type Expansion | ✅ Done | 2026-07-04 |
 | 20 | Stock & Inventory Depth | ✅ Done | 2026-07-05 |
 | 21 | Order & Refund Expansion | ✅ Done | 2026-07-08 |

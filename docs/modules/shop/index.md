@@ -1,5 +1,7 @@
 # Shop Module
 
+> **Canonical documentation:** [`packages/shop-module/README.md`](../../../packages/shop-module/README.md) — the package README is the authoritative, always-current reference. This page is a condensed quick-reference for the host repo.
+
 Manage your online store: products, orders, inventory, and customers.
 
 - **Slug**: `shop`
@@ -19,16 +21,16 @@ Manage your online store: products, orders, inventory, and customers.
 
 | Attribute | Value |
 |-----------|-------|
-| **Permissions** | `shop.view`, `products.create/edit/delete`, `orders.view/edit`, `tags.manage`, `brands.manage`, `coupons.manage`, `reviews.moderate`, `shipping.manage`, `taxes.manage`, `webhooks.manage`, `currencies.manage` |
-| **Route Files** | `web.php` (auth), `admin.php` (admin), `webhooks.php`, `storefront.php`, `store-cart.php`, `store-checkout.php`, `customer-portal.php` |
+| **Permissions** | `shop.view`, `shop.products.create/edit/delete`, `shop.orders.view/edit/refund`, `shop.tags.manage`, `shop.brands.manage`, `shop.coupons.manage`, `shop.reviews.moderate`, `shop.shipping.manage`, `shop.taxes.manage`, `shop.webhooks.manage`, `shop.currencies.manage` |
+| **Route Files** | `web.php` (admin), `admin.php` (admin settings), `customer-portal.php` (auth), `storefront.php`, `store-cart.php`, `store-checkout.php`, `store-wishlist.php`, `store-notify.php`, `recovery.php` (guest), `api.php`, `api-auth.php` (sanctum) |
 | **Dashboard Stats** | `total_products`, `published_products`, `total_orders`, `pending_orders`, `low_stock_count` |
 | **Gallery Config** | `product_gallery` (max 10, hidden from library) |
-| **Email Templates** | `order-confirmation`, `order-shipped`, `low-stock-alert`, `cart-recovery-1h/24h/72h` |
+| **Email Templates** | `order-confirmation`, `order-shipped`, `order-invoice`, `low-stock-alert`, `cart-recovery-1h/24h/72h` |
 | **Notification Types** | `order.placed`, `order.status_changed`, `low_stock`, `product.stock_changed` |
-| **Console Commands** | `shop:release-expired-holds` (5min), `shop:abandoned-cart-process` (hourly), `schedule:publish` (1min) |
-| **Migration Paths** | `[__DIR__.'/database/migrations']` — own migrations for products, orders, cart, attributes, variations, coupons, reviews, shipping, tax, webhooks, stock adjustments, brands, vendor |
-| **Boot** | Registers `ShopService` as singleton |
-| **Config** | `config/shop.php` — hold stock, abandoned cart, inventory defaults |
+| **Console Commands** | `shop:release-expired-holds` (5min), `shop:abandoned-cart-process` (hourly), `shop:process-pending-webhooks`, `shop:process-scheduled-sales`, `shop:product-seed`, `schedule:publish` (1min, core package) |
+| **Migration Paths** | `[__DIR__.'/../database/migrations']` — 57 auto-loaded migrations for products, orders, cart, attributes, variations, coupons, reviews, shipping, tax, webhooks, stock adjustments, brands, currencies, refunds, notes |
+| **Boot** | Registers `ShopService` as singleton; shares `currencies`, `selectedCurrency`, `currencyPosition`, `cart`, `wishlistIds`; registers 9 policies + 5 commands |
+| **Config** | `config/shop.php` — hold stock, abandoned cart, inventory defaults, sale scheduling, storefront hero |
 
 ## Data Model
 
@@ -95,18 +97,25 @@ Product::whereVariationAttributeTerm($redTermId)
 
 | Model | Table | Description |
 |-------|-------|-------------|
-| `Order` | `orders` | Order with billing/shipping, status workflow |
-| `OrderItem` | `order_items` | Order line items |
+| `Order` | `orders` | Order with billing/shipping, 10-status workflow, refunds, applied coupons |
+| `OrderItem` | `order_items` | Order line items (product + variation) |
+| `OrderRefund` | `order_refunds` | Partial refunds with line-item breakdown |
+| `OrderNote` | `order_notes` | Public + private order notes |
+| `OrderAction` | `order_actions` | Order timeline / audit trail |
 | `CartItem` | `cart_items` | Cart line items |
-| `Cart` | `carts` | Guest/auth cart with coupon support, `$appends = ['subtotal', 'total']` |
-| `Coupon` | `coupons` | Discount coupons (percentage/fixed/free_shipping) |
+| `Cart` | `carts` | Guest/auth cart with coupon + stacking support, `$appends = ['subtotal', 'total']` |
+| `Coupon` | `coupons` | Discount coupons (percentage/fixed/free_shipping/buy_x_get_y/fixed_product/percentage_product/tiered, automatic, stacking) |
 | `CouponUsage` | `coupon_usages` | Coupon usage tracking |
 | `ShippingMethod` | `shipping_methods` | Flat-rate shipping methods |
 | `ShippingZone` | `shipping_zones` | Country-based shipping zones with override pricing |
 | `TaxRate` | `tax_rates` | Per-country tax rates |
+| `Currency` | `currencies` | Multi-currency with exchange rates |
 | `Webhook` | `webhooks` | Outbound webhooks with HMAC signing |
-| `WebhookLog` | `webhook_logs` | Webhook delivery logs |
+| `WebhookCall` | `webhook_calls` | Webhook delivery logs |
 | `StockAdjustment` | `stock_adjustments` | Inventory change audit trail |
+| `Wishlist` | `wishlists` | Per-user saved products |
+| `BackInStockSubscription` | `back_in_stock_subscriptions` | "Notify me" requests |
+| `ProductDownload` | `product_downloads` | Downloadable files for digital products |
 
 ## Routes
 
@@ -144,24 +153,32 @@ Product::whereVariationAttributeTerm($redTermId)
 ## Nav Items
 
 ```
-Shop                    (SidebarGroupLabel)
+Manage Shop             (sidebar group label, for managers)
   └─ Shop          (collapsible parent)
       ├─ Dashboard
       ├─ All Products
       ├─ Add Product
+      ├─ Orders
+      ├─ Create Order
       ├─ Categories
       ├─ Tags
       ├─ Brands
       ├─ Attributes
-      ├─ Stock History
-      ├─ Orders
+      ├─ Customers
+      ├─ Reports
       ├─ Coupons
       ├─ Reviews
-      ├─ Customers
       ├─ Shipping Methods
       ├─ Shipping Zones
       ├─ Tax Rates
+      ├─ Currencies
       └─ Webhooks
+
+My Account              (group label, for customers with shop.view)
+  └─ My Account
+      ├─ My Orders
+      ├─ My Cart
+      └─ My Account (dashboard account page)
 ```
 
 ## Policies
@@ -171,21 +188,30 @@ Shop                    (SidebarGroupLabel)
 | `ProductPolicy` | `Product` | Permission-based (`shop.products.*`) |
 | `OrderPolicy` | `Order` | Permission-based (`shop.orders.view/edit`) |
 | `CouponPolicy` | `Coupon` | Permission-based (`shop.coupons.manage`) |
+| `CurrencyPolicy` | `Currency` | Permission-based (`shop.currencies.manage`) |
 | `ProductReviewPolicy` | `ProductReview` | Permission-based (`shop.reviews.moderate`) |
 | `ShippingMethodPolicy` | `ShippingMethod` | Permission-based (`shop.shipping.manage`) |
 | `ShippingZonePolicy` | `ShippingZone` | Permission-based (`shop.shipping.manage`) |
 | `TaxRatePolicy` | `TaxRate` | Permission-based (`shop.taxes.manage`) |
+| `WebhookPolicy` | `Webhook` | Permission-based (`shop.webhooks.manage`) |
 
 ## Services
 
 | Service | File | Purpose |
 |---------|------|---------|
-| `ShopService` | `Services/ShopService.php` | Module boot singleton |
+| `ShopService` | `Services/ShopService.php` | Singleton; dashboard stats |
 | `InventoryService` | `Services/InventoryService.php` | Stock adjustments, sale/refund recording, variation support |
 | `CouponService` | `Services/CouponService.php` | Coupon validation, discount calculation, auto-discounts |
 | `ShippingService` | `Services/ShippingService.php` | Zone-matched shipping methods |
 | `TaxService` | `Services/TaxService.php` | Per-country tax calculation |
 | `WebhookService` | `Services/WebhookService.php` | Webhook dispatch with HMAC signing |
+| `CheckoutService` | `Services/CheckoutService.php` | Checkout orchestration (stock, tax, coupon, cart conversion) |
+| `OrderStatusService` | `Services/OrderStatusService.php` | 10 statuses + transition map validation |
+| `OrderActionService` | `Services/OrderActionService.php` | Order timeline / audit trail |
+| `CurrencyService` | `Services/CurrencyService.php` | Active currencies, default + Accept-Language detection |
+| `CartMergeService` | `Services/CartMergeService.php` | Guest cart → user cart merge on login |
+| `AbandonedCartService` | `Services/AbandonedCartService.php` | Abandonment detection + 3-step recovery emails |
+| `StripeService` | `Services/StripeService.php` | Stripe PaymentIntent create/confirm/refund |
 
 ### InventoryService
 
@@ -207,9 +233,11 @@ Central stock management. All stock mutations go through this service.
 ### CouponService
 
 - `validateAndApply(string $code, float $subtotal, ?int $userId)`: Validates dates/limits/per-user, returns `Coupon` or throws `ValidationException`
-- `calculateDiscount(Coupon $coupon, float $subtotal, ?float $shippingCost)`: Delegates to model (supports percentage/fixed/free_shipping)
+- `calculateDiscount(Coupon $coupon, float $subtotal, ?float $shippingCost, ?Collection $lineItems)`: Delegates to model (supports percentage/fixed/free_shipping/buy_x_get_y/fixed_product/percentage_product/tiered)
+- `calculateStackedDiscount(Collection $coupons, float $subtotal, ?float $shippingCost, ?Collection $lineItems)`: Applies multiple coupons; only percentage/fixed/tiered reduce the running subtotal
+- `validateStack(Coupon $newCoupon, array $existingCoupons, float $subtotal)`: Prevents duplicate / conflicting (e.g. two free_shipping) stack combinations
 - `recordUsage(Coupon $coupon, int $orderId, ?int $userId, float $discountAmount)`: Creates `CouponUsage` + increments `used_count`
-- `getAutoDiscounts(float $subtotal)`: Returns active automatic coupons valid for subtotal
+- `getAutoDiscounts(float $subtotal)`: Returns active automatic coupons valid for subtotal; auto-discounts are merged into checkout even without a code
 
 ### ShippingService
 
@@ -219,41 +247,89 @@ Central stock management. All stock mutations go through this service.
 
 - `calculate(float $subtotal, ?array $billingAddress, bool $isTaxable)`: Finds rates matching billing address country, falls back to `is_default`. Returns `{ tax_total, breakdown }`.
 
+## Order Workflow (Phase 21)
+
+Fully implemented — statuses, partial refunds, editing, draft orders, invoice PDF, and notes all live in `OrdersController` + `OrderStatusService`.
+
+- **Statuses (10):** `draft`, `pending`, `on-hold`, `confirmed`, `processing`, `completed`, `cancelled`, `refunded`, `failed`, `trash` — transitions validated by `OrderStatusService::validateTransition()`.
+- **Partial refunds:** `OrderRefund` (line items JSON breakdown, `shipping_refund`, `created_by`), `total_refunded` accumulation, auto `refunded` status + payment status.
+- **Order editing:** `updateAdmin()` with item add/remove/change, stock reconciliation, timeline entry.
+- **Draft orders:** `draft` status, admin creation, `convertFromDraft()`.
+- **Invoice PDF:** `GET /dashboard/shop/orders/{order}/invoice` via dompdf.
+- **Order notes:** `OrderNote` (public + private), store/destroy routes, rendered in the timeline.
+- **Timeline:** `OrderActionService` records created/status-changed/refunded/edited/note events.
+- **Extra routes:** `mark-paid`, `search-products`, `search-customers`.
+
 ## Settings
 
-Stored in `settings` table with `group = 'shop'`. Managed via `ShopSettingsController` at `PUT /admin/shop/settings`.
+Stored in `settings` table with `group = 'shop'`. Managed via `ShopSettingsController` at `GET|PUT /admin/shop/settings` — dedicated page `shop/settings/index` (`Settings/Index.tsx`). Typed access via `ShopSettingsService`.
 
-Grouped into 4 accordion sections on the **Admin → Settings → Shop** tab:
+Grouped into accordion sections on the **Shop → Settings** page:
 
-### Product Defaults
+### Store Profile
 | Field | Type | Default |
 |-------|------|---------|
-| `default_product_status` | select: draft/published | `draft` |
-| `backorder_default` | select: do_not_allow/allow_notify/allow | `do_not_allow` |
+| `store_name` | text | — |
+| `store_email` | email | — |
+| `store_address_line1` / `line2` / `city` / `postcode` | text | — |
+| `base_country` | select (ISO 3166) | `TN` |
 
-### Currency & Units
+### Selling Locations
+| Field | Type | Default |
+|-------|------|---------|
+| `selling_locations_mode` | select: all/specific/except | `all` |
+| `selling_locations` | multi-country | `[]` |
+
+### Currency & Pricing
 | Field | Type | Default |
 |-------|------|---------|
 | `currency` | select: USD/EUR/GBP/TND | `EUR` |
-| `currency_position` | select: before/after | `before` |
-| `weight_unit` | select: kg/g/lb/oz | `kg` |
-| `dimension_unit` | select: cm/m/in/ft | `cm` |
+| `currency_symbol` | text | `€` |
+| `currency_position` | select: before/after/space_before/space_after | `before` |
+| `thousands_separator` / `decimal_separator` | text | `,` / `.` |
+| `price_decimals` | number | `2` |
+
+### Tax Options
+| Field | Type | Default |
+|-------|------|---------|
+| `prices_include_tax` | bool toggle | `0` |
+| `tax_based_on` | select: billing/shipping | `billing` |
+| `tax_shipping` | bool toggle | `0` |
+| `tax_display` | select: exc/inc | `exc` |
 
 ### Inventory Management
 | Field | Type | Default |
 |-------|------|---------|
+| `default_product_status` | select: draft/published | `draft` |
+| `backorder_default` | select: do_not_allow/allow_notify/allow | `do_not_allow` |
 | `inventory_enabled` | bool toggle | `1` |
 | `low_stock_threshold` | number 0-999 | `5` |
 | `hold_stock_enabled` | bool toggle | `1` |
 | `hold_stock_minutes` | number 1-10080 | `60` |
 
-### Feature Toggles
+### Checkout
 | Field | Type | Default |
 |-------|------|---------|
-| `show_out_of_stock` | bool toggle | `0` |
+| `enable_guest_checkout` | bool toggle | `1` |
+| `require_company_field` | bool toggle | `0` |
+| `require_terms` | bool toggle | `0` |
+| `checkout_default_country` | select (or "None") | `null` |
+
+### Units of Measure
+| Field | Type | Default |
+|-------|------|---------|
+| `weight_unit` | select: kg/g/lb/oz | `kg` |
+| `dimension_unit` | select: cm/m/in/ft | `cm` |
+
+### Features & Automation
+| Field | Type | Default |
+|-------|------|---------|
+| `show_out_of_stock` | bool toggle | `1` |
 | `enable_reviews` | bool toggle | `1` |
 | `enable_wishlist` | bool toggle | `1` |
 | `auto_complete_orders` | bool toggle | `0` |
+| `abandoned_cart_enabled` / `abandoned_cart_hours_until_abandoned` / `abandoned_cart_sequence_hours` | — | `1` / `1` / `1,24,72` |
+| `sale_scheduling_enabled` / `sale_scheduling_normalize_to_day_boundaries` | bool toggle | `1` / `1` |
 
 ## Console Commands
 
@@ -261,7 +337,10 @@ Grouped into 4 accordion sections on the **Admin → Settings → Shop** tab:
 |---------|----------|-------------|
 | `shop:release-expired-holds` | Every 5 min | Cancels unpaid pending orders older than `hold_stock.default_minutes`, refunds stock |
 | `shop:abandoned-cart-process` | Hourly | Marks abandoned carts, sends 3-step recovery email sequence (1h/24h/72h) |
-| `schedule:publish` | Every minute | Publishes scheduled products/posts/properties (shared with Posts/Properties modules) |
+| `shop:process-pending-webhooks` | — | Retries pending webhook calls |
+| `shop:process-scheduled-sales` | — | Applies/ends scheduled sale pricing |
+| `shop:product-seed` | — | Seeds demo products |
+| `schedule:publish` | Every minute | Publishes scheduled products/posts/properties (core dashboard-core package) |
 
 ## Config (`config/shop.php`)
 

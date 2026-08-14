@@ -3,11 +3,11 @@
 namespace Tests\Feature\Modules\Shop;
 
 use App\Models\User;
-use App\Shop\Models\Attribute;
-use App\Shop\Models\AttributeTerm;
-use App\Shop\Models\Product;
-use App\Shop\Models\ProductVariation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Nreljed\ShopModule\Models\Attribute;
+use Nreljed\ShopModule\Models\AttributeTerm;
+use Nreljed\ShopModule\Models\Product;
+use Nreljed\ShopModule\Models\ProductVariation;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Modules\Shop;
 
-use App\Shop\Models\Product;
-use App\Shop\Models\ProductCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Nreljed\ShopModule\Models\Product;
+use Nreljed\ShopModule\Models\ProductCategory;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 
