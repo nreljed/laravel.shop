@@ -40,7 +40,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Self-contained features discovered by the shared FeatureRegistry.
-    | Blog is provided by the package; Shop is app-specific.
+    | Blog is provided by dashboard-core; Shop by the shop-module package.
     |
     */
 
