@@ -13,3 +13,9 @@ Schedule::command('shop:abandoned-cart-process')->hourly();
 Schedule::command('webhooks:process')->everyMinute();
 Schedule::command('shop:release-expired-holds')->everyFiveMinutes();
 Schedule::command('shop:process-scheduled-sales')->everyMinute();
+
+// Server-side self-deploy: if CI cannot reach the host (hosting firewall
+// blocks datacenter IPs), the cron picks up new GitHub releases by itself.
+Schedule::command('deploy:auto')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
