@@ -210,8 +210,9 @@ Deploys automatically on every push to `master`:
 10. Overwrite .env (production MySQL config — APP_KEY from secrets, not hardcoded)
 11. Package `deploy.zip` (excludes `bootstrap/cache/`)
 12. Create GitHub Release with semver tag `vX.Y.Z` + changelog body + deploy.zip attachment
-13. Upload via Laravel `/deploy/upload` endpoint (or legacy `/deploy/check`)
-14. **FTP fallback** via `FtpWebRequest` to DirectAdmin — uploads `deploy.zip` for manual extraction if steps 13 fails
+13. Push unified `GITHUB_TOKEN` to server `.env` via `POST /deploy/env` (before upload, `if: always()` + `continue-on-error`, 3 retries — keeps the server's token fresh for the GitHub-API deploy path)
+14. Upload via Laravel `/deploy/check` (preferred — server pulls the release itself) or `/deploy/upload`
+15. **FTP fallback** via `FtpWebRequest` (passive) to DirectAdmin — uploads `deploy.zip` for manual extraction if step 14 fails. **The FTP account home IS the project root** (`/home/advertis/domains/shop.laravel.tunispromo.tn/public_html/`), so it uploads to `ftp://server:port/deploy.zip` (root), NOT a `domains/.../public_html/...` path.
 
 **On the server — `DeployController::check()`**:
 - Verifies token, checks `.deploy-lock` (10 min TTL)
