@@ -211,7 +211,9 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          $ftpUrl = "ftp://${{ secrets.FTP_SERVER }}/domains/shop.laravel.tunispromo.tn/public_html/deploy.zip"
+          $ftpPort = if ("${{ secrets.FTP_PORT }}") { "${{ secrets.FTP_PORT }}" } else { "21" }
+          # FTP account home is the Laravel project root (public_html), so upload to root.
+          $ftpUrl = "ftp://${{ secrets.FTP_SERVER }}:$ftpPort/deploy.zip"
           $cred = New-Object System.Net.NetworkCredential("${{ secrets.FTP_USERNAME }}", "${{ secrets.FTP_PASSWORD }}")
           try {
             $ftp = [System.Net.FtpWebRequest]::Create($ftpUrl)
