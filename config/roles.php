@@ -77,8 +77,12 @@ return [
                 '!manage-audit-logs',
                 '!export-audit-logs',
                 '!manage-email-settings',
+                // Legacy Blog term-management slugs retained as no-op
+                // exclusions so orphaned rows granted via '*' never resurface.
                 '!manage-categories',
                 '!manage-tags',
+                '!posts.categories.manage',
+                '!posts.tags.manage',
                 '!shop.orders.refund',
                 '!shop.webhooks.manage',
                 '!shop.currencies.manage',
@@ -135,8 +139,8 @@ return [
                 'posts.create',
                 'posts.edit',
                 'posts.delete',
-                'manage-categories',
-                'manage-tags',
+                'posts.categories.manage',
+                'posts.tags.manage',
             ],
         ],
 
