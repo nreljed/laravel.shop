@@ -38,23 +38,30 @@ gh secret list -R nreljed/laravel.shop
 gh secret delete SECRET_NAME -R nreljed/laravel.shop
 ```
 
-### Current Secrets (12)
+### Current Secrets (13)
 
 | Secret | Purpose | Set via |
 |--------|---------|---------|
 | `APP_KEY` | Laravel encryption key (`base64:...`) | `gh secret set APP_KEY -b "$(...)"` |
-| `DEPLOY_TOKEN` | Server-side deploy authentication | `gh secret set DEPLOY_TOKEN -b "..."` |
-| `GH_TOKEN` | GitHub PAT (Contents R&W) | `gh secret set GH_TOKEN -b "..."` |
+| `DEPLOY_TOKEN` | Server-side deploy authentication (matches `app.deploy_token` in that server's `.env`) | `gh secret set DEPLOY_TOKEN -b "..."` |
+| `GH_TOKEN` | **ONE unified fine-grained PAT** covering all four repos (`laravel`, `laravel.shop`, `dashboard-core`, `shop-module`) | `gh secret set GH_TOKEN -b "..."` |
 | `DB_DATABASE` | Production MySQL database | `gh secret set DB_DATABASE -b "..."` |
 | `DB_USERNAME` | Production MySQL user | `gh secret set DB_USERNAME -b "..."` |
 | `DB_PASSWORD` | Production MySQL password | `gh secret set DB_PASSWORD -b "..."` |
 | `ADMIN_EMAIL` | Bootstrap admin email | `gh secret set ADMIN_EMAIL -b "..."` |
 | `ADMIN_PASSWORD` | Bootstrap admin password | `gh secret set ADMIN_PASSWORD -b "..."` |
 | `ADMIN_NAME` | Bootstrap admin display name | `gh secret set ADMIN_NAME -b "..."` |
-| `FTP_SERVER` | DirectAdmin FTP hostname | `gh secret set FTP_SERVER -b "..."` |
-| `FTP_PORT` | DirectAdmin FTP port (21) | `gh secret set FTP_PORT -b "21"` |
-| `FTP_USERNAME` | DirectAdmin FTP user | `gh secret set FTP_USERNAME -b "..."` |
+| `FTP_SERVER` | DirectAdmin FTP hostname (`ftp.tunispromo.tn`) | `gh secret set FTP_SERVER -b "..."` |
+| `FTP_PORT` | DirectAdmin FTP port (`21`) | `gh secret set FTP_PORT -b "21"` |
+| `FTP_USERNAME` | DirectAdmin FTP user (`shoplaravel@tunispromo.tn`) | `gh secret set FTP_USERNAME -b "..."` |
 | `FTP_PASSWORD` | DirectAdmin FTP password | `gh secret set FTP_PASSWORD -b "..."` |
+
+> **Unified `GH_TOKEN` design**: Composer VCS-clones both private repos (`dashboard-core` +
+> `shop-module`) in the same install, but `COMPOSER_AUTH` accepts only ONE token per host —
+> so a single fine-grained PAT covers all four repos and is stored as `GH_TOKEN` in BOTH
+> `nreljed/laravel` and `nreljed/laravel.shop`, and in BOTH servers' `.env`. The deploy
+> workflow's "Push GITHUB_TOKEN to server .env" step keeps server copies fresh on every deploy.
+> Never create per-repo tokens; always reuse the one unified PAT.
 
 > **Security**: Never hardcode `APP_KEY`, `DEPLOY_TOKEN`, or any DB credentials in source code. Always use `gh secret set` in CI and `${{ secrets.NAME }}` in workflow files.
 
@@ -128,7 +135,7 @@ When forking this project for a new deployment:
 1. **Install & auth** `gh` CLI
 2. **Set all 13 secrets** via `gh secret set` (see table above)
 3. **Update** `.github/workflows/deploy.yml`:
-   - Change `FTP_SERVER`, FTP paths, deploy URL to match your server
+   - FTP account home is the project root — upload to root (`ftp://server:port/deploy.zip`), not `domains/.../public_html/...`
    - Update `APP_URL` and `SESSION_DOMAIN`
 4. **Update** `.github/workflows/ci-validation.yml`:
    - Adjust PHP/Node versions if needed
