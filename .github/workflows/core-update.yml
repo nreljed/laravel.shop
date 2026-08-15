@@ -28,8 +28,9 @@ jobs:
           php-version: "8.4"
           tools: composer:v2
 
-      # dashboard-core is a private vcs repo; GH_TOKEN (Contents: Read on
-      # nreljed/dashboard-core) authenticates the clone. --no-scripts avoids
+      # dashboard-core + shop-module are private vcs repos; the single GH_TOKEN
+      # (Contents: Read on all four nreljed repos, see AGENTS.md) authenticates
+      # both clones. --no-scripts avoids
       # booting Laravel in a bare checkout (no .env needed for the lock update).
       - name: Update dashboard-core
         env:

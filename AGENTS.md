@@ -237,7 +237,7 @@ All secrets are managed via the `gh` CLI (NOT the GitHub web UI — see `gh CLI`
 | Secret | Purpose |
 |--------|---------|
 | `DEPLOY_TOKEN` | Must match `config('app.deploy_token')` in server `.env` |
-| `GH_TOKEN` | Fine-grained PAT with **Contents: Read and Write** |
+| `GH_TOKEN` | ONE fine-grained PAT covering all four repos (see "GitHub Token Structure" below) |
 | `DB_DATABASE` | Production MySQL database name |
 | `DB_USERNAME` | Production MySQL username |
 | `DB_PASSWORD` | Production MySQL password |
@@ -249,6 +249,36 @@ All secrets are managed via the `gh` CLI (NOT the GitHub web UI — see `gh CLI`
 | `FTP_PORT` | DirectAdmin FTP port (typically 21) |
 | `FTP_USERNAME` | DirectAdmin FTP username |
 | `FTP_PASSWORD` | DirectAdmin FTP password |
+
+### GitHub Token Structure
+
+The CI/CD spans four repos owned by the same user. Composer's `COMPOSER_AUTH`
+accepts only ONE token per host (`github.com`), yet the Shop CI must clone BOTH
+private VCS repos (`dashboard-core` + `shop-module`) in the same install. Per-repo
+tokens can't express that — so the design is **ONE fine-grained PAT covering all
+four repos**, stored as `GH_TOKEN` in BOTH the monorepo and the Shop app.
+
+```
+ONE fine-grained PAT "nreljed-deploy"
+├── Repository access → Only select repositories:
+│     ✅ nreljed/laravel          → Contents: Read+Write
+│     ✅ nreljed/laravel.shop     → Contents: Read+Write
+│     ✅ nreljed/dashboard-core   → Contents: Read+Write
+│     ✅ nreljed/shop-module      → Contents: Read+Write
+└── Repository permissions:
+      ✅ Contents: Read+Write
+```
+
+Why each repo is needed (workflow → usage → requirement):
+
+| Repo | Used by | Requirement |
+|------|---------|-------------|
+| `laravel.shop` | Shop `deploy.yml` `softprops/action-gh-release` (creates Release on itself) + server downloads the release zipball | Read+Write |
+| `dashboard-core` | Shop `ci.yml`/`core-update.yml`/`deploy-package.yml` composer VCS clone; monorepo `core-publish.yml` mirror push + `gh release` | Read+Write |
+| `shop-module` | Shop `ci.yml`/`shop-update.yml`/`deploy-package.yml` composer VCS clone | Read |
+| `laravel` | Monorepo `deploy.yml` release creation; `core-publish.yml` dispatch to consumer | Read+Write |
+
+Set the SAME token value as `GH_TOKEN` in both `nreljed/laravel` and `nreljed/laravel.shop`.
 
 ### GitHub CLI (`gh`)
 
