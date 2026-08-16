@@ -195,7 +195,7 @@ php artisan demo:generate --fresh    # Clear all demo data and regenerate
 
 ### CI/CD Pipeline (GitHub Actions → Release + Server Deploy)
 
-Deploys automatically on every push to `master`:
+Deploys automatically on every push to `main`:
 
 **Workflow 1 — `deploy.yml`** (GitHub-hosted `windows-latest` runner):
 1. Checkout with full depth + tags

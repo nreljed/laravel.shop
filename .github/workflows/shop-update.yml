@@ -70,7 +70,7 @@ jobs:
           git commit -m "chore: update shop-module to v${{ steps.version.outputs.version }}"
           git push -u origin "$BRANCH"
           gh pr create \
-            --base master \
+            --base main \
             --head "$BRANCH" \
             --title "chore: update shop-module to v${{ steps.version.outputs.version }}" \
             --body "Automated update of \`nreljed/shop-module\` (scheduled \`shop-update.yml\`).
@@ -78,5 +78,5 @@ jobs:
             - Resolved version: v${{ steps.version.outputs.version }}
             - Only \`composer.lock\` changed; \`public/build\` is gitignored and rebuilt by CI.
 
-            After merge, push to master triggers \`deploy.yml\` (build + release + deploy).
+            After merge, push to main triggers \`deploy.yml\` (build + release + deploy).
             "

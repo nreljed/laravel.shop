@@ -2,7 +2,7 @@ name: Core Update (dashboard-core)
 
 on:
   schedule:
-    # Weekly: Monday 09:00 UTC, matching the master repo's Dependabot cadence.
+    # Weekly: Monday 09:00 UTC, matching the core repo's publish cadence.
     - cron: "0 9 * * 1"
   workflow_dispatch:
   repository_dispatch:
@@ -70,7 +70,7 @@ jobs:
           git commit -m "chore: update dashboard-core to v${{ steps.version.outputs.version }}"
           git push -u origin "$BRANCH"
           gh pr create \
-            --base master \
+            --base main \
             --head "$BRANCH" \
             --title "chore: update dashboard-core to v${{ steps.version.outputs.version }}" \
             --body "Automated update of \`nreljed/dashboard-core\` (scheduled \`core-update.yml\`).
@@ -78,5 +78,5 @@ jobs:
             - Resolved version: v${{ steps.version.outputs.version }}
             - Only \`composer.lock\` changed; \`public/build\` is gitignored and rebuilt by CI.
 
-            After merge, push to master triggers \`deploy.yml\` (build + release + deploy).
+            After merge, push to main triggers \`deploy.yml\` (build + release + deploy).
             "

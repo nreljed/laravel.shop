@@ -47,7 +47,7 @@ There are **two distinct phases**, and understanding the difference is critical:
 | Phase | When | How | Frequency |
 |-------|------|-----|-----------|
 | **First-time setup** | Brand new server, domain, or database | **Manual** — upload full project, configure .env, run artisan | Once per server |
-| **Auto-deploy updates** | Every push to `master` | **Automatic** — CI builds release, server pulls via GitHub API | Every push |
+| **Auto-deploy updates** | Every push to `main` | **Automatic** — CI builds release, server pulls via GitHub API | Every push |
 
 The auto-deploy pipeline (Phase 2) **assumes the project is already running** on the server. It does NOT set up from scratch — it only overlays new code on top of an existing installation.
 
@@ -81,7 +81,7 @@ Create the PAT at `https://github.com/settings/tokens?type=beta`:
 ### Step 2 — Push to Trigger First Release
 
 ```bash
-git push origin master
+git push origin main
 ```
 
 Wait for CI to complete (check GitHub Actions tab). It will:
@@ -218,7 +218,7 @@ Make a small change to any file, commit, and push. The CI should:
 
 ## Phase 2: Auto-Deploy Updates (Automatic)
 
-After first-time setup, every push to `master` triggers:
+After first-time setup, every push to `main` triggers:
 
 ```
 push → CI builds app + runs tests → creates GitHub Release with deploy.zip

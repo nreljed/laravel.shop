@@ -139,7 +139,7 @@ When forking this project for a new deployment:
    - Update `APP_URL` and `SESSION_DOMAIN`
 4. **Update** `.github/workflows/ci-validation.yml`:
    - Adjust PHP/Node versions if needed
-5. **Push to `master`** — the CI pipeline runs automatically
+5. **Push to `main`** — the CI pipeline runs automatically
 
 ## Why `gh` over Web UI?
 
