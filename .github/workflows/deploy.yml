@@ -23,62 +23,22 @@ jobs:
       version: ""
     secrets: inherit
 
-  release:
+  push-deploy:
     needs: package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Determine version
-        id: version
+      - name: Download deploy.zip from release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          VER="${{ needs.package.outputs.version }}"
-          if [ -z "$VER" ]; then
-            VER="0.1.0"
-          fi
-          echo "version=$VER" >> $GITHUB_OUTPUT
-
-      - name: Generate release notes
-        run: |
-          npm install -g git-cliff
-          BASE_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
-          if [ -z "$BASE_TAG" ]; then
-            BASE_TAG="v0.1.0"
-          fi
-          echo "Release notes base: $BASE_TAG"
-          git-cliff "$BASE_TAG..HEAD" --strip header -o release-notes.md 2>/dev/null || echo "No changes for v${{ steps.version.outputs.version }}" > release-notes.md
-          git-cliff -o CHANGELOG.md 2>/dev/null || true
-
-      - name: Download deploy.zip artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: deploy-package
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          tag_name: "v${{ steps.version.outputs.version }}"
-          name: "v${{ steps.version.outputs.version }}"
-          body_path: release-notes.md
-          files: deploy.zip
-          fail_on_unmatched_files: true
-
-  push-deploy:
-    needs: [package, release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Determine version
-        id: version
-        run: echo "version=${{ needs.package.outputs.version }}" >> $GITHUB_OUTPUT
-
-      - name: Download deploy.zip artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: deploy-package
+          VER="v${{ needs.package.outputs.version }}"
+          echo "Downloading deploy.zip from release $VER"
+          gh release download "$VER" \
+            --repo "${{ github.repository }}" \
+            --pattern "deploy.zip" \
+            --clobber
+          ls -la deploy.zip
 
       - name: Push GITHUB_TOKEN to server .env
         # Runs before the upload so the server can authenticate /deploy/check
@@ -105,7 +65,7 @@ jobs:
       - name: Upload deploy archive to server
         shell: bash
         run: |
-          VER="v${{ steps.version.outputs.version }}"
+          VER="v${{ needs.package.outputs.version }}"
           echo "Release: $VER"
           CHECK_URL="${{ vars.APP_URL }}/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}"
           UPLOAD_URL="${{ vars.APP_URL }}/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}"
@@ -235,7 +195,7 @@ jobs:
             Write-Output "${{ vars.APP_URL }}/deploy/cache-clear?token=${{ secrets.DEPLOY_TOKEN }}"
           } catch {
             Write-Output "FTP upload failed: $_"
-            $VER = "${{ steps.version.outputs.version }}"
+            $VER = "${{ needs.package.outputs.version }}"
             Write-Output "Manual steps:"
             Write-Output "1. Download from: https://github.com/${{ github.repository }}/releases/download/v$VER/deploy.zip"
             Write-Output "2. Upload via DirectAdmin File Manager to public_html/"
