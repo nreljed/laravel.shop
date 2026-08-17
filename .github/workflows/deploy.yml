@@ -27,18 +27,10 @@ jobs:
     needs: package
     runs-on: ubuntu-latest
     steps:
-      - name: Download deploy.zip from release
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VER="v${{ needs.package.outputs.version }}"
-          echo "Downloading deploy.zip from release $VER"
-          gh release download "$VER" \
-            --repo "${{ github.repository }}" \
-            --pattern "deploy.zip" \
-            --clobber
-          ls -la deploy.zip
+      - name: Download deploy.zip from artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-package
 
       - name: Push GITHUB_TOKEN to server .env
         # Runs before the upload so the server can authenticate /deploy/check
