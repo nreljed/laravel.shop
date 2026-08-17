@@ -10,6 +10,7 @@ use Illuminate\Contracts\Console\Kernel;
  * web routes return 500.
  *
  * Usage:
+ *   GET  /recover.php?token=...&cmd=recovery
  *   GET  /recover.php?token=...&cmd=status
  *   POST /recover.php  (token + cmd in body)
  *
@@ -18,6 +19,8 @@ use Illuminate\Contracts\Console\Kernel;
  * DELETE this file after recovery is complete.
  */
 header('Content-Type: application/json; charset=utf-8');
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -66,29 +69,19 @@ if (! $expected || ! $token || ! hash_equals((string) $expected, (string) $token
 // ── Command allowlist ────────────────────────────────────────────────────
 
 $ALLOWED = [
-    // Recovery
     'recovery',
-    // Cache & discovery
     'package:discover', 'config:cache', 'config:clear',
     'route:cache', 'route:clear',
     'view:cache', 'view:clear',
     'cache:clear', 'cache:forget', 'cache:prune-stale-tags',
-    // Database
     'migrate', 'migrate:status', 'migrate:fresh', 'migrate:rollback',
     'db:seed', 'db:is-empty',
-    // Storage
     'storage:link',
-    // Admin
     'app:create-admin',
-    // Permissions
     'permissions:sync', 'permissions:list',
-    // Queue
-    'queue:restart', 'queue:work', 'queue:listen',
-    // Schedule
-    'schedule:run', 'schedule:list', 'schedule:work',
-    // Diagnostics
-    'about', 'env:decrypt', 'route:list', 'event:list',
-    // Maintenance
+    'queue:restart',
+    'schedule:run', 'schedule:list',
+    'about', 'route:list', 'event:list',
     'down', 'up',
 ];
 
@@ -107,14 +100,33 @@ if (is_string($argsRaw) && $argsRaw !== '') {
 
 // ── Bootstrap ────────────────────────────────────────────────────────────
 
-require $appRoot.'/vendor/autoload.php';
-$app = require $appRoot.'/bootstrap/app.php';
+try {
+    require $appRoot.'/vendor/autoload.php';
+    $app = require $appRoot.'/bootstrap/app.php';
+} catch (Throwable $e) {
+    jsonOut([
+        'status' => 'error',
+        'phase' => 'bootstrap',
+        'error' => $e->getMessage(),
+        'file' => $e->getFile().':'.$e->getLine(),
+    ], 500);
+}
 
 // ── Handle 'recovery' meta-command ───────────────────────────────────────
 
 if ($cmd === 'recovery') {
-    $kernel = $app->make(Kernel::class);
     set_time_limit(300);
+
+    try {
+        $kernel = $app->make(Kernel::class);
+    } catch (Throwable $e) {
+        jsonOut([
+            'status' => 'error',
+            'phase' => 'kernel_resolution',
+            'error' => $e->getMessage(),
+            'file' => $e->getFile().':'.$e->getLine(),
+        ], 500);
+    }
 
     $sequence = [
         'package:discover' => ['--force' => true],
@@ -142,8 +154,30 @@ if ($cmd === 'recovery') {
         }
     }
 
-    file_put_contents($appRoot.'/.deployed-version', 'recovered');
+    try {
+        file_put_contents($appRoot.'/.deployed-version', 'recovered-'.date('c'));
+    } catch (Throwable $e) {
+        // non-fatal
+    }
+
     jsonOut(['status' => 'ok', 'sequence' => $results]);
+}
+
+// ── Handle 'status' (no kernel needed) ───────────────────────────────────
+
+if ($cmd === 'status') {
+    $checks = [
+        'php_version' => PHP_VERSION,
+        'services_cache' => is_file($appRoot.'/bootstrap/cache/services.php'),
+        'packages_cache' => is_file($appRoot.'/bootstrap/cache/packages.php'),
+        'deployed_version' => is_file($appRoot.'/.deployed-version')
+            ? trim(file_get_contents($appRoot.'/.deployed-version'))
+            : 'missing',
+        'env_exists' => is_file($appRoot.'/.env'),
+        'storage_link' => is_link($appRoot.'/storage'),
+        'vendor_exists' => is_dir($appRoot.'/vendor/laravel'),
+    ];
+    jsonOut(['status' => 'ok', 'checks' => $checks]);
 }
 
 // ── Validate command ─────────────────────────────────────────────────────
@@ -157,7 +191,18 @@ if (! in_array($cmd, $ALLOWED, true)) {
 
 // ── Run single command ───────────────────────────────────────────────────
 
-$kernel = $app->make(Kernel::class);
+try {
+    $kernel = $app->make(Kernel::class);
+} catch (Throwable $e) {
+    jsonOut([
+        'status' => 'error',
+        'phase' => 'kernel_resolution',
+        'command' => $cmd,
+        'error' => $e->getMessage(),
+        'file' => $e->getFile().':'.$e->getLine(),
+    ], 500);
+}
+
 set_time_limit(300);
 
 try {
