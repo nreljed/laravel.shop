@@ -30,7 +30,7 @@ jobs:
       - name: Download deploy.zip from release
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VER="v${{ needs.package.outputs.version }}"
           echo "Downloading deploy.zip from release $VER"
