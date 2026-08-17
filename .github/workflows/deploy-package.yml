@@ -106,7 +106,7 @@ jobs:
         # is a private vcs repo; GH_TOKEN authenticates the clone.
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --prefer-dist --no-interaction --no-scripts
+        run: composer install --no-dev --prefer-install auto --no-interaction --no-scripts
 
       - name: Package Discover
         run: php artisan package:discover --ansi
@@ -132,7 +132,7 @@ jobs:
       - name: Optimize autoloader (no-dev)
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --optimize-autoloader --no-scripts
+        run: composer install --no-dev --optimize-autoloader --prefer-install auto --no-scripts
 
       - name: Overwrite .env with production settings
         shell: pwsh
