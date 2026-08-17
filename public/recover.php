@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Contracts\Console\Kernel;
+
 /**
  * Standalone Recovery Endpoint
  *
@@ -15,7 +17,6 @@
  *
  * DELETE this file after recovery is complete.
  */
-
 header('Content-Type: application/json; charset=utf-8');
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -112,7 +113,7 @@ $app = require $appRoot.'/bootstrap/app.php';
 // ── Handle 'recovery' meta-command ───────────────────────────────────────
 
 if ($cmd === 'recovery') {
-    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+    $kernel = $app->make(Kernel::class);
     set_time_limit(300);
 
     $sequence = [
@@ -136,7 +137,7 @@ if ($cmd === 'recovery') {
             $kernel->call($c, $p);
             $output = trim($kernel->getOutput());
             $results[$c] = ['status' => 'ok', 'output' => $output ?: 'done'];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $results[$c] = ['status' => 'error', 'error' => $e->getMessage()];
         }
     }
@@ -156,7 +157,7 @@ if (! in_array($cmd, $ALLOWED, true)) {
 
 // ── Run single command ───────────────────────────────────────────────────
 
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Kernel::class);
 set_time_limit(300);
 
 try {
@@ -170,7 +171,7 @@ try {
         'exit_code' => $exitCode,
         'output' => $output,
     ], $exitCode === 0 ? 200 : 500);
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     jsonOut([
         'status' => 'error',
         'command' => $cmd,
