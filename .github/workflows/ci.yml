@@ -58,7 +58,7 @@ jobs:
         # authenticates both clones.
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-install auto --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-interaction --no-scripts
 
       - name: Composer audit (security advisories)
         # Fails the build when composer.lock contains packages with known
