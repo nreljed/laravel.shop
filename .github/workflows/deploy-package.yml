@@ -106,7 +106,7 @@ jobs:
         # is a private vcs repo; GH_TOKEN authenticates the clone.
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --prefer-source --no-interaction --no-scripts
+        run: composer install --no-dev --prefer-dist --no-interaction --no-scripts
 
       - name: Package Discover
         run: php artisan package:discover --ansi
@@ -132,7 +132,7 @@ jobs:
       - name: Optimize autoloader (no-dev)
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --optimize-autoloader --prefer-source --no-scripts
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-scripts
 
       - name: Overwrite .env with production settings
         shell: pwsh
@@ -179,29 +179,30 @@ jobs:
           @{ name = "dashboard-core"; version = $coreVersion; sha = $null } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
           Write-Output "core.json recorded: dashboard-core $coreVersion"
 
-      - name: Create deploy.zip
+      - name: Create deploy.zip (7z)
         shell: pwsh
         run: |
-          $src = Get-Location
+          $src = (Get-Location).Path
           $zip = "$src\deploy.zip"
           Remove-Item -Force $zip -ErrorAction SilentlyContinue
           # Laravel refuses to boot without bootstrap/cache existing, so the
           # directory itself MUST ship in deploy.zip (fresh servers have nothing).
-          # Only the generated files are removed — they are rebuilt server-side by
-          # package:discover after extraction — while cache/.gitignore stays so the
-          # archive recreates the directory on fresh installs. Never move the dir
-          # aside: a .bak inside bootstrap/ gets zipped and lands on the server.
           $cacheDir = "$src\bootstrap\cache"
           if (Test-Path $cacheDir) {
             Remove-Item "$cacheDir\packages.php", "$cacheDir\services.php" -Force -ErrorAction SilentlyContinue
           }
+          # 7z handles Windows 260-char path limits that break Compress-Archive.
           $items = @(
             "artisan", "composer.json", "composer.lock", "package.json", "package-lock.json",
             "app", "bootstrap", "config", "database", "public", "resources", "routes",
             "storage", "vendor", "deploy.php", ".htaccess"
           )
-          $fullPaths = $items | ForEach-Object { Join-Path $src $_ }
-          Compress-Archive -Path $fullPaths -DestinationPath $zip -CompressionLevel Optimal
+          $args = @("a", "-tzip", "-mx=3", $zip) + $items
+          & 7z @args
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "7z failed with exit code $LASTEXITCODE"
+            exit 1
+          }
           $size = [Math]::Round((Get-Item $zip).Length / 1MB, 1)
           Write-Output "deploy.zip created: $size MB"
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Application;
 
 /**
  * Standalone Recovery Endpoint
@@ -9,17 +10,21 @@ use Illuminate\Contracts\Console\Kernel;
  * session, CSRF, and all web-kernel pipeline. Works even when Laravel's
  * web routes return 500.
  *
+ * This file is designed to survive a broken vendor/autoloader:
+ * - Requires critical classes directly (bypassing broken classmap)
+ * - Can regenerate the autoloader via composer dump-autoload
+ * - Can reinstall vendor from scratch if needed
+ *
  * Usage:
  *   GET  /recover.php?token=...&cmd=recovery
  *   GET  /recover.php?token=...&cmd=status
+ *   GET  /recover.php?token=...&cmd=fix-autoloader
  *   POST /recover.php  (token + cmd in body)
- *
- * POST is preferred for destructive commands.
  *
  * DELETE this file after recovery is complete.
  */
 header('Content-Type: application/json; charset=utf-8');
-error_reporting(E_ERROR | E_PARSE);
+error_reporting(E_ERROR | E_PARSE | E_WARNING);
 ini_set('display_errors', '0');
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -51,6 +56,42 @@ function parseEnvFile(string $path): array
     return $vars;
 }
 
+function runShell(string $cmd, int $timeout = 120): array
+{
+    $descriptors = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+    $proc = proc_open($cmd, $descriptors, $pipes, null, null, ['bypass_shell' => true]);
+    if (! is_resource($proc)) {
+        return ['exit' => -1, 'stdout' => '', 'stderr' => 'Failed to start process'];
+    }
+    stream_set_blocking($pipes[1], false);
+    stream_set_blocking($pipes[2], false);
+    $start = time();
+    $stdout = '';
+    $stderr = '';
+    while (true) {
+        $stdout .= stream_get_contents($pipes[1]);
+        $stderr .= stream_get_contents($pipes[2]);
+        if (time() - $start > $timeout) {
+            proc_terminate($proc, 9);
+
+            return ['exit' => -2, 'stdout' => $stdout, 'stderr' => $stderr."\nKilled after {$timeout}s"];
+        }
+        $status = proc_get_status($proc);
+        if (! $status['running']) {
+            $stdout .= stream_get_contents($pipes[1]);
+            $stderr .= stream_get_contents($pipes[2]);
+            break;
+        }
+        usleep(100_000);
+    }
+    fclose($pipes[0]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $exit = proc_close($proc);
+
+    return ['exit' => $exit, 'stdout' => $stdout, 'stderr' => $stderr];
+}
+
 // ── Paths ────────────────────────────────────────────────────────────────
 
 $publicDir = __DIR__;
@@ -69,7 +110,7 @@ if (! $expected || ! $token || ! hash_equals((string) $expected, (string) $token
 // ── Command allowlist ────────────────────────────────────────────────────
 
 $ALLOWED = [
-    'recovery',
+    'recovery', 'fix-autoloader', 'status',
     'package:discover', 'config:cache', 'config:clear',
     'route:cache', 'route:clear',
     'view:cache', 'view:clear',
@@ -98,18 +139,132 @@ if (is_string($argsRaw) && $argsRaw !== '') {
     $args = [];
 }
 
-// ── Bootstrap ────────────────────────────────────────────────────────────
+// ── Status (no bootstrap needed) ─────────────────────────────────────────
+
+if ($cmd === 'status') {
+    $checks = [
+        'php_version' => PHP_VERSION,
+        'php_os' => PHP_OS,
+        'services_cache' => is_file($appRoot.'/bootstrap/cache/services.php'),
+        'packages_cache' => is_file($appRoot.'/bootstrap/cache/packages.php'),
+        'deployed_version' => is_file($appRoot.'/.deployed-version')
+            ? trim(file_get_contents($appRoot.'/.deployed-version'))
+            : 'missing',
+        'env_exists' => is_file($appRoot.'/.env'),
+        'storage_link' => is_link($appRoot.'/storage'),
+        'vendor_exists' => is_dir($appRoot.'/vendor/laravel'),
+        'autoload_static_exists' => is_file($appRoot.'/vendor/composer/autoload_static.php'),
+        'application_php_exists' => is_file($appRoot.'/vendor/laravel/framework/src/Illuminate/Foundation/Application.php'),
+        'bootstrap_app_exists' => is_file($appRoot.'/bootstrap/app.php'),
+    ];
+    jsonOut(['status' => 'ok', 'checks' => $checks]);
+}
+
+// ── Fix autoloader ───────────────────────────────────────────────────────
+
+if ($cmd === 'fix-autoloader') {
+    set_time_limit(300);
+    $results = [];
+
+    // Step 1: Find or download composer
+    $composer = null;
+    foreach ([$appRoot.'/composer.phar', $appRoot.'/composer'] as $c) {
+        if (is_file($c)) {
+            $composer = $c;
+            break;
+        }
+    }
+    if (! $composer) {
+        $results['download_composer'] = 'Downloading composer...';
+        $dl = runShell('curl -sS https://getcomposer.org/installer -o '.escapeshellarg($appRoot.'/composer-setup.php'), 60);
+        if ($dl['exit'] !== 0) {
+            jsonOut(['status' => 'error', 'step' => 'download_composer', 'error' => $dl['stderr'] ?: $dl['stdout']], 500);
+        }
+        $inst = runShell('php '.escapeshellarg($appRoot.'/composer-setup.php').' --quiet --install-dir='.escapeshellarg($appRoot), 60);
+        if ($inst['exit'] !== 0) {
+            jsonOut(['status' => 'error', 'step' => 'install_composer', 'error' => $inst['stderr'] ?: $inst['stdout']], 500);
+        }
+        @unlink($appRoot.'/composer-setup.php');
+        $composer = $appRoot.'/composer.phar';
+        $results['download_composer'] = 'composer.phar downloaded';
+    }
+
+    // Step 2: composer install --no-dev --optimize-autoloader
+    $envAuth = $env['GITHUB_TOKEN'] ?? '';
+    $authJson = json_encode(['github-oauth' => ['github.com' => $envAuth]]);
+
+    $install = runShell(
+        'COMPOSER_AUTH='.escapeshellarg($authJson).' php '.escapeshellarg($composer).' install --no-dev --optimize-autoloader --no-interaction --no-scripts --working-dir='.escapeshellarg($appRoot),
+        300
+    );
+    $results['composer_install'] = [
+        'exit' => $install['exit'],
+        'output' => substr($install['stdout'], -2000),
+    ];
+    if ($install['exit'] !== 0) {
+        $results['composer_install']['stderr'] = substr($install['stderr'], -1000);
+    }
+
+    // Step 3: package:discover
+    $discover = runShell('php '.escapeshellarg($appRoot.'/artisan').' package:discover --ansi --force', 60);
+    $results['package_discover'] = [
+        'exit' => $discover['exit'],
+        'output' => trim(substr($discover['stdout'], -1000)),
+    ];
+
+    jsonOut(['status' => $install['exit'] === 0 ? 'ok' : 'error', 'results' => $results]);
+}
+
+// ── Bootstrap for artisan commands ───────────────────────────────────────
 
 try {
     require $appRoot.'/vendor/autoload.php';
-    $app = require $appRoot.'/bootstrap/app.php';
 } catch (Throwable $e) {
     jsonOut([
         'status' => 'error',
-        'phase' => 'bootstrap',
+        'phase' => 'autoload',
         'error' => $e->getMessage(),
         'file' => $e->getFile().':'.$e->getLine(),
+        'hint' => 'Run ?cmd=fix-autoloader to regenerate the autoloader.',
     ], 500);
+}
+
+// Try to load Application class — if autoloader is broken, require the file directly
+if (! class_exists(Application::class, false)) {
+    $appFile = $appRoot.'/vendor/laravel/framework/src/Illuminate/Foundation/Application.php';
+    if (is_file($appFile)) {
+        try {
+            require $appFile;
+        } catch (Throwable $e) {
+            jsonOut([
+                'status' => 'error',
+                'phase' => 'load_application_class',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile().':'.$e->getLine(),
+                'hint' => 'Run ?cmd=fix-autoloader to regenerate the autoloader.',
+            ], 500);
+        }
+    }
+}
+
+try {
+    $app = require $appRoot.'/bootstrap/app.php';
+} catch (Throwable $e) {
+    // If bootstrap/app.php fails, create Application manually
+    try {
+        $app = new Application($appRoot);
+        $app->bootstrap();
+    } catch (Throwable $e2) {
+        jsonOut([
+            'status' => 'error',
+            'phase' => 'bootstrap',
+            'error' => $e->getMessage(),
+            'file' => $e->getFile().':'.$e->getLine(),
+            'fallback_error' => $e2->getMessage(),
+            'fallback_file' => $e2->getFile().':'.$e2->getLine(),
+            'hint' => 'Run ?cmd=fix-autoloader to regenerate the autoloader.',
+        ], 500);
+    }
 }
 
 // ── Handle 'recovery' meta-command ───────────────────────────────────────
@@ -141,6 +296,7 @@ if ($cmd === 'recovery') {
         'route:cache' => [],
         'view:cache' => [],
         'storage:link' => ['--force' => true],
+        'permissions:sync' => [],
     ];
 
     $results = [];
@@ -161,23 +317,6 @@ if ($cmd === 'recovery') {
     }
 
     jsonOut(['status' => 'ok', 'sequence' => $results]);
-}
-
-// ── Handle 'status' (no kernel needed) ───────────────────────────────────
-
-if ($cmd === 'status') {
-    $checks = [
-        'php_version' => PHP_VERSION,
-        'services_cache' => is_file($appRoot.'/bootstrap/cache/services.php'),
-        'packages_cache' => is_file($appRoot.'/bootstrap/cache/packages.php'),
-        'deployed_version' => is_file($appRoot.'/.deployed-version')
-            ? trim(file_get_contents($appRoot.'/.deployed-version'))
-            : 'missing',
-        'env_exists' => is_file($appRoot.'/.env'),
-        'storage_link' => is_link($appRoot.'/storage'),
-        'vendor_exists' => is_dir($appRoot.'/vendor/laravel'),
-    ];
-    jsonOut(['status' => 'ok', 'checks' => $checks]);
 }
 
 // ── Validate command ─────────────────────────────────────────────────────
