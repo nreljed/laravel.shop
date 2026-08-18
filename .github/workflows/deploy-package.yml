@@ -97,7 +97,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}
+          key: composer-dist-${{ hashFiles('composer.lock') }}
 
       - name: Install Composer dependencies (no-dev)
         # --no-dev keeps dev-only packages (pint, pail, telescope...) out of the
@@ -199,7 +199,8 @@ jobs:
           )
           $args = @("a", "-tzip", "-mx=3", $zip) + $items
           & 7z @args
-          if ($LASTEXITCODE -ne 0) {
+          # 7z returns 0=OK, 1=warning (non-fatal, e.g. permission denied on test fixtures)
+          if ($LASTEXITCODE -gt 1) {
             Write-Error "7z failed with exit code $LASTEXITCODE"
             exit 1
           }
