@@ -9,7 +9,9 @@ body = """
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | upper_first }}
 {% for commit in commits %}
-- {{ commit.message | upper_first }}{% if commit.breaking %} [breaking]{% endif %}
+- {{ commit.message | upper_first }}{% if commit.breaking %} [breaking]{% endif %}{% if commit.body %}
+  {{ commit.body | trim | replace(from="\n", to="\n  ") }}{% endif %}
+
 {% endfor %}
 {% endfor %}
 """
@@ -23,7 +25,7 @@ split_commits = false
 # Only consider semver tags (ignore existing deploy-N tags)
 tag_pattern = "v[0-9]+.*"
 commit_preprocessors = [
-  { pattern = "(\\(\\w+\\))?\\s*", replace = "" },
+  { pattern = "^(\\(\\w+\\))?\\s*", replace = "" },
 ]
 commit_parsers = [
   { message = "^feat", group = "Features" },
