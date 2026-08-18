@@ -13,7 +13,11 @@ name: Deploy to Production
 #   ubuntu-latest      GitHub-hosted Linux  (free 2 000 min/mo on private repo)
 #   windows-latest     GitHub-hosted Windows (expensive — avoid unless needed)
 #
-# All steps use shell: bash / pwsh (cross-platform) so both runners work.
+# IMPORTANT: On self-hosted Windows runners, "shell: bash" maps to the WSL
+# shim (C:\WINDOWS\system32\bash.EXE) which is broken without WSL installed.
+# Bash steps below use the explicit Git bash path. If you switch to
+# ubuntu-latest, replace the Git bash paths with "shell: bash" (native).
+# pwsh steps work on both platforms.
 # ---------------------------------------------------------------------------
 
 on:
@@ -44,7 +48,7 @@ jobs:
     runs-on: ${{ vars.RUNNER || 'self-hosted' }}
     steps:
       - name: Download deploy.zip from release
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -57,12 +61,9 @@ jobs:
           ls -la deploy.zip
 
       - name: Push GITHUB_TOKEN to server .env
-        # Runs before the upload so the server can authenticate /deploy/check
-        # (self-deploy path reads GITHUB_TOKEN from the server .env). Always
-        # runs, even if later steps fail, so the token never gets skipped.
         if: always()
         continue-on-error: true
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
         run: |
           ENV_URL="${{ vars.APP_URL }}/deploy/env?token=${{ secrets.DEPLOY_TOKEN }}"
           for i in 1 2 3; do
@@ -79,19 +80,13 @@ jobs:
           echo "GITHUB_TOKEN push did not confirm; manual: POST $ENV_URL with {\"values\":{\"GITHUB_TOKEN\":\"<value>\"}}"
 
       - name: Upload deploy archive to server
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
         run: |
           VER="v${{ needs.package.outputs.version }}"
           echo "Release: $VER"
           CHECK_URL="${{ vars.APP_URL }}/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}"
           UPLOAD_URL="${{ vars.APP_URL }}/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}"
 
-          # Prefer /deploy/check: the server pulls deploy.zip from the GitHub API itself,
-          # avoiding a large upload through the edge. Cloudflare cuts connections ~100s,
-          # so the server may finish processing AFTER the response is lost — poll for it.
-          # During extraction the server returns HTML/500 transiently — that means "still busy".
-          # Fast-fail: if 2 consecutive responses aren't JSON, the server is broken —
-          # skip the remaining polls and go straight to upload (~10 min saved).
           poll_check() {
             consecutive_non_json=0
             for i in 1 2 3 4 5 6 7 8; do
@@ -131,8 +126,6 @@ jobs:
             return 1
           }
 
-          # Upload response can be lost mid-extract; confirm the deploy by polling /deploy/check
-          # until it reports current/deployed with the expected tag.
           confirm_deployed() {
             consecutive_non_json=0
             for i in 1 2 3 4 5 6 7 8; do
@@ -186,7 +179,6 @@ jobs:
               echo "$BODY" | head -1
               echo "push-deploy OK (upload path)"
             else
-              # Response lost or transient HTML mid-extract; the deploy may still be in flight.
               echo "Upload response not clean (HTTP $HTTP_CODE), confirming via /deploy/check..."
               if confirm_deployed; then
                 echo "push-deploy OK (confirmed after upload)"
@@ -206,7 +198,6 @@ jobs:
         shell: pwsh
         run: |
           $ftpPort = if ("${{ secrets.FTP_PORT }}") { "${{ secrets.FTP_PORT }}" } else { "21" }
-          # FTP account home is the Laravel project root (public_html), so upload to root.
           $ftpUrl = "ftp://${{ secrets.FTP_SERVER }}:$ftpPort/deploy.zip"
           $cred = New-Object System.Net.NetworkCredential("${{ secrets.FTP_USERNAME }}", "${{ secrets.FTP_PASSWORD }}")
           try {

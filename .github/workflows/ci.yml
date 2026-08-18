@@ -13,7 +13,8 @@ name: CI Validation
 #   ubuntu-latest      GitHub-hosted Linux  (free 2 000 min/mo on private repo)
 #   windows-latest     GitHub-hosted Windows (expensive — avoid unless needed)
 #
-# All steps use shell: bash (cross-platform) so both runners work.
+# NOTE: This workflow uses pwsh commands (cross-platform). Both Windows
+# self-hosted and ubuntu-latest runners have pwsh installed.
 # ---------------------------------------------------------------------------
 
 on:
@@ -45,7 +46,6 @@ jobs:
           tools: composer:v2
 
       - name: Verify Node.js
-        shell: bash
         run: node --version; npm --version
 
       - name: Cache Composer dependencies
@@ -61,12 +61,10 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Create .env
-        shell: bash
-        run: cp .env.example .env
+        run: Copy-Item .env.example .env
 
       - name: Create SQLite database
-        shell: bash
-        run: touch database/database.sqlite
+        run: New-Item -ItemType File -Path database/database.sqlite -Force | Out-Null
 
       - name: Install Composer dependencies
         env:
@@ -77,8 +75,7 @@ jobs:
         run: composer audit --no-interaction
 
       - name: Foundation check (core boundary)
-        shell: bash
-        run: php scripts/foundation-check.php "$(pwd)"
+        run: php scripts/foundation-check.php (Get-Location).Path
 
       - name: Generate application key
         run: php artisan key:generate
