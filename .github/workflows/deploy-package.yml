@@ -169,7 +169,7 @@ jobs:
           @{ name = "dashboard-core"; version = $coreVersion; sha = $null } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
           Write-Output "core.json recorded: dashboard-core $coreVersion"
 
-      - name: Create deploy.zip
+      - name: Create deploy.zip (7z)
         shell: pwsh
         run: |
           $src = (Get-Location).Path
@@ -179,14 +179,18 @@ jobs:
           if (Test-Path $cacheDir) {
             Remove-Item "$cacheDir\packages.php", "$cacheDir\services.php" -Force -ErrorAction SilentlyContinue
           }
-          # Compress-Archive works fine in pwsh 7+ (.NET Core, no 260-char limit).
           $items = @(
             "artisan", "composer.json", "composer.lock", "package.json", "package-lock.json",
             "app", "bootstrap", "config", "database", "public", "resources", "routes",
             "storage", "vendor", "deploy.php", ".htaccess"
           )
-          $existingItems = $items | Where-Object { Test-Path "$src\$_" }
-          Compress-Archive -Path $existingItems -DestinationPath $zip -CompressionLevel Optimal -Force
+          $sevenZip = "C:\Program Files\7-Zip\7z.exe"
+          $args = @("a", "-tzip", "-mx=3", $zip) + $items
+          & $sevenZip @args
+          if ($LASTEXITCODE -gt 1) {
+            Write-Error "7z failed with exit code $LASTEXITCODE"
+            exit 1
+          }
           $size = [Math]::Round((Get-Item $zip).Length / 1MB, 1)
           Write-Output "deploy.zip created: $size MB"
 
