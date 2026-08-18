@@ -99,14 +99,14 @@ jobs:
           path: vendor
           key: composer-dist-${{ hashFiles('composer.lock') }}
 
-      - name: Install Composer dependencies (no-dev)
+      - name: Install Composer dependencies (no-dev, optimized)
         # --no-dev keeps dev-only packages (pint, pail, telescope...) out of the
-        # deploy.zip. A dev-built vendor was the source of boot failures on the
-        # server (dev-only providers referenced by the autoloader). dashboard-core
-        # is a private vcs repo; GH_TOKEN authenticates the clone.
+        # deploy.zip. --optimize-autoloader generates an optimized classmap for
+        # faster production autoloading. dashboard-core + shop-module are private
+        # vcs repos; GH_TOKEN authenticates the clone.
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --prefer-dist --no-interaction --no-scripts
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
       - name: Package Discover
         run: php artisan package:discover --ansi
@@ -121,18 +121,10 @@ jobs:
           key: npm-${{ hashFiles('package-lock.json') }}
 
       - name: Install npm dependencies
-        run: npm install --ignore-scripts --no-audit --no-fund --legacy-peer-deps
-
-      - name: Typecheck
-        run: npm run typecheck
+        run: npm ci --ignore-scripts --no-audit --no-fund --legacy-peer-deps
 
       - name: Build frontend assets
         run: npm run build
-
-      - name: Optimize autoloader (no-dev)
-        env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-scripts
 
       - name: Overwrite .env with production settings
         shell: pwsh

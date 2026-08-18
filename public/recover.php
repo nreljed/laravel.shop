@@ -56,10 +56,11 @@ function parseEnvFile(string $path): array
     return $vars;
 }
 
-function runShell(string $cmd, int $timeout = 120): array
+function runShell(string $cmd, int $timeout = 120, array $envVars = []): array
 {
     $descriptors = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-    $proc = proc_open($cmd, $descriptors, $pipes, null, null, ['bypass_shell' => true]);
+    $env = $envVars ?: null;
+    $proc = proc_open($cmd, $descriptors, $pipes, null, $env, ['bypass_shell' => true]);
     if (! is_resource($proc)) {
         return ['exit' => -1, 'stdout' => '', 'stderr' => 'Failed to start process'];
     }
@@ -190,12 +191,15 @@ if ($cmd === 'fix-autoloader') {
     }
 
     // Step 2: composer install --no-dev --optimize-autoloader
+    // Environment variables MUST be passed via proc_open's env param (not shell
+    // syntax) because bypass_shell skips the shell entirely.
     $envAuth = $env['GITHUB_TOKEN'] ?? '';
     $authJson = json_encode(['github-oauth' => ['github.com' => $envAuth]]);
 
     $install = runShell(
-        'COMPOSER_AUTH='.escapeshellarg($authJson).' php '.escapeshellarg($composer).' install --no-dev --optimize-autoloader --no-interaction --no-scripts --working-dir='.escapeshellarg($appRoot),
-        300
+        'php '.escapeshellarg($composer).' install --no-dev --optimize-autoloader --no-interaction --no-scripts --working-dir='.escapeshellarg($appRoot),
+        300,
+        ['COMPOSER_AUTH' => $authJson]
     );
     $results['composer_install'] = [
         'exit' => $install['exit'],

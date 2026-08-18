@@ -74,9 +74,12 @@ jobs:
           # avoiding a large upload through the edge. Cloudflare cuts connections ~100s,
           # so the server may finish processing AFTER the response is lost — poll for it.
           # During extraction the server returns HTML/500 transiently — that means "still busy".
+          # Fast-fail: if 2 consecutive responses aren't JSON, the server is broken —
+          # skip the remaining polls and go straight to upload (~10 min saved).
           poll_check() {
+            consecutive_non_json=0
             for i in 1 2 3 4 5 6 7 8; do
-              RESP=$(curl -s -X POST --max-time 120 "$CHECK_URL" 2>&1)
+              RESP=$(curl -s -X POST --max-time 30 "$CHECK_URL" 2>&1)
               FIRST=$(echo "$RESP" | head -1)
               case "$FIRST" in
                 *'"status":"deployed"'*)
@@ -85,6 +88,7 @@ jobs:
                   return 0
                   ;;
                 *'"status":"current"'*)
+                  consecutive_non_json=0
                   if echo "$FIRST" | grep -q "\"tag\":\"$VER\""; then
                     echo "Confirmed on $VER via /deploy/check"
                     echo "$FIRST"
@@ -94,13 +98,19 @@ jobs:
                   echo "[poll $i/8] server on ${CURRENT_TAG:-?}, waiting for $VER"
                   ;;
                 *'"status":"locked"'*)
+                  consecutive_non_json=0
                   echo "[poll $i/8] server still working (locked)"
                   ;;
                 *)
-                  echo "[poll $i/8] server busy (response not JSON yet)"
+                  consecutive_non_json=$((consecutive_non_json + 1))
+                  echo "[poll $i/8] server not responding (non-JSON $consecutive_non_json/2)"
+                  if [ "$consecutive_non_json" -ge 2 ]; then
+                    echo "Fast-fail: server is broken, skipping remaining polls"
+                    return 1
+                  fi
                   ;;
               esac
-              [ "$i" -lt 8 ] && sleep 45
+              [ "$i" -lt 8 ] && sleep 15
             done
             return 1
           }
@@ -108,8 +118,9 @@ jobs:
           # Upload response can be lost mid-extract; confirm the deploy by polling /deploy/check
           # until it reports current/deployed with the expected tag.
           confirm_deployed() {
+            consecutive_non_json=0
             for i in 1 2 3 4 5 6 7 8; do
-              RESP=$(curl -s --max-time 120 "$CHECK_URL" 2>&1)
+              RESP=$(curl -s --max-time 30 "$CHECK_URL" 2>&1)
               FIRST=$(echo "$RESP" | head -1)
               case "$FIRST" in
                 *'"status":"deployed"'*)
@@ -118,6 +129,7 @@ jobs:
                   return 0
                   ;;
                 *'"status":"current"'*)
+                  consecutive_non_json=0
                   if echo "$FIRST" | grep -q "\"tag\":\"$VER\""; then
                     echo "Confirmed on $VER via /deploy/check"
                     echo "$FIRST"
@@ -126,13 +138,19 @@ jobs:
                   echo "[confirm $i/8] tag not yet $VER, retrying"
                   ;;
                 *'"status":"locked"'*)
+                  consecutive_non_json=0
                   echo "[confirm $i/8] server still working (locked), retrying"
                   ;;
                 *)
-                  echo "[confirm $i/8] server busy, retrying"
+                  consecutive_non_json=$((consecutive_non_json + 1))
+                  echo "[confirm $i/8] server not responding (non-JSON $consecutive_non_json/2)"
+                  if [ "$consecutive_non_json" -ge 2 ]; then
+                    echo "Fast-fail: server is broken, skipping remaining confirms"
+                    return 1
+                  fi
                   ;;
               esac
-              [ "$i" -lt 8 ] && sleep 45
+              [ "$i" -lt 8 ] && sleep 15
             done
             return 1
           }
@@ -167,7 +185,7 @@ jobs:
           fi
 
       - name: FTP Upload fallback (DirectAdmin)
-        if: always()
+        if: failure()
         continue-on-error: true
         shell: pwsh
         run: |
