@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v7
 
@@ -47,65 +47,77 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Create .env
+        shell: bash
         run: cp .env.example .env
 
       - name: Create SQLite database
+        shell: bash
         run: touch database/database.sqlite
 
       - name: Install Composer dependencies
         # dashboard-core + shop-module are private vcs repos; the single
         # GH_TOKEN (Contents: Read on all four nreljed repos, see AGENTS.md)
         # authenticates both clones.
+        shell: bash
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --prefer-dist --no-interaction --no-scripts
 
       - name: Composer audit (security advisories)
-        # Fails the build when composer.lock contains packages with known
-        # security advisories (Packagist Security Advisories database).
+        shell: bash
         run: composer audit --no-interaction
 
       - name: Foundation check (core boundary)
+        shell: bash
         run: php scripts/foundation-check.php "$(pwd)"
 
       - name: Generate application key
+        shell: bash
         run: php artisan key:generate
 
       - name: Run migrations
+        shell: bash
         run: php artisan migrate --force
 
       - name: Install npm dependencies
+        shell: bash
         run: npm ci --legacy-peer-deps
 
       - name: npm audit (security advisories)
-        # Fails the build when package-lock.json contains packages with known
-        # vulnerabilities at or above the "high" severity level.
+        shell: bash
         run: npm audit --audit-level=high
 
       - name: ESLint
         if: ${{ !inputs.skip-npm-tests }}
+        shell: bash
         run: npm run lint
 
       - name: TypeScript check
         if: ${{ !inputs.skip-npm-tests }}
+        shell: bash
         run: npm run typecheck
 
       - name: Prettier check
         if: ${{ !inputs.skip-npm-tests }}
+        shell: bash
         run: npm run format:check
 
       - name: Frontend tests
         if: ${{ !inputs.skip-npm-tests }}
+        shell: bash
         run: npm run test
 
       - name: Build frontend assets
         if: ${{ !inputs.skip-npm-tests }}
+        shell: bash
         run: npm run build
 
       - name: PHP tests
         if: ${{ !inputs.skip-php-tests }}
+        shell: bash
         run: php artisan test --parallel --compact
 
       - name: Laravel Pint
         if: ${{ !inputs.skip-php-tests }}
-        run: vendor/bin/pint --test
+        shell: bash
+        run: php vendor/bin/pint --test
