@@ -28,7 +28,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Download deploy.zip from release
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -46,7 +46,7 @@ jobs:
         # runs, even if later steps fail, so the token never gets skipped.
         if: always()
         continue-on-error: true
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
         run: |
           ENV_URL="${{ vars.APP_URL }}/deploy/env?token=${{ secrets.DEPLOY_TOKEN }}"
           for i in 1 2 3; do
@@ -63,7 +63,7 @@ jobs:
           echo "GITHUB_TOKEN push did not confirm; manual: POST $ENV_URL with {\"values\":{\"GITHUB_TOKEN\":\"<value>\"}}"
 
       - name: Upload deploy archive to server
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
         run: |
           VER="v${{ needs.package.outputs.version }}"
           echo "Release: $VER"

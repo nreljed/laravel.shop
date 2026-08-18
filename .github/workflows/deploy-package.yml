@@ -34,8 +34,7 @@ jobs:
           tools: composer:v2
 
       - name: Verify Node.js
-        shell: bash
-        run: node --version && npm --version
+        run: node --version; npm --version
 
       - name: Determine version
         id: version
@@ -215,7 +214,7 @@ jobs:
           git-cliff -o CHANGELOG.md 2>$null
 
       - name: Create GitHub Release (release assets, not Actions artifacts)
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
