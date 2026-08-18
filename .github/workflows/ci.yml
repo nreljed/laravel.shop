@@ -29,8 +29,7 @@ jobs:
           tools: composer:v2
 
       - name: Verify Node.js
-        shell: bash
-        run: node --version && npm --version
+        run: node --version; npm --version
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
@@ -45,74 +44,58 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Create .env
-        shell: bash
-        run: cp .env.example .env
+        run: Copy-Item .env.example .env
 
       - name: Create SQLite database
-        shell: bash
-        run: touch database/database.sqlite
+        run: New-Item -ItemType File -Path database/database.sqlite -Force
 
       - name: Install Composer dependencies
-        shell: bash
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --prefer-dist --no-interaction --no-scripts
 
       - name: Composer audit (security advisories)
-        shell: bash
         run: composer audit --no-interaction
 
       - name: Foundation check (core boundary)
-        shell: bash
-        run: php scripts/foundation-check.php "$(pwd)"
+        run: php scripts/foundation-check.php (Get-Location).Path
 
       - name: Generate application key
-        shell: bash
         run: php artisan key:generate
 
       - name: Run migrations
-        shell: bash
         run: php artisan migrate --force
 
       - name: Install npm dependencies
-        shell: bash
         run: npm ci --legacy-peer-deps
 
       - name: npm audit (security advisories)
-        shell: bash
         run: npm audit --audit-level=high
 
       - name: ESLint
         if: ${{ !inputs.skip-npm-tests }}
-        shell: bash
         run: npm run lint
 
       - name: TypeScript check
         if: ${{ !inputs.skip-npm-tests }}
-        shell: bash
         run: npm run typecheck
 
       - name: Prettier check
         if: ${{ !inputs.skip-npm-tests }}
-        shell: bash
         run: npm run format:check
 
       - name: Frontend tests
         if: ${{ !inputs.skip-npm-tests }}
-        shell: bash
         run: npm run test
 
       - name: Build frontend assets
         if: ${{ !inputs.skip-npm-tests }}
-        shell: bash
         run: npm run build
 
       - name: PHP tests
         if: ${{ !inputs.skip-php-tests }}
-        shell: bash
         run: php artisan test --parallel --compact
 
       - name: Laravel Pint
         if: ${{ !inputs.skip-php-tests }}
-        shell: bash
         run: php vendor/bin/pint --test
