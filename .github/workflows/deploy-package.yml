@@ -169,31 +169,24 @@ jobs:
           @{ name = "dashboard-core"; version = $coreVersion; sha = $null } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
           Write-Output "core.json recorded: dashboard-core $coreVersion"
 
-      - name: Create deploy.zip (7z)
+      - name: Create deploy.zip
         shell: pwsh
         run: |
           $src = (Get-Location).Path
           $zip = "$src\deploy.zip"
           Remove-Item -Force $zip -ErrorAction SilentlyContinue
-          # Laravel refuses to boot without bootstrap/cache existing, so the
-          # directory itself MUST ship in deploy.zip (fresh servers have nothing).
           $cacheDir = "$src\bootstrap\cache"
           if (Test-Path $cacheDir) {
             Remove-Item "$cacheDir\packages.php", "$cacheDir\services.php" -Force -ErrorAction SilentlyContinue
           }
-          # 7z handles Windows 260-char path limits that break Compress-Archive.
+          # Compress-Archive works fine in pwsh 7+ (.NET Core, no 260-char limit).
           $items = @(
             "artisan", "composer.json", "composer.lock", "package.json", "package-lock.json",
             "app", "bootstrap", "config", "database", "public", "resources", "routes",
             "storage", "vendor", "deploy.php", ".htaccess"
           )
-          $args = @("a", "-tzip", "-mx=3", $zip) + $items
-          & 7z @args
-          # 7z returns 0=OK, 1=warning (non-fatal, e.g. permission denied on test fixtures)
-          if ($LASTEXITCODE -gt 1) {
-            Write-Error "7z failed with exit code $LASTEXITCODE"
-            exit 1
-          }
+          $existingItems = $items | Where-Object { Test-Path "$src\$_" }
+          Compress-Archive -Path $existingItems -DestinationPath $zip -CompressionLevel Optimal -Force
           $size = [Math]::Round((Get-Item $zip).Length / 1MB, 1)
           Write-Output "deploy.zip created: $size MB"
 
