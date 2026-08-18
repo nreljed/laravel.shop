@@ -1,5 +1,21 @@
 name: CI Validation
 
+# ---------------------------------------------------------------------------
+# Runner selection
+# ---------------------------------------------------------------------------
+# Set the repository variable "RUNNER" in:
+#   Settings → Secrets and variables → Actions → Variables → New repository variable
+#
+#   Value              What it does
+#   ─────────────────  ──────────────────────────────────────────────────────
+#   (unset / empty)    Falls back to "self-hosted" (your local Windows PC)
+#   self-hosted        Your registered runner on this machine
+#   ubuntu-latest      GitHub-hosted Linux  (free 2 000 min/mo on private repo)
+#   windows-latest     GitHub-hosted Windows (expensive — avoid unless needed)
+#
+# All steps use shell: bash (cross-platform) so both runners work.
+# ---------------------------------------------------------------------------
+
 on:
   workflow_call:
     inputs:
@@ -17,7 +33,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: self-hosted
+    runs-on: ${{ vars.RUNNER || 'self-hosted' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -44,10 +60,10 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Create .env
-        run: Copy-Item .env.example .env
+        run: cp .env.example .env
 
       - name: Create SQLite database
-        run: New-Item -ItemType File -Path database/database.sqlite -Force
+        run: touch database/database.sqlite
 
       - name: Install Composer dependencies
         env:
@@ -58,7 +74,7 @@ jobs:
         run: composer audit --no-interaction
 
       - name: Foundation check (core boundary)
-        run: php scripts/foundation-check.php (Get-Location).Path
+        run: php scripts/foundation-check.php "$(pwd)"
 
       - name: Generate application key
         run: php artisan key:generate

@@ -1,5 +1,21 @@
 name: Build Deploy Package
 
+# ---------------------------------------------------------------------------
+# Runner selection
+# ---------------------------------------------------------------------------
+# Set the repository variable "RUNNER" in:
+#   Settings → Secrets and variables → Actions → Variables → New repository variable
+#
+#   Value              What it does
+#   ─────────────────  ──────────────────────────────────────────────────────
+#   (unset / empty)    Falls back to "self-hosted" (your local Windows PC)
+#   self-hosted        Your registered runner on this machine
+#   ubuntu-latest      GitHub-hosted Linux  (free 2 000 min/mo on private repo)
+#   windows-latest     GitHub-hosted Windows (expensive — avoid unless needed)
+#
+# All steps use shell: bash / pwsh (cross-platform) so both runners work.
+# ---------------------------------------------------------------------------
+
 on:
   workflow_call:
     inputs:
@@ -17,7 +33,7 @@ permissions:
 
 jobs:
   package:
-    runs-on: self-hosted
+    runs-on: ${{ vars.RUNNER || 'self-hosted' }}
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -38,58 +54,51 @@ jobs:
 
       - name: Determine version
         id: version
-        shell: pwsh
+        shell: bash
         run: |
-          if ("${{ inputs.version }}" -ne "") {
-            $ver = "${{ inputs.version }}"
-          } else {
-            $ver = "0.1.0"
-            # Deterministic bump from the highest reachable semver tag.
-            $lastTag = git tag --merged HEAD |
-              Where-Object { $_ -match '^v[0-9]+\.[0-9]+\.[0-9]+$' } |
-              Sort-Object { [version]($_ -replace '^v', '') } |
-              Select-Object -Last 1
-            if ($lastTag) {
-              $seg = $lastTag.TrimStart('v').Split('.')
-              $major = [int]$seg[0]; $minor = [int]$seg[1]; $patch = [int]$seg[2]
-              $commits = git log "$lastTag..HEAD" --pretty=format:"%s%B"
-              $bump = "patch"
-              foreach ($c in $commits) {
-                if ($c -match 'BREAKING CHANGE' -or $c -match '^[a-z]+(\([^)]*\))?!:') { $bump = "major"; break }
-                if ($c -match '^feat') { $bump = "minor" }
-              }
-              switch ($bump) {
-                "major" { $ver = "$($major + 1).0.0" }
-                "minor" { $ver = "$major.$($minor + 1).0" }
-                default { $ver = "$major.$minor.$($patch + 1)" }
-              }
-              Write-Output "Bumping from $lastTag (next: $ver)"
-            } else {
-              Write-Output "No semver tags found, starting at 0.1.0"
-            }
-          }
-          echo "version=$ver" >> $env:GITHUB_OUTPUT
+          if [ -n "${{ inputs.version }}" ]; then
+            VER="${{ inputs.version }}"
+          else
+            VER="0.1.0"
+            LAST_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+            if [ -n "$LAST_TAG" ]; then
+              IFS='.' read -r MAJOR MINOR PATCH <<< "${LAST_TAG#v}"
+              COMMITS=$(git log "$LAST_TAG..HEAD" --pretty=format:"%s%B")
+              BUMP="patch"
+              echo "$COMMITS" | grep -qE 'BREAKING CHANGE|^[a-z]+(\([^)]*\))!:' && BUMP="major"
+              echo "$COMMITS" | grep -qE '^feat' && [ "$BUMP" != "major" ] && BUMP="minor"
+              case "$BUMP" in
+                major) VER="$((MAJOR + 1)).0.0" ;;
+                minor) VER="$MAJOR.$((MINOR + 1)).0" ;;
+                *)     VER="$MAJOR.$MINOR.$((PATCH + 1))" ;;
+              esac
+              echo "Bumping from $LAST_TAG → $VER"
+            else
+              echo "No semver tags found, starting at 0.1.0"
+            fi
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
 
       - name: Generate build .env (SQLite)
-        shell: pwsh
+        shell: bash
         run: |
-          $dbPath = "$((Get-Location).Path.Replace('\', '/'))/database/database.sqlite"
-          @"
+          DB_PATH="$(pwd -W 2>/dev/null || pwd)/database/database.sqlite"
+          cat > .env <<EOF
           APP_NAME="Shop App"
           APP_ENV=local
           APP_KEY=${{ secrets.APP_KEY }}
           APP_DEBUG=true
           APP_URL=http://localhost
           DB_CONNECTION=sqlite
-          DB_DATABASE=$dbPath
+          DB_DATABASE=$DB_PATH
           SESSION_DRIVER=file
           FILESYSTEM_DISK=local
           QUEUE_CONNECTION=sync
           CACHE_STORE=file
           DEPLOY_TOKEN=build
           GITHUB_TOKEN=build
-          "@ | Set-Content -Path .env -Encoding UTF8
-          New-Item -ItemType File -Path database/database.sqlite -Force
+          EOF
+          touch database/database.sqlite
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
@@ -98,10 +107,6 @@ jobs:
           key: composer-dist-${{ hashFiles('composer.lock') }}
 
       - name: Install Composer dependencies (no-dev, optimized)
-        # --no-dev keeps dev-only packages (pint, pail, telescope...) out of the
-        # deploy.zip. --optimize-autoloader generates an optimized classmap for
-        # faster production autoloading. dashboard-core + shop-module are private
-        # vcs repos; GH_TOKEN authenticates the clone.
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
@@ -125,9 +130,9 @@ jobs:
         run: npm run build
 
       - name: Overwrite .env with production settings
-        shell: pwsh
+        shell: bash
         run: |
-          @'
+          cat > .env <<EOF
           APP_NAME="Shop App"
           APP_ENV=production
           APP_KEY=${{ secrets.APP_KEY }}
@@ -155,71 +160,60 @@ jobs:
           DEPLOY_TOKEN=${{ secrets.DEPLOY_TOKEN }}
           GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
           DB_MAINTENANCE_ENABLED=${{ vars.DB_MAINTENANCE_ENABLED || 'false' }}
-          '@ | Set-Content -Path .env -Encoding UTF8
+          EOF
 
       - name: Copy deploy script
-        run: Copy-Item -Path scripts/deploy-cron.php -Destination deploy.php
+        run: cp scripts/deploy-cron.php deploy.php
 
       - name: Record dashboard-core version
-        shell: pwsh
+        shell: bash
         run: |
-          $coreMeta = Get-Content "vendor\nreljed\dashboard-core\composer.json" -Raw | ConvertFrom-Json
-          $coreVersion = $coreMeta.version
-          New-Item -ItemType Directory -Path "storage\app" -Force | Out-Null
-          @{ name = "dashboard-core"; version = $coreVersion; sha = $null } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
-          Write-Output "core.json recorded: dashboard-core $coreVersion"
+          CORE_VERSION=$(php -r "echo json_decode(file_get_contents('vendor/nreljed/dashboard-core/composer.json'))->version;")
+          mkdir -p storage/app
+          echo "{\"name\":\"dashboard-core\",\"version\":\"$CORE_VERSION\",\"sha\":null}" > storage/app/core.json
+          echo "core.json recorded: dashboard-core $CORE_VERSION"
 
-      - name: Create deploy.zip (7z)
-        shell: pwsh
+      - name: Create deploy.zip
+        shell: bash
         run: |
-          $src = (Get-Location).Path
-          $zip = "$src\deploy.zip"
-          Remove-Item -Force $zip -ErrorAction SilentlyContinue
-          $cacheDir = "$src\bootstrap\cache"
-          if (Test-Path $cacheDir) {
-            Remove-Item "$cacheDir\packages.php", "$cacheDir\services.php" -Force -ErrorAction SilentlyContinue
-          }
-          $items = @(
-            "artisan", "composer.json", "composer.lock", "package.json", "package-lock.json",
-            "app", "bootstrap", "config", "database", "public", "resources", "routes",
-            "storage", "vendor", "deploy.php", ".htaccess"
+          ITEMS=(
+            artisan composer.json composer.lock package.json package-lock.json
+            app bootstrap config database public resources routes
+            storage vendor deploy.php .htaccess
           )
-          $sevenZip = "C:\Program Files\7-Zip\7z.exe"
-          $args = @("a", "-tzip", "-mx=3", $zip) + $items
-          & $sevenZip @args
-          if ($LASTEXITCODE -gt 1) {
-            Write-Error "7z failed with exit code $LASTEXITCODE"
-            exit 1
-          }
-          $size = [Math]::Round((Get-Item $zip).Length / 1MB, 1)
-          Write-Output "deploy.zip created: $size MB"
+          rm -f deploy.zip
+          rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            "C:\Program Files\7-Zip\7z.exe" a -tzip -mx=3 deploy.zip "${ITEMS[@]}"
+          elif command -v 7z &>/dev/null; then
+            7z a -tzip -mx=3 deploy.zip "${ITEMS[@]}"
+          else
+            zip -r -3 deploy.zip "${ITEMS[@]}"
+          fi
+          SIZE=$(du -m deploy.zip | cut -f1)
+          echo "deploy.zip created: ${SIZE} MB"
 
       - name: Generate release notes
-        shell: pwsh
+        shell: bash
         run: |
-          npm install -g git-cliff
-          $baseTag = git tag --merged HEAD |
-            Where-Object { $_ -match '^v[0-9]+\.[0-9]+\.[0-9]+$' } |
-            Sort-Object { [version]($_ -replace '^v', '') } |
-            Select-Object -Last 1
-          if (-not $baseTag) { $baseTag = "v0.1.0" }
-          Write-Output "Release notes base: $baseTag"
-          git-cliff "$baseTag..HEAD" --strip header -o release-notes.md 2>$null
-          if (-not (Test-Path release-notes.md)) {
-            Set-Content release-notes.md "No changes for v${{ steps.version.outputs.version }}"
-          }
-          git-cliff -o CHANGELOG.md 2>$null
+          npm install -g git-cliff 2>/dev/null
+          BASE_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          [ -z "$BASE_TAG" ] && BASE_TAG="v0.1.0"
+          echo "Release notes base: $BASE_TAG"
+          git-cliff "$BASE_TAG..HEAD" --strip header -o release-notes.md 2>/dev/null || true
+          [ ! -f release-notes.md ] && echo "No changes for v${{ steps.version.outputs.version }}" > release-notes.md
+          git-cliff -o CHANGELOG.md 2>/dev/null || true
 
-      - name: Create GitHub Release (release assets, not Actions artifacts)
-        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
+      # Canonical per deploy skill: softprops/action-gh-release creates (or
+      # updates) the GitHub Release and attaches deploy.zip as a release asset.
+      # Works on any runner (node20 action, no shell needed).
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: deploy.zip
+          fail_on_unmatched_files: true
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          TAG="v${{ steps.version.outputs.version }}"
-          # Delete existing release if present (gh release create doesn't overwrite)
-          gh release delete "$TAG" --repo "${{ github.repository }}" --yes 2>/dev/null || true
-          gh release create "$TAG" \
-            deploy.zip \
-            --repo "${{ github.repository }}" \
-            --title "$TAG" \
-            --notes-file release-notes.md
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

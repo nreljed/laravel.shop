@@ -1,5 +1,21 @@
 name: Deploy to Production
 
+# ---------------------------------------------------------------------------
+# Runner selection
+# ---------------------------------------------------------------------------
+# Set the repository variable "RUNNER" in:
+#   Settings → Secrets and variables → Actions → Variables → New repository variable
+#
+#   Value              What it does
+#   ─────────────────  ──────────────────────────────────────────────────────
+#   (unset / empty)    Falls back to "self-hosted" (your local Windows PC)
+#   self-hosted        Your registered runner on this machine
+#   ubuntu-latest      GitHub-hosted Linux  (free 2 000 min/mo on private repo)
+#   windows-latest     GitHub-hosted Windows (expensive — avoid unless needed)
+#
+# All steps use shell: bash / pwsh (cross-platform) so both runners work.
+# ---------------------------------------------------------------------------
+
 on:
   push:
     branches: [main]
@@ -25,10 +41,10 @@ jobs:
 
   push-deploy:
     needs: package
-    runs-on: self-hosted
+    runs-on: ${{ vars.RUNNER || 'self-hosted' }}
     steps:
       - name: Download deploy.zip from release
-        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -46,7 +62,7 @@ jobs:
         # runs, even if later steps fail, so the token never gets skipped.
         if: always()
         continue-on-error: true
-        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
+        shell: bash
         run: |
           ENV_URL="${{ vars.APP_URL }}/deploy/env?token=${{ secrets.DEPLOY_TOKEN }}"
           for i in 1 2 3; do
@@ -63,7 +79,7 @@ jobs:
           echo "GITHUB_TOKEN push did not confirm; manual: POST $ENV_URL with {\"values\":{\"GITHUB_TOKEN\":\"<value>\"}}"
 
       - name: Upload deploy archive to server
-        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
+        shell: bash
         run: |
           VER="v${{ needs.package.outputs.version }}"
           echo "Release: $VER"
