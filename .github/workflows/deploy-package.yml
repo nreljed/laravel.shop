@@ -21,7 +21,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -34,7 +34,7 @@ jobs:
           tools: composer:v2
 
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
 
@@ -94,7 +94,7 @@ jobs:
           New-Item -ItemType File -Path database/database.sqlite -Force
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v6
+        uses: actions/cache@v4
         with:
           path: vendor
           key: composer-dist-${{ hashFiles('composer.lock') }}
@@ -115,7 +115,7 @@ jobs:
         run: php artisan migrate --force
 
       - name: Cache npm dependencies
-        uses: actions/cache@v6
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: npm-${{ hashFiles('package-lock.json') }}
