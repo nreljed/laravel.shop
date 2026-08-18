@@ -28,11 +28,9 @@ jobs:
           extensions: fileinfo, gd, mbstring, pdo_mysql, pdo_sqlite, intl, bcmath, zip
           tools: composer:v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
+      - name: Verify Node.js
+        shell: bash
+        run: node --version && npm --version
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
