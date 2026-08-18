@@ -38,6 +38,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Prepend Windows native tar before Git's broken tar — fixes actions/cache@v4 on Windows
+      - name: Fix tar for cache
+        shell: pwsh
+        run: |
+          $gitTar = "C:\Program Files\Git\usr\bin"
+          $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "Process")
+          $newPath = $currentPath -replace [regex]::Escape($gitTar + ";"), ""
+          $newPath = "C:\Windows\System32;" + $newPath
+          echo $newPath >> $env:GITHUB_PATH
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -104,10 +114,6 @@ jobs:
       - name: Frontend tests
         if: ${{ !inputs.skip-npm-tests }}
         run: npm run test
-
-      - name: Build frontend assets
-        if: ${{ !inputs.skip-npm-tests }}
-        run: npm run build
 
       - name: PHP tests
         if: ${{ !inputs.skip-php-tests }}

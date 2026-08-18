@@ -12,7 +12,6 @@
  *
  * DELETE this file after vendor/ is repaired.
  */
-
 header('Content-Type: application/json; charset=utf-8');
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
@@ -110,7 +109,7 @@ $vendorDir = $appRoot.'/vendor';
 if (is_dir($vendorDir)) {
     $backupDir = $appRoot.'/vendor.bak.'.date('Ymd_His');
     if (@rename($vendorDir, $backupDir)) {
-        $results['backup'] = "Moved old vendor/ to ".basename($backupDir);
+        $results['backup'] = 'Moved old vendor/ to '.basename($backupDir);
     } else {
         $results['backup'] = 'Could not rename vendor/ (non-fatal, continuing)';
     }
