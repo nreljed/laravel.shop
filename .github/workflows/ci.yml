@@ -59,7 +59,7 @@ jobs:
       - name: Install Composer dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-dist --no-interaction --no-scripts --no-audit --no-autoloader
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-autoloader
 
       - name: Generate autoloader
         env:

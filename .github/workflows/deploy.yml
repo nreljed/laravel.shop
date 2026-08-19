@@ -101,7 +101,7 @@ jobs:
       - name: Install Composer dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-dist --no-interaction --no-scripts --no-audit --no-autoloader
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-autoloader
 
       - name: Generate autoloader
         env:
@@ -138,7 +138,7 @@ jobs:
       - name: Strip dev dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts --no-audit
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
       - name: Overwrite .env with production settings
         shell: pwsh
