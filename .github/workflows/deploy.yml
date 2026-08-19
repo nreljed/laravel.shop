@@ -105,6 +105,9 @@ jobs:
       - name: Install npm dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Build frontend assets (needed for Vite manifest in tests)
+        run: npm run build
+
       # ── Validate ─────────────────────────────────────────────────────────
       - name: Foundation check (core boundary)
         run: php scripts/foundation-check.php (Get-Location).Path
@@ -128,18 +131,18 @@ jobs:
         run: npm run test
 
       - name: PHP tests
-        run: php artisan test 2>&1
+        run: php artisan test --parallel --compact
 
       - name: Laravel Pint
         run: php vendor/bin/pint --test
 
-      # ── Package (strip dev deps, build assets, create zip) ──────────────
+      # ── Package (strip dev deps, rebuild assets, create zip) ──────────────
       - name: Strip dev dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
-      - name: Build frontend assets
+      - name: Rebuild frontend assets (production, no devDependencies)
         run: npm run build
 
       - name: Overwrite .env with production settings

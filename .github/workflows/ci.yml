@@ -73,6 +73,10 @@ jobs:
       - name: Install npm dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Build frontend assets (needed for Vite manifest in PHP tests)
+        if: ${{ !inputs.skip-npm-tests }}
+        run: npm run build
+
       - name: ESLint
         if: ${{ !inputs.skip-npm-tests }}
         run: npm run lint
@@ -91,7 +95,7 @@ jobs:
 
       - name: PHP tests
         if: ${{ !inputs.skip-php-tests }}
-        run: php artisan test 2>&1
+        run: php artisan test --parallel --compact
 
       - name: Laravel Pint
         if: ${{ !inputs.skip-php-tests }}
