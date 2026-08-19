@@ -46,7 +46,7 @@ jobs:
       - name: Verify Node.js
         run: node --version; npm --version
 
-      # ── Fix Windows cache: actions/cache@v4 uses Git's tar which breaks ──
+      # ── Fix Windows tar for cache (must set PATH for cache/save at end) ──
       - name: Fix tar for cache
         shell: pwsh
         run: |
@@ -60,14 +60,14 @@ jobs:
           echo $newPath >> $env:GITHUB_PATH
 
       - name: Restore composer cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: vendor
           key: composer-prod-${{ runner.os }}-${{ hashFiles('composer.lock') }}
           restore-keys: composer-prod-${{ runner.os }}-
 
       - name: Restore npm cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -180,6 +180,19 @@ jobs:
           }
           $size = [Math]::Round((Get-Item $zip).Length / 1MB, 1)
           Write-Output "deploy.zip created: $size MB"
+
+      # ── Save caches (explicit save with working PATH for Windows tar) ───
+      - name: Save composer cache
+        uses: actions/cache/save@v4
+        with:
+          path: vendor
+          key: composer-prod-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+
+      - name: Save npm cache
+        uses: actions/cache/save@v4
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       # ── Version + Release ────────────────────────────────────────────────
       - name: Determine version
