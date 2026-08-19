@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ${{ vars.RUNNER || 'self-hosted' }}
+    runs-on: [self-hosted, linux, wsl]
     steps:
       - uses: actions/checkout@v4
 
@@ -26,7 +26,7 @@ jobs:
           tools: composer:v2
 
       - name: Verify Node.js
-        run: node --version; npm --version
+        run: node --version && npm --version
 
       - name: Restore composer cache
         uses: actions/cache/restore@v4
@@ -43,10 +43,9 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
 
       - name: Create .env + SQLite database
-        shell: pwsh
         run: |
-          Copy-Item .env.example .env
-          New-Item -ItemType File -Path database/database.sqlite -Force | Out-Null
+          cp .env.example .env
+          touch database/database.sqlite
 
       - name: Install Composer dependencies
         env:
