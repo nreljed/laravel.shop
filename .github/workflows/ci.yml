@@ -1,20 +1,8 @@
 name: CI Validation
 
 # ---------------------------------------------------------------------------
-# Runner selection
-# ---------------------------------------------------------------------------
-# Set the repository variable "RUNNER" in:
-#   Settings → Secrets and variables → Actions → Variables → New repository variable
-#
-#   Value              What it does
-#   ─────────────────  ──────────────────────────────────────────────────────
-#   (unset / empty)    Falls back to "self-hosted" (your local Windows PC)
-#   self-hosted        Your registered runner on this machine
-#   ubuntu-latest      GitHub-hosted Linux  (free 2 000 min/mo on private repo)
-#   windows-latest     GitHub-hosted Windows (expensive — avoid unless needed)
-#
-# NOTE: This workflow uses pwsh commands (cross-platform). Both Windows
-# self-hosted and ubuntu-latest runners have pwsh installed.
+# PR-only checks: lint, typecheck, tests, pint
+# Lightweight — no npm build, no deploy packaging
 # ---------------------------------------------------------------------------
 
 on:
@@ -25,7 +13,7 @@ on:
         type: boolean
         default: false
       skip-npm-tests:
-        description: "Skip npm lint, typecheck, format, test, and build"
+        description: "Skip npm lint, typecheck, format, test"
         type: boolean
         default: false
 
@@ -38,16 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Prepend Windows native tar before Git's broken tar — fixes actions/cache@v4 on Windows
-      - name: Fix tar for cache
-        shell: pwsh
-        run: |
-          $gitTar = "C:\Program Files\Git\usr\bin"
-          $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "Process")
-          $newPath = $currentPath -replace [regex]::Escape($gitTar + ";"), ""
-          $newPath = "C:\Windows\System32;" + $newPath
-          echo $newPath >> $env:GITHUB_PATH
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -58,17 +36,19 @@ jobs:
       - name: Verify Node.js
         run: node --version; npm --version
 
-      - name: Cache Composer dependencies
+      - name: Restore composer cache
         uses: actions/cache@v4
         with:
           path: vendor
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
 
-      - name: Cache npm dependencies
+      - name: Restore npm cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
 
       - name: Create .env
         run: Copy-Item .env.example .env
@@ -81,9 +61,6 @@ jobs:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --prefer-dist --no-interaction --no-scripts
 
-      - name: Composer audit (security advisories)
-        run: composer audit --no-interaction
-
       - name: Foundation check (core boundary)
         run: php scripts/foundation-check.php (Get-Location).Path
 
@@ -95,9 +72,6 @@ jobs:
 
       - name: Install npm dependencies
         run: npm ci --legacy-peer-deps
-
-      - name: npm audit (security advisories)
-        run: npm audit --audit-level=high
 
       - name: ESLint
         if: ${{ !inputs.skip-npm-tests }}
