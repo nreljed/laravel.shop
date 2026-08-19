@@ -14,31 +14,36 @@ permissions:
 
 jobs:
   validate:
-    runs-on: [self-hosted, linux, wsl]
+    runs-on: [self-hosted, windows]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify PHP
-        run: php -v && php -m | grep -E "fileinfo|gd|mbstring|pdo_mysql|pdo_sqlite|intl|bcmath|zip" | wc -l
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: fileinfo, gd, mbstring, pdo_mysql, pdo_sqlite, intl, bcmath, zip
+          tools: composer:v2
 
       - name: Verify Node.js
         run: node --version && npm --version
 
-      - name: Restore composer cache
-        uses: actions/cache/restore@v4
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
         with:
           path: vendor
-          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-${{ runner.os }}-
+          key: composer-win-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-win-
 
-      - name: Restore npm cache
-        uses: actions/cache/restore@v4
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
         with:
           path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-${{ runner.os }}-
+          key: npm-win-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-win-
 
       - name: Create .env + SQLite database
+        shell: bash
         run: |
           cp .env.example .env
           touch database/database.sqlite
@@ -52,6 +57,7 @@ jobs:
         run: php artisan key:generate && php artisan migrate --force
 
       - name: Install npm dependencies + build
+        shell: bash
         run: |
           npm ci --legacy-peer-deps
           npm run build
@@ -68,18 +74,3 @@ jobs:
 
       - name: TypeScript check
         run: npm run typecheck
-
-      # ── Save caches ───────────────────────────────────────────────────
-      - name: Save composer cache
-        uses: actions/cache/save@v4
-        if: always()
-        with:
-          path: vendor
-          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
-
-      - name: Save npm cache
-        uses: actions/cache/save@v4
-        if: always()
-        with:
-          path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
