@@ -3,14 +3,15 @@ name: Deploy to Production
 # ---------------------------------------------------------------------------
 # Ultra-optimized deploy: ONE job for validate+build+release
 # ---------------------------------------------------------------------------
-# Previously: ci.yml (11 min) → deploy-package.yml (14 min) → push-deploy (1.5 min) = 27 min
-# Now:        build (8 min) → push-deploy (1.5 min) = ~10 min
+# Target: ~10 min total (build 8-9 min + push-deploy 1.5 min)
 #
 # Key optimizations:
-#   1. ONE composer install (with dev), strip to --no-dev before zip
-#   2. ONE npm ci + ONE npm run build
+#   1. ONE composer install (--no-audit --no-autoloader), dump-autoload once
+#   2. ONE npm ci + ONE npm run build (no redundant second build)
 #   3. Fixed Windows cache (7z-based, not Git's broken tar)
-#   4. Removed redundant security audits from push flow
+#   4. Combined lint steps to reduce overhead
+#   5. No --parallel on PHP tests (Windows self-hosted memory issues)
+#   6. Frontend tests: vendor/ tests excluded (belong to core package)
 # ---------------------------------------------------------------------------
 
 on:
@@ -100,50 +101,44 @@ jobs:
       - name: Install Composer dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-dist --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-audit --no-autoloader
+
+      - name: Generate autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
+        run: composer dump-autoload --classmap-authoritative
 
       - name: Install npm dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Build frontend assets (needed for Vite manifest in tests)
+      - name: Build frontend assets
         run: npm run build
 
       # ── Validate ─────────────────────────────────────────────────────────
-      - name: Foundation check (core boundary)
+      - name: Foundation check
         run: php scripts/foundation-check.php (Get-Location).Path
 
-      - name: Generate application key
-        run: php artisan key:generate
+      - name: Generate application key + migrate
+        run: php artisan key:generate && php artisan migrate --force
 
-      - name: Run migrations
-        run: php artisan migrate --force
-
-      - name: ESLint
-        run: npm run lint
-
-      - name: TypeScript check
-        run: npm run typecheck
-
-      - name: Prettier check
-        run: npm run format:check
-
-      - name: Frontend tests
-        run: npm run test
+      - name: Frontend lint + typecheck + tests
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run format:check
+          npm run test
 
       - name: PHP tests
-        run: php artisan test --parallel --compact
+        run: php artisan test --compact
 
       - name: Laravel Pint
         run: php vendor/bin/pint --test
 
-      # ── Package (strip dev deps, rebuild assets, create zip) ──────────────
+      # ── Package (strip dev deps, create zip) ─────────────────────────────
       - name: Strip dev dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
-
-      - name: Rebuild frontend assets (production, no devDependencies)
-        run: npm run build
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts --no-audit
 
       - name: Overwrite .env with production settings
         shell: pwsh

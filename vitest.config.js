@@ -11,7 +11,6 @@ export default defineConfig({
         globals: true,
         include: [
             "resources/js/**/*.test.{ts,tsx}",
-            "vendor/nreljed/dashboard-core/resources/js/**/*.test.{ts,tsx}",
         ],
         setupFiles: ["./resources/js/test-setup.ts"],
         coverage: {

@@ -59,43 +59,37 @@ jobs:
       - name: Install Composer dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-dist --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-audit --no-autoloader
 
-      - name: Foundation check (core boundary)
+      - name: Generate autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
+        run: composer dump-autoload --classmap-authoritative
+
+      - name: Foundation check
         run: php scripts/foundation-check.php (Get-Location).Path
 
-      - name: Generate application key
-        run: php artisan key:generate
-
-      - name: Run migrations
-        run: php artisan migrate --force
+      - name: Generate application key + migrate
+        run: php artisan key:generate && php artisan migrate --force
 
       - name: Install npm dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Build frontend assets (needed for Vite manifest in PHP tests)
+      - name: Build frontend assets
         if: ${{ !inputs.skip-npm-tests }}
         run: npm run build
 
-      - name: ESLint
+      - name: Frontend lint + typecheck + tests
         if: ${{ !inputs.skip-npm-tests }}
-        run: npm run lint
-
-      - name: TypeScript check
-        if: ${{ !inputs.skip-npm-tests }}
-        run: npm run typecheck
-
-      - name: Prettier check
-        if: ${{ !inputs.skip-npm-tests }}
-        run: npm run format:check
-
-      - name: Frontend tests
-        if: ${{ !inputs.skip-npm-tests }}
-        run: npm run test
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run format:check
+          npm run test
 
       - name: PHP tests
         if: ${{ !inputs.skip-php-tests }}
-        run: php artisan test --parallel --compact
+        run: php artisan test --compact
 
       - name: Laravel Pint
         if: ${{ !inputs.skip-php-tests }}
