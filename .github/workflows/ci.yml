@@ -91,7 +91,7 @@ jobs:
 
       - name: PHP tests
         if: ${{ !inputs.skip-php-tests }}
-        run: php -d memory_limit=512M artisan test --parallel --compact
+        run: php artisan test 2>&1
 
       - name: Laravel Pint
         if: ${{ !inputs.skip-php-tests }}

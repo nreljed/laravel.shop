@@ -128,7 +128,7 @@ jobs:
         run: npm run test
 
       - name: PHP tests
-        run: php -d memory_limit=512M artisan test --parallel --compact
+        run: php artisan test 2>&1
 
       - name: Laravel Pint
         run: php vendor/bin/pint --test
