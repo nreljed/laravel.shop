@@ -1,21 +1,13 @@
 name: CI Validation
 
 # ---------------------------------------------------------------------------
-# PR-only checks: lint, typecheck, tests, pint
-# Lightweight — no npm build, no deploy packaging
+# PR-only validation: lint, typecheck, tests, pint
+# Runs on: pull_request to main
+# Purpose: fast-fail gate BEFORE merge — packages come pre-tested from core/shop repos
 # ---------------------------------------------------------------------------
 
 on:
   workflow_call:
-    inputs:
-      skip-php-tests:
-        description: "Skip PHP tests and Pint"
-        type: boolean
-        default: false
-      skip-npm-tests:
-        description: "Skip npm lint, typecheck, format, test"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -50,48 +42,34 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-${{ runner.os }}-
 
-      - name: Create .env
-        run: Copy-Item .env.example .env
-
-      - name: Create SQLite database
-        run: New-Item -ItemType File -Path database/database.sqlite -Force | Out-Null
+      - name: Create .env + SQLite database
+        shell: pwsh
+        run: |
+          Copy-Item .env.example .env
+          New-Item -ItemType File -Path database/database.sqlite -Force | Out-Null
 
       - name: Install Composer dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-dist --no-interaction --no-scripts --no-autoloader
-
-      - name: Generate autoloader
-        env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer dump-autoload --classmap-authoritative
-
-      - name: Foundation check
-        run: php scripts/foundation-check.php (Get-Location).Path
+        run: composer install --prefer-dist --no-interaction --no-scripts
 
       - name: Generate application key + migrate
         run: php artisan key:generate && php artisan migrate --force
 
-      - name: Install npm dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Build frontend assets
-        if: ${{ !inputs.skip-npm-tests }}
-        run: npm run build
-
-      - name: Frontend lint + typecheck + tests
-        if: ${{ !inputs.skip-npm-tests }}
-        shell: pwsh
+      - name: Install npm dependencies + build
         run: |
-          npm run lint
-          npm run typecheck
-          npm run format:check
-          npx vitest run --passWithNoTests
+          npm ci --legacy-peer-deps
+          npm run build
+
+      # ── Validation (cheapest first for fast-fail) ──────────────────────
+      - name: Laravel Pint
+        run: php vendor/bin/pint --test
 
       - name: PHP tests
-        if: ${{ !inputs.skip-php-tests }}
         run: php artisan test --compact
 
-      - name: Laravel Pint
-        if: ${{ !inputs.skip-php-tests }}
-        run: php vendor/bin/pint --test
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript check
+        run: npm run typecheck

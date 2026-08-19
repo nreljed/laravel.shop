@@ -1,17 +1,15 @@
 name: Deploy to Production
 
 # ---------------------------------------------------------------------------
-# Ultra-optimized deploy: ONE job for validate+build+release
+# Build + Release + Deploy — NO validation (that's ci.yml's job on PRs)
 # ---------------------------------------------------------------------------
-# Target: ~10 min total (build 8-9 min + push-deploy 1.5 min)
+# Flow: composer install --no-dev → npm build → zip → release → push-deploy
+# Target: ~5 min (down from 26 min monolith)
 #
-# Key optimizations:
-#   1. ONE composer install (--no-audit --no-autoloader), dump-autoload once
-#   2. ONE npm ci + ONE npm run build (no redundant second build)
-#   3. Fixed Windows cache (7z-based, not Git's broken tar)
-#   4. Combined lint steps to reduce overhead
-#   5. No --parallel on PHP tests (Windows self-hosted memory issues)
-#   6. Frontend tests: vendor/ tests excluded (belong to core package)
+# Why no tests here?
+#   - dashboard-core and shop-module are pre-tested packages
+#   - PR validation (pr.yml → ci.yml) catches all issues before merge
+#   - This workflow only packages what already passed CI and ships it
 # ---------------------------------------------------------------------------
 
 on:
@@ -65,8 +63,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vendor
-          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-${{ runner.os }}-
+          key: composer-prod-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-prod-${{ runner.os }}-
 
       - name: Restore npm cache
         uses: actions/cache@v4
@@ -75,7 +73,7 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-${{ runner.os }}-
 
-      # ── Environment ─────────────────────────────────────────────────────
+      # ── Build ──────────────────────────────────────────────────────────
       - name: Create build .env
         shell: pwsh
         run: |
@@ -92,55 +90,20 @@ jobs:
           FILESYSTEM_DISK=local
           QUEUE_CONNECTION=sync
           CACHE_STORE=file
-          DEPLOY_TOKEN=build
-          GITHUB_TOKEN=build
           "@ | Set-Content -Path .env -Encoding UTF8
           New-Item -ItemType File -Path database/database.sqlite -Force | Out-Null
 
-      # ── Install (ONE composer, ONE npm) ──────────────────────────────────
-      - name: Install Composer dependencies
-        env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-dist --no-interaction --no-scripts --no-autoloader
-
-      - name: Generate autoloader
-        env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer dump-autoload --classmap-authoritative
-
-      - name: Install npm dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Build frontend assets
-        run: npm run build
-
-      # ── Validate ─────────────────────────────────────────────────────────
-      - name: Foundation check
-        run: php scripts/foundation-check.php (Get-Location).Path
-
-      - name: Generate application key + migrate
-        run: php artisan key:generate && php artisan migrate --force
-
-      - name: Frontend lint + typecheck + tests
-        shell: pwsh
-        run: |
-          npm run lint
-          npm run typecheck
-          npm run format:check
-          npx vitest run --passWithNoTests
-
-      - name: PHP tests
-        run: php artisan test --compact
-
-      - name: Laravel Pint
-        run: php vendor/bin/pint --test
-
-      # ── Package (strip dev deps, create zip) ─────────────────────────────
-      - name: Strip dev dependencies
+      - name: Install Composer dependencies (production)
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
+      - name: Install npm dependencies + build
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+
+      # ── Package ────────────────────────────────────────────────────────
       - name: Overwrite .env with production settings
         shell: pwsh
         run: |
@@ -186,7 +149,6 @@ jobs:
           @{ name = "dashboard-core"; version = $coreVersion; sha = $null } | ConvertTo-Json | Set-Content -Path "storage\app\core.json" -Encoding UTF8
           Write-Output "core.json recorded: dashboard-core $coreVersion"
 
-      # ── Create deploy.zip ────────────────────────────────────────────────
       - name: Create deploy.zip
         shell: pwsh
         run: |

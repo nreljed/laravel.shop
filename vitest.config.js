@@ -18,15 +18,11 @@ export default defineConfig({
             reporter: ["text", "lcov"],
             include: [
                 "resources/js/**/*.{ts,tsx}",
-                "vendor/nreljed/dashboard-core/resources/js/**/*.{ts,tsx}",
             ],
             exclude: [
                 "resources/js/**/__tests__/**",
                 "resources/js/**/*.test.*",
                 "resources/js/Components/ui/**",
-                "vendor/nreljed/dashboard-core/resources/js/**/__tests__/**",
-                "vendor/nreljed/dashboard-core/resources/js/**/*.test.*",
-                "vendor/nreljed/dashboard-core/resources/js/Components/ui/**",
             ],
         },
     },
