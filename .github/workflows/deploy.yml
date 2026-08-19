@@ -4,7 +4,7 @@ name: Deploy to Production
 # Build + Release + Deploy — NO validation (that's ci.yml's job on PRs)
 # ---------------------------------------------------------------------------
 # Flow: composer install --no-dev → npm build → zip → release → push-deploy
-# Target: ~9 min on Windows self-hosted runner
+# Target: ~5 min on WSL/Linux runner (ext4 filesystem, native PHP/Node)
 #
 # Why no tests here?
 #   - dashboard-core and shop-module are pre-tested packages
@@ -25,9 +25,11 @@ concurrency:
 
 jobs:
   build:
-    runs-on: [self-hosted, windows]
+    runs-on: [self-hosted, linux, wsl]
     outputs:
       version: ${{ steps.version.outputs.version }}
+    env:
+      COMPOSER_ALLOW_SUPERUSER: 1
     steps:
       - name: Checkout (full history for git-cliff)
         uses: actions/checkout@v4
@@ -36,33 +38,25 @@ jobs:
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.4"
-          extensions: fileinfo, gd, mbstring, pdo_mysql, pdo_sqlite, intl, bcmath, zip
-          tools: composer:v2
-
-      - name: Verify Node.js
-        run: node --version && npm --version
+      - name: Verify tools
+        run: php -v && node -v && npm -v && composer -V
 
       - name: Cache composer dependencies
         uses: actions/cache@v4
         with:
           path: vendor
-          key: composer-win-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-win-
+          key: composer-prod-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-prod-${{ runner.os }}-
 
       - name: Cache npm dependencies
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: npm-win-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-win-
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
 
       # ── Build ──────────────────────────────────────────────────────────
       - name: Create build .env
-        shell: bash
         run: |
           DB_PATH="$(pwd)/database/database.sqlite"
           cat > .env << ENVEOF
@@ -86,14 +80,12 @@ jobs:
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
       - name: Install npm dependencies + build
-        shell: bash
         run: |
           npm ci --legacy-peer-deps
           npm run build
 
       # ── Package ────────────────────────────────────────────────────────
       - name: Overwrite .env with production settings
-        shell: bash
         run: |
           cat > .env << 'ENVEOF'
           APP_NAME="Shop App"
@@ -126,11 +118,9 @@ jobs:
           ENVEOF
 
       - name: Copy deploy script
-        shell: bash
         run: cp scripts/deploy-cron.php deploy.php
 
       - name: Record dashboard-core version
-        shell: bash
         run: |
           CORE_VERSION=$(jq -r '.version // "unknown"' vendor/nreljed/dashboard-core/composer.json)
           mkdir -p storage/app
@@ -138,11 +128,10 @@ jobs:
           echo "core.json recorded: dashboard-core $CORE_VERSION"
 
       - name: Create deploy.zip
-        shell: bash
         run: |
           rm -f deploy.zip
           rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
-          7z a -tzip deploy.zip \
+          zip -r -3 deploy.zip \
             artisan composer.json composer.lock package.json package-lock.json \
             app bootstrap config database public resources routes \
             storage vendor deploy.php .htaccess
@@ -152,7 +141,6 @@ jobs:
       # ── Version + Release ────────────────────────────────────────────────
       - name: Determine version
         id: version
-        shell: bash
         run: |
           VER="0.1.0"
           LAST_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
@@ -177,9 +165,7 @@ jobs:
           echo "version=$VER" >> "$GITHUB_OUTPUT"
 
       - name: Generate release notes
-        shell: bash
         run: |
-          npm install -g git-cliff 2>/dev/null || true
           BASE_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
           BASE_TAG="${BASE_TAG:-v0.1.0}"
           git-cliff "$BASE_TAG..HEAD" --strip header -o release-notes.md 2>/dev/null || true
@@ -199,12 +185,11 @@ jobs:
 
   push-deploy:
     needs: build
-    runs-on: [self-hosted, windows]
+    runs-on: [self-hosted, linux, wsl]
     steps:
       - name: Download deploy.zip from release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
         run: |
           VER="v${{ needs.build.outputs.version }}"
           echo "Downloading deploy.zip from release $VER"
@@ -217,7 +202,6 @@ jobs:
       - name: Push GITHUB_TOKEN to server .env
         if: always()
         continue-on-error: true
-        shell: bash
         run: |
           ENV_URL="${{ vars.APP_URL }}/deploy/env?token=${{ secrets.DEPLOY_TOKEN }}"
           for i in 1 2 3; do
@@ -235,7 +219,6 @@ jobs:
           echo "GITHUB_TOKEN push did not confirm; manual: POST $ENV_URL"
 
       - name: Upload deploy archive to server
-        shell: bash
         run: |
           VER="v${{ needs.build.outputs.version }}"
           echo "Release: $VER"
@@ -258,8 +241,7 @@ jobs:
                   echo "$FIRST"
                   return 0
                 fi
-                CURRENT_TAG=$(echo "$FIRST" | grep -oP '"tag":"\K[^"]+' || echo "?")
-                echo "[poll $i/8] server on $CURRENT_TAG, waiting for $VER"
+                echo "[poll $i/8] server waiting for $VER"
               elif echo "$FIRST" | grep -q '"status":"locked"'; then
                 CONSECUTIVE_NON_JSON=0
                 echo "[poll $i/8] server still working (locked)"
@@ -338,7 +320,6 @@ jobs:
       - name: FTP Upload fallback (DirectAdmin)
         if: failure()
         continue-on-error: true
-        shell: bash
         run: |
           FTP_PORT="${{ secrets.FTP_PORT || '21' }}"
           FTP_URL="ftp://${{ secrets.FTP_SERVER }}:$FTP_PORT/deploy.zip"
