@@ -45,7 +45,7 @@ jobs:
           restore-keys: composer-prod-${{ runner.os }}-
 
       - name: Create build .env
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           DB_PATH="$(pwd)/database/database.sqlite"
           cat > .env << ENVEOF
@@ -64,19 +64,19 @@ jobs:
           touch database/database.sqlite
 
       - name: Install Composer dependencies (production)
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
       - name: Install npm dependencies + build
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           npm ci --legacy-peer-deps
           npm run build
 
       - name: Overwrite .env with production settings
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           cat > .env << 'ENVEOF'
           APP_NAME="Shop App"
@@ -109,11 +109,11 @@ jobs:
           ENVEOF
 
       - name: Copy deploy script
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: cp scripts/deploy-cron.php deploy.php
 
       - name: Record dashboard-core version
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           CORE_VERSION=$(C:/actions-runner/tools/jq.exe -r '.version // "unknown"' vendor/nreljed/dashboard-core/composer.json)
           mkdir -p storage/app
@@ -121,7 +121,7 @@ jobs:
           echo "core.json recorded: dashboard-core $CORE_VERSION"
 
       - name: Create deploy.zip
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           rm -f deploy.zip
           rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
@@ -134,7 +134,7 @@ jobs:
 
       - name: Determine version
         id: version
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           VER="0.1.0"
           LAST_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
@@ -159,7 +159,7 @@ jobs:
           echo "version=$VER" >> "$GITHUB_OUTPUT"
 
       - name: Generate release notes
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           npm install -g git-cliff
           BASE_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
@@ -184,7 +184,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Download deploy.zip from release
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -198,7 +198,7 @@ jobs:
 
       - name: Push GITHUB_TOKEN to server .env
         if: always()
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         continue-on-error: true
         run: |
           ENV_URL="${{ vars.APP_URL }}/deploy/env?token=${{ secrets.DEPLOY_TOKEN }}"
@@ -217,7 +217,7 @@ jobs:
           echo "GITHUB_TOKEN push did not confirm; manual: POST $ENV_URL"
 
       - name: Upload deploy archive to server
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           VER="v${{ needs.build.outputs.version }}"
           echo "Release: $VER"
@@ -318,7 +318,7 @@ jobs:
 
       - name: FTP Upload fallback (DirectAdmin)
         if: failure()
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         continue-on-error: true
         run: |
           FTP_PORT="${{ secrets.FTP_PORT || '21' }}"
