@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -33,31 +33,39 @@ jobs:
           restore-keys: composer-ci-${{ runner.os }}-
 
       - name: Create .env + SQLite database
+        shell: bash
         run: |
           cp .env.example .env
           touch database/database.sqlite
 
       - name: Install Composer dependencies
+        shell: bash
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --prefer-dist --no-interaction --no-scripts
 
       - name: Generate application key + migrate
+        shell: bash
         run: php artisan key:generate && php artisan migrate --force
 
       - name: Install npm dependencies + build
+        shell: bash
         run: |
           npm ci --legacy-peer-deps
           npm run build
 
       - name: Laravel Pint
+        shell: bash
         run: php vendor/bin/pint --test
 
       - name: PHP tests
+        shell: bash
         run: php artisan test --compact
 
       - name: ESLint
+        shell: bash
         run: npm run lint
 
       - name: TypeScript check
+        shell: bash
         run: npm run typecheck
