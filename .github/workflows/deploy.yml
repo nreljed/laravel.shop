@@ -1,17 +1,5 @@
 name: Deploy to Production
 
-# ---------------------------------------------------------------------------
-# Build + Release + Deploy — NO validation (that's ci.yml's job on PRs)
-# ---------------------------------------------------------------------------
-# Flow: composer install --no-dev → npm build → zip → release → push-deploy
-# Target: ~5 min on WSL/Linux runner (ext4 filesystem, native PHP/Node)
-#
-# Why no tests here?
-#   - dashboard-core and shop-module are pre-tested packages
-#   - PR validation (pr.yml → ci.yml) catches all issues before merge
-#   - This workflow only packages what already passed CI and ships it
-# ---------------------------------------------------------------------------
-
 on:
   push:
     branches: [main]
@@ -25,11 +13,9 @@ concurrency:
 
 jobs:
   build:
-    runs-on: [self-hosted, linux, wsl]
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-    env:
-      COMPOSER_ALLOW_SUPERUSER: 1
     steps:
       - name: Checkout (full history for git-cliff)
         uses: actions/checkout@v4
@@ -38,8 +24,18 @@ jobs:
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify tools
-        run: php -v && node -v && npm -v && composer -V
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, fileinfo, sqlite3, pdo_sqlite, bcmath, zip, gd, intl
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
 
       - name: Cache composer dependencies
         uses: actions/cache@v4
@@ -48,14 +44,6 @@ jobs:
           key: composer-prod-${{ runner.os }}-${{ hashFiles('composer.lock') }}
           restore-keys: composer-prod-${{ runner.os }}-
 
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-${{ runner.os }}-
-
-      # ── Build ──────────────────────────────────────────────────────────
       - name: Create build .env
         run: |
           DB_PATH="$(pwd)/database/database.sqlite"
@@ -84,7 +72,6 @@ jobs:
           npm ci --legacy-peer-deps
           npm run build
 
-      # ── Package ────────────────────────────────────────────────────────
       - name: Overwrite .env with production settings
         run: |
           cat > .env << 'ENVEOF'
@@ -138,7 +125,6 @@ jobs:
           SIZE=$(du -h deploy.zip | cut -f1)
           echo "deploy.zip created: $SIZE"
 
-      # ── Version + Release ────────────────────────────────────────────────
       - name: Determine version
         id: version
         run: |
@@ -166,6 +152,7 @@ jobs:
 
       - name: Generate release notes
         run: |
+          npm install -g git-cliff
           BASE_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
           BASE_TAG="${BASE_TAG:-v0.1.0}"
           git-cliff "$BASE_TAG..HEAD" --strip header -o release-notes.md 2>/dev/null || true
@@ -185,7 +172,7 @@ jobs:
 
   push-deploy:
     needs: build
-    runs-on: [self-hosted, linux, wsl]
+    runs-on: ubuntu-latest
     steps:
       - name: Download deploy.zip from release
         env:

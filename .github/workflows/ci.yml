@@ -1,11 +1,5 @@
 name: CI Validation
 
-# ---------------------------------------------------------------------------
-# PR-only validation: lint, typecheck, tests, pint
-# Runs on: pull_request to main
-# Purpose: fast-fail gate BEFORE merge — packages come pre-tested from core/shop repos
-# ---------------------------------------------------------------------------
-
 on:
   workflow_call:
 
@@ -14,14 +8,22 @@ permissions:
 
 jobs:
   validate:
-    runs-on: [self-hosted, linux, wsl]
-    env:
-      COMPOSER_ALLOW_SUPERUSER: 1
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify tools
-        run: php -v && node -v && composer -V
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, fileinfo, sqlite3, pdo_sqlite, bcmath, zip, gd, intl
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
 
       - name: Cache composer dependencies
         uses: actions/cache@v4
@@ -29,13 +31,6 @@ jobs:
           path: vendor
           key: composer-ci-${{ runner.os }}-${{ hashFiles('composer.lock') }}
           restore-keys: composer-ci-${{ runner.os }}-
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-${{ runner.os }}-
 
       - name: Create .env + SQLite database
         run: |
@@ -55,7 +50,6 @@ jobs:
           npm ci --legacy-peer-deps
           npm run build
 
-      # ── Validation (cheapest first for fast-fail) ──────────────────────
       - name: Laravel Pint
         run: php vendor/bin/pint --test
 
