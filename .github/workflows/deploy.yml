@@ -111,7 +111,7 @@ jobs:
 
       - name: Record dashboard-core version
         run: |
-          CORE_VERSION=$(jq -r '.version // "unknown"' vendor/nreljed/dashboard-core/composer.json)
+          CORE_VERSION=$(php -r "echo json_decode(file_get_contents('vendor/nreljed/dashboard-core/composer.json'))->version ?? 'unknown';")
           mkdir -p storage/app
           echo "{\"name\":\"dashboard-core\",\"version\":\"$CORE_VERSION\",\"sha\":null}" > storage/app/core.json
           echo "core.json recorded: dashboard-core $CORE_VERSION"
