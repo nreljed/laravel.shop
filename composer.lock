@@ -3554,16 +3554,16 @@
         },
         {
             "name": "nreljed/dashboard-core",
-            "version": "0.1.12",
+            "version": "0.1.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nreljed/dashboard-core.git",
-                "reference": "1b1909775e573ad225bae0c82bd2bc68c3a4f5f4"
+                "reference": "4c684f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/1b1909775e573ad225bae0c82bd2bc68c3a4f5f4",
-                "reference": "1b1909775e573ad225bae0c82bd2bc68c3a4f5f4",
+                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/4c684f9",
+                "reference": "4c684f9",
                 "shasum": ""
             },
             "require": {
