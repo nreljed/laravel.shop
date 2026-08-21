@@ -33,39 +33,39 @@ jobs:
           restore-keys: composer-ci-${{ runner.os }}-
 
       - name: Create .env + SQLite database
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           cp .env.example .env
           touch database/database.sqlite
 
       - name: Install Composer dependencies
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --prefer-dist --no-interaction --no-scripts
 
       - name: Generate application key + migrate
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: php artisan key:generate && php artisan migrate --force
 
       - name: Install npm dependencies + build
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: |
           npm ci --legacy-peer-deps
           npm run build
 
       - name: Laravel Pint
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: php vendor/bin/pint --test
 
       - name: PHP tests
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: php artisan test --compact
 
       - name: ESLint
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: npm run lint
 
       - name: TypeScript check
-        shell: "C:\\Program Files\\Git\\bin\\bash.exe --login -eo pipefail {0}"
+        shell: bash
         run: npm run typecheck
