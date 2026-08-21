@@ -18,11 +18,21 @@ concurrency:
 
 jobs:
   core-update:
-    runs-on: ubuntu-latest
+    # Self-hosted runner (win-runner): free minutes, immune to hosted billing
+    # blocks. Runner is Windows — pin bash explicitly; the runner process must
+    # have "C:\Program Files\Git\bin" ahead of system32 in its PATH so `bash`
+    # resolves to Git Bash and not the WSL stub.
+    runs-on: [self-hosted]
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
 
+      # PHP 8.4 + composer are preinstalled on the self-hosted runner;
+      # setup-php only makes sense on GitHub-hosted machines.
       - name: Setup PHP
+        if: runner.os == 'Linux'
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.4"
