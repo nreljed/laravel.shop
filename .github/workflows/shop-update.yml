@@ -79,15 +79,26 @@ jobs:
 
       # Full validation against the UPDATED lock — mirrors ci.yml exactly
       # (migrations + phpunit + typecheck + production build).
-      - name: Validate updated lock
+      # Step-per-command (mirrors ci.yml) — combined blocks die silently on this runner.
+      - name: Validate — composer install
         if: steps.check.outputs.changed == 'true'
         run: |
           cp .env.example .env
           touch database/database.sqlite
           composer install --prefer-dist --no-interaction
-          php artisan key:generate
-          php artisan migrate --force
-          php artisan test
+
+      - name: Validate — key generate + migrate
+        if: steps.check.outputs.changed == 'true'
+        run: php artisan key:generate && php artisan migrate --force
+
+      - name: Validate — PHP tests
+        if: steps.check.outputs.changed == 'true'
+        shell: bash
+        run: php artisan test --compact
+
+      - name: Validate — npm install + typecheck + build
+        if: steps.check.outputs.changed == 'true'
+        run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npm run typecheck
           npm run build

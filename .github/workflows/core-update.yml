@@ -81,17 +81,29 @@ jobs:
           VER=$(php -r 'echo json_decode(file_get_contents("vendor/nreljed/dashboard-core/composer.json"), true)["version"] ?? "unknown";')
           echo "version=$VER" >> "$GITHUB_OUTPUT"
 
-      # Full validation against the UPDATED lock — mirrors ci.yml exactly
-      # (migrations + phpunit + typecheck + production build).
-      - name: Validate updated lock
+      # Full validation against the UPDATED lock — mirrors ci.yml exactly.
+      # One step PER COMMAND (never a combined block): a single long-running
+      # bash block streaming heavy output has silently died on this runner
+      # (exit 1, output lost); discrete steps are how ci.yml always ran.
+      - name: Validate — composer install
         if: steps.check.outputs.changed == 'true'
         run: |
           cp .env.example .env
           touch database/database.sqlite
           composer install --prefer-dist --no-interaction
-          php artisan key:generate
-          php artisan migrate --force
-          php artisan test
+
+      - name: Validate — key generate + migrate
+        if: steps.check.outputs.changed == 'true'
+        run: php artisan key:generate && php artisan migrate --force
+
+      - name: Validate — PHP tests
+        if: steps.check.outputs.changed == 'true'
+        shell: bash
+        run: php artisan test --compact
+
+      - name: Validate — npm install + typecheck + build
+        if: steps.check.outputs.changed == 'true'
+        run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npm run typecheck
           npm run build
