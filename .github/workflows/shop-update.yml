@@ -16,22 +16,44 @@ concurrency:
   group: shop-update
   cancel-in-progress: true
 
+# Flow: bump composer.lock -> FULL local validation (same suite as ci.yml)
+# -> open lock-only PR -> squash-merge immediately.
+#
+# Why validate here instead of relying on PR checks: bot-authored PRs land
+# in "action_required" limbo on these repos, and free private repos have no
+# branch protection (so `gh pr merge --auto` can never fire). Validating the
+# exact tree in this job makes an instant merge safe; the PR stays as the
+# audit trail. If validation fails, the job fails and NO merge happens.
+
 jobs:
   shop-update:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
 
+      # PHP 8.4 + composer are preinstalled on the self-hosted runner;
+      # setup-php only makes sense on GitHub-hosted machines.
       - name: Setup PHP
+        if: runner.os == 'Linux'
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.4"
+          extensions: mbstring, xml, ctype, fileinfo, sqlite3, pdo_sqlite, bcmath, zip, gd, intl
+          coverage: none
           tools: composer:v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
       # dashboard-core + shop-module are private vcs repos; the single GH_TOKEN
       # (Contents: Read on all four nreljed repos, see AGENTS.md) authenticates
-      # both clones. --no-scripts avoids
-      # booting Laravel in a bare checkout (no .env needed for the lock update).
+      # both clones. --no-scripts avoids booting Laravel in a bare checkout
+      # (no .env needed for the lock update).
       - name: Update shop-module
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
@@ -55,14 +77,33 @@ jobs:
           VER=$(php -r 'echo json_decode(file_get_contents("vendor/nreljed/shop-module/composer.json"), true)["version"] ?? "unknown";')
           echo "version=$VER" >> "$GITHUB_OUTPUT"
 
-      # Only composer.lock ships in the PR. public/build is gitignored and CI
-      # (pr.yml -> ci.yml) rebuilds assets + runs the full validation suite.
+      # Full validation against the UPDATED lock — mirrors ci.yml exactly
+      # (migrations + phpunit + typecheck + production build).
+      - name: Validate updated lock
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          cp .env.example .env
+          touch database/database.sqlite
+          composer install --prefer-dist --no-interaction
+          php artisan key:generate
+          php artisan migrate --force
+          php artisan test
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run typecheck
+          npm run build
+
       - name: Create pull request
         if: steps.check.outputs.changed == 'true'
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           BRANCH="shop/update-v${{ steps.version.outputs.version }}"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+          # Clean up a stale branch left behind by a previously failed run.
+          git push origin --delete "$BRANCH" 2>/dev/null || true
+
           git checkout -b "$BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -73,10 +114,17 @@ jobs:
             --base main \
             --head "$BRANCH" \
             --title "chore: update shop-module to v${{ steps.version.outputs.version }}" \
-            --body "Automated update of \`nreljed/shop-module\` (scheduled \`shop-update.yml\`).
+            --body "Automated update of \`nreljed/shop-module\` (\`shop-update.yml\`).
 
             - Resolved version: v${{ steps.version.outputs.version }}
-            - Only \`composer.lock\` changed; \`public/build\` is gitignored and rebuilt by CI.
-
-            After merge, push to main triggers \`deploy.yml\` (build + release + deploy).
+            - Only \`composer.lock\` changed; full validation (tests, typecheck, build) ran on this exact tree before merge.
             "
+
+      # Free private repos have no branch protection rules, so the merge is
+      # instantaneous once issued. Validation already passed above; merging
+      # fires deploy.yml (build + release + deploy).
+      - name: Merge pull request
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr merge --squash --delete-branch "${{ steps.pr.outputs.branch }}"
