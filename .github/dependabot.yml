@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # Frontend dependencies (npm).
+  # NOTE: composer ecosystem intentionally omitted — nreljed/* packages are
+  # private VCS deps that dependabot cannot auth to; package updates are
+  # handled by the core-update/shop-update workflows instead.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "typescript"
+        versions: ["7.x"]
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions themselves
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
