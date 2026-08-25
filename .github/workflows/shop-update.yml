@@ -91,17 +91,19 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         run: php artisan key:generate && php artisan migrate --force
 
-      - name: Validate — PHP tests
-        if: steps.check.outputs.changed == 'true'
-        shell: bash
-        run: php -d memory_limit=512M artisan test --compact
-
       - name: Validate — npm install + typecheck + build
         if: steps.check.outputs.changed == 'true'
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npm run typecheck
           npm run build
+
+      # Assets must exist before PHP tests: view-rendering tests hit @vite()
+      # and 500 without public/build/manifest.json (same order as ci.yml).
+      - name: Validate — PHP tests
+        if: steps.check.outputs.changed == 'true'
+        shell: bash
+        run: php -d memory_limit=512M artisan test --compact
 
       - name: Create pull request
         if: steps.check.outputs.changed == 'true'
