@@ -59,7 +59,7 @@ jobs:
 
       - name: PHP tests
         shell: bash
-        run: php artisan test --compact
+        run: php -d memory_limit=512M artisan test --compact
 
       - name: ESLint
         shell: bash

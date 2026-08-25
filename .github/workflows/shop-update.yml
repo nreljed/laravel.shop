@@ -94,7 +94,7 @@ jobs:
       - name: Validate — PHP tests
         if: steps.check.outputs.changed == 'true'
         shell: bash
-        run: php artisan test --compact
+        run: php -d memory_limit=512M artisan test --compact
 
       - name: Validate — npm install + typecheck + build
         if: steps.check.outputs.changed == 'true'
