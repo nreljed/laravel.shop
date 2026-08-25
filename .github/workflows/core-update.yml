@@ -99,7 +99,7 @@ jobs:
       - name: Validate — npm install + typecheck + build
         if: steps.check.outputs.changed == 'true'
         run: |
-          npm ci --ignore-scripts --no-audit --no-fund
+          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund
           npm run typecheck
           npm run build
 
