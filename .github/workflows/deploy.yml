@@ -9,7 +9,7 @@ permissions:
 
 concurrency:
   group: deploy-shop-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -19,6 +19,7 @@ jobs:
         shell: bash
     outputs:
       version: ${{ steps.version.outputs.version }}
+      skip: ${{ steps.version.outputs.skip }}
     steps:
       - name: Checkout (full history for git-cliff)
         uses: actions/checkout@v4
@@ -130,6 +131,8 @@ jobs:
       - name: Determine version
         id: version
         run: |
+          # Re-fetch tags so concurrent runs see releases created after checkout
+          git fetch origin --tags --force
           VER="0.1.0"
           LAST_TAG=$(git tag --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
           if [ -n "$LAST_TAG" ]; then
@@ -150,7 +153,13 @@ jobs:
             esac
             echo "Bumping from $LAST_TAG (next: $VER)"
           fi
+          SKIP="false"
+          if git ls-remote --exit-code origin "refs/tags/v$VER" >/dev/null 2>&1; then
+            echo "::warning::Tag v$VER already exists - a newer deploy supersedes this run, skipping release/deploy"
+            SKIP="true"
+          fi
           echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
 
       - name: Generate release notes
         run: |
@@ -162,6 +171,7 @@ jobs:
           git-cliff -o CHANGELOG.md 2>/dev/null || true
 
       - name: Create GitHub Release
+        if: steps.version.outputs.skip != 'true'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version.outputs.version }}
@@ -174,6 +184,7 @@ jobs:
 
   push-deploy:
     needs: build
+    if: needs.build.outputs.skip != 'true'
     runs-on: self-hosted
     defaults:
       run:
