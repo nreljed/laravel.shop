@@ -13,6 +13,9 @@ const config: FoundationAppConfig = {
   projectPrefix: "shop",
   pageOverrides: {
     "dashboard/account/profile": () => import("@shop/overrides/account/profile"),
+    "public/about": () => import("./public/about"),
+    "public/services": () => import("./public/services"),
+    "public/contact": () => import("./public/contact"),
   },
 };
 
