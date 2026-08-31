@@ -6,6 +6,9 @@ on:
 jobs:
   check:
     runs-on: [self-hosted]
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Trigger deploy check on server
         run: |
