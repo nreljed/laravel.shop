@@ -4,6 +4,7 @@ use Nreljed\DashboardCore\Blog\BlogServiceProvider;
 use Nreljed\DashboardCore\Blog\Models\Post;
 use Nreljed\DashboardCore\Http\Middleware\HandleInertiaRequests;
 use Nreljed\DashboardCore\Models\User;
+use Nreljed\DashboardCore\PublicSite\PublicSiteServiceProvider;
 use Nreljed\ShopModule\Models\Product;
 use Nreljed\ShopModule\ShopServiceProvider;
 
@@ -45,6 +46,7 @@ return [
     */
 
     'features' => [
+        PublicSiteServiceProvider::class,
         BlogServiceProvider::class,
         ShopServiceProvider::class,
     ],

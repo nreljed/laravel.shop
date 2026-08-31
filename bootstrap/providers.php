@@ -8,6 +8,7 @@ use Laravel\Telescope\TelescopeApplicationServiceProvider;
 use Nreljed\DashboardCore\Blog\BlogServiceProvider;
 use Nreljed\DashboardCore\DashboardCoreServiceProvider;
 use Nreljed\DashboardCore\Providers\PermissionGateServiceProvider;
+use Nreljed\DashboardCore\PublicSite\PublicSiteServiceProvider;
 use Nreljed\ShopModule\ShopServiceProvider;
 
 return array_filter([
@@ -17,6 +18,7 @@ return array_filter([
     SeoServiceProvider::class,
     ShopServiceProvider::class,
     BlogServiceProvider::class,
+    PublicSiteServiceProvider::class,
     PermissionGateServiceProvider::class,
     class_exists(TelescopeApplicationServiceProvider::class)
         ? TelescopeServiceProvider::class
