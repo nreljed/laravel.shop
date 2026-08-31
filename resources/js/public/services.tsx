@@ -1,5 +1,5 @@
 import { Link } from "@inertiajs/react";
-import { ArrowRight, Boxes, CheckCircle2, CreditCard, Mail, Package, ShoppingCart, Truck } from "lucide-react";
+import { ArrowRight, Boxes, CheckCircle2, CreditCard, Headphones, Package, ShoppingCart, Truck } from "lucide-react";
 import PublicLayout from "@/Layouts/PublicLayout";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent } from "@/Components/ui/card";
@@ -7,39 +7,39 @@ import { Card, CardContent } from "@/Components/ui/card";
 const services = [
     {
         icon: ShoppingCart,
-        title: "Modern storefront",
-        description: "A fast, responsive storefront with products, categories, cart, and a smooth guest checkout.",
-        items: ["Product grid & detail pages", "Cart with coupons & auto-discounts", "Guest checkout with order confirmation"],
+        title: "Latest smartphones",
+        description: "The newest models straight from the brand — with official warranties and honest prices.",
+        items: ["Xiaomi & popular brands", "Available in-store and online", "Clear, upfront price tags"],
     },
     {
-        icon: Boxes,
-        title: "Merchant dashboard",
-        description: "Everything you need to run the shop from a single control panel.",
-        items: ["Products, categories, tags & brands", "Orders with status workflow & refunds", "Customers, reviews & coupons"],
-    },
-    {
-        icon: Package,
-        title: "Inventory management",
-        description: "Keep stock accurate with a full audit trail and low-stock alerts.",
-        items: ["Sales, returns & manual adjustments", "Hold stock with automatic release", "Variations with attribute swatches"],
-    },
-    {
-        icon: Truck,
-        title: "Shipping & fulfilment",
-        description: "Zones, methods, and per-method pricing that match how you actually ship.",
-        items: ["Country-based shipping zones", "Flat-rate & free-above methods", "Per-zone override pricing"],
+        icon: Headphones,
+        title: "Accessories & gadgets",
+        description: "Chargers, power banks, audio, and smart devices to complete your setup.",
+        items: ["Verified compatible accessories", "Fast chargers & cables", "Gadgets for home and commute"],
     },
     {
         icon: CreditCard,
-        title: "Pricing & discounts",
-        description: "Flexible pricing with sales scheduling and a rich discount engine.",
-        items: ["Automatic & code-based coupons", "Currency & tax configuration", "Sale prices with date windows"],
+        title: "Easy checkout",
+        description: "A smooth online checkout with secure payment and clear delivery costs.",
+        items: ["Guest checkout available", "Discounts applied automatically", "Order confirmation by email"],
     },
     {
-        icon: Mail,
-        title: "Engagement & reporting",
-        description: "Keep customers informed and understand how the business is performing.",
-        items: ["Transactional email templates", "Revenue & product reports", "Notification preferences"],
+        icon: Truck,
+        title: "Delivery across Tunisia",
+        description: "We deliver your order right to your door, with tracking from our store to you.",
+        items: ["Fast doorstep delivery", "Track your parcel", "Secure packaging"],
+    },
+    {
+        icon: Package,
+        title: "Pre-sale advice",
+        description: "Not sure which model suits you? We'll help you pick the right device for your budget.",
+        items: ["Expert product guidance", "Compare options honestly", "Help in Arabic & French"],
+    },
+    {
+        icon: Boxes,
+        title: "Warranty & support",
+        description: "Every device is authentic and supported after the sale — we stand behind what we sell.",
+        items: ["Official product warranty", "Honest after-sales support", "Easy to reach us"],
     },
 ] as const;
 
@@ -47,15 +47,15 @@ export default function Services() {
     return (
         <PublicLayout
             title="Services"
-            description="Explore everything our commerce platform offers — from storefront and dashboard to inventory, shipping, and reporting."
+            description="Smartphones, accessories, delivery, and support — everything you need to buy tech with confidence."
             ogType="website"
         >
             <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
                 <div className="mx-auto max-w-3xl text-center">
-                    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Everything you need to sell</h1>
+                    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">What we offer</h1>
                     <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                        A complete commerce toolkit in one platform. This is a project template —
-                        replace these with your own services and feature highlights.
+                        Everything you need to shop for genuine tech with confidence — from picking
+                        the right device to getting it delivered to your door.
                     </p>
                 </div>
 
@@ -82,13 +82,13 @@ export default function Services() {
                 </div>
 
                 <div className="mt-16 flex flex-col items-center gap-4 rounded-xl border bg-muted/30 p-10 text-center">
-                    <h2 className="text-2xl font-bold tracking-tight">Curious about a specific feature?</h2>
+                    <h2 className="text-2xl font-bold tracking-tight">Looking for a specific product?</h2>
                     <p className="max-w-xl text-muted-foreground">
-                        Tell us what you're trying to achieve and we'll point you in the right direction.
+                        Tell us what you're after and we'll confirm availability and get you a quote.
                     </p>
                     <Button asChild size="lg">
                         <Link href={route("contact")}>
-                            Contact us <ArrowRight className="ml-2 h-4 w-4" />
+                            Ask us <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
                 </div>

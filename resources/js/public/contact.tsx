@@ -23,17 +23,17 @@ export default function Contact() {
     const { props } = usePage();
     const data = (props.contact ?? {}) as ContactPageProps;
 
-    const email = data.email || "hello@example.com";
-    const phone = data.phone || "+1 (555) 000-0000";
-    const address = data.address || "123 Commerce Street, Your City";
-    const hours = data.hours || "Mon – Fri, 9:00 – 18:00";
+    const email = data.email ?? "";
+    const phone = data.phone ?? "";
+    const address = data.address ?? "";
+    const hours = data.hours ?? "";
 
     const channels: ContactChannel[] = [
-        { icon: Mail, label: "Email", value: email, href: `mailto:${email}` },
-        { icon: Phone, label: "Phone", value: phone, href: `tel:${phone.replace(/[^+\d]/g, "")}` },
+        { icon: Mail, label: "Email", value: email, href: email ? `mailto:${email}` : undefined },
+        { icon: Phone, label: "Phone", value: phone, href: phone ? `tel:${phone.replace(/[^+\d]/g, "")}` : undefined },
         { icon: MapPin, label: "Address", value: address },
         { icon: Clock, label: "Hours", value: hours },
-    ];
+    ].filter((c) => c.value.length > 0);
 
     return (
         <PublicLayout
@@ -45,9 +45,8 @@ export default function Contact() {
                 <div className="mx-auto max-w-3xl text-center">
                     <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Get in touch</h1>
                     <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                        Questions about our platform or how it can help your business? Reach out
-                        through any channel below. This is a project template — update these
-                        details with your own contact information.
+                        Questions about a product, an order, or delivery? Reach out through any
+                        channel below and we'll get back to you promptly.
                     </p>
                 </div>
 
@@ -80,11 +79,13 @@ export default function Contact() {
                         Email is the fastest way to reach the team and we typically reply within one
                         business day.
                     </p>
-                    <Button asChild size="lg">
-                        <a href={`mailto:${email}`}>
-                            <Mail className="mr-2 h-4 w-4" /> Email {email}
-                        </a>
-                    </Button>
+                    {email.length > 0 && (
+                        <Button asChild size="lg">
+                            <a href={`mailto:${email}`}>
+                                <Mail className="mr-2 h-4 w-4" /> Email {email}
+                            </a>
+                        </Button>
+                    )}
                 </div>
             </section>
         </PublicLayout>

@@ -8,36 +8,36 @@ import { Separator } from "@/Components/ui/separator";
 const values = [
     {
         icon: Rocket,
-        title: "Innovation",
-        description: "We embrace modern tooling and pragmatic engineering to ship fast and stay ahead.",
+        title: "Fast & modern",
+        description: "We stock the latest phones and gadgets and ship every order the business day after you place it.",
     },
     {
         icon: ShieldCheck,
-        title: "Trust & Reliability",
-        description: "Secure, well-tested, and dependable — our platform is built to be relied upon.",
+        title: "Genuine, guaranteed",
+        description: "100% authentic products with official warranties — every device is verified before it leaves our store.",
     },
     {
         icon: HeartHandshake,
-        title: "Customer First",
-        description: "Every decision starts with what serves you. Support that actually supports.",
+        title: "Support that helps",
+        description: "Real people answer your questions before and after the sale — in Arabic and French.",
     },
     {
         icon: Target,
-        title: "Quality Obsessed",
-        description: "Attention to detail at every layer, from the storefront to the checkout.",
+        title: "Fair pricing",
+        description: "Competitive prices, honest discounts, and transparent delivery costs. No surprises at checkout.",
     },
 ] as const;
 
 const milestones = [
-    { year: "Started", title: "The beginning", description: "We set out to build a modern commerce platform from first principles." },
-    { year: "Today", title: "In production", description: "Powering real storefronts with a complete product, order, and inventory workflow." },
+    { year: "Today", title: "Your local tech store", description: "Phones, accessories, and smart gadgets delivered across Tunisia, from our shop in Tunis." },
+    { year: "Soon", title: "A full online shop", description: "A modern storefront where browsing, ordering, and tracking your delivery is effortless." },
 ] as const;
 
 export default function About() {
     return (
         <PublicLayout
             title="About Us"
-            description="Learn about our mission, values, and the team building a modern commerce platform."
+            description="Meet the store behind your favourite tech — genuine devices, fair prices, and support you can rely on across Tunisia."
             ogType="website"
         >
             <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
@@ -47,17 +47,17 @@ export default function About() {
                         <span>Our story</span>
                     </div>
                     <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
-                        About our platform
+                        About our store
                     </h1>
                     <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                        We build commerce software that feels effortless — a complete dashboard,
-                        storefront, and inventory system designed to help you sell more with less
-                        friction. This is a project template, so put your company's real story here.
+                        We're a Tunisian electronics retailer built around one promise: give people
+                        genuine gear at a fair price, with service that doesn't disappear after the
+                        sale. From smartphones to power banks, we stock what we'd buy ourselves.
                     </p>
                     <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                         <Button asChild size="lg">
                             <Link href={route("services")}>
-                                Explore services <ArrowRight className="ml-2 h-4 w-4" />
+                                See what we offer <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>
                         <Button asChild size="lg" variant="outline">
@@ -70,11 +70,10 @@ export default function About() {
 
                 <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight">Our mission</h2>
+                        <h2 className="text-3xl font-bold tracking-tight">Why shop with us</h2>
                         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-                            Our mission is to make powerful commerce tooling accessible to every
-                            seller. We combine a rich admin experience with a fast, modern storefront
-                            so you can focus on your products instead of your platform.
+                            Browsing tech shouldn't mean guessing whether you'll get what you paid
+                            for. We make it easy to buy with confidence.
                         </p>
                         <div className="mt-8 space-y-4">
                             {milestones.map((m) => (
@@ -92,9 +91,9 @@ export default function About() {
                         </div>
                     </div>
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight">What we value</h2>
+                        <h2 className="text-3xl font-bold tracking-tight">What we stand for</h2>
                         <p className="mt-4 text-lg text-muted-foreground">
-                            These principles guide every feature we ship.
+                            The principles behind every order.
                         </p>
                         <div className="mt-8 grid gap-4 sm:grid-cols-2">
                             {values.map((v) => (
