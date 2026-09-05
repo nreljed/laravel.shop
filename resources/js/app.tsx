@@ -12,7 +12,6 @@ const config: FoundationAppConfig = {
   projectPages: import.meta.glob("@shop/Pages/**/*.tsx") as Record<string, PageImport>,
   projectPrefix: "shop",
   pageOverrides: {
-    "dashboard/account/profile": () => import("@shop/overrides/account/profile"),
     "public/about": () => import("./public/about"),
     "public/services": () => import("./public/services"),
     "public/contact": () => import("./public/contact"),
