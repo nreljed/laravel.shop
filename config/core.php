@@ -5,7 +5,6 @@ use Nreljed\DashboardCore\Blog\Models\Post;
 use Nreljed\DashboardCore\Http\Middleware\HandleInertiaRequests;
 use Nreljed\DashboardCore\Models\User;
 use Nreljed\DashboardCore\PublicSite\PublicSiteServiceProvider;
-use Nreljed\ShopModule\Models\Product;
 use Nreljed\ShopModule\ShopServiceProvider;
 
 return [
@@ -27,9 +26,8 @@ return [
     | Inertia Request Middleware
     |--------------------------------------------------------------------------
     |
-    | Shared props handler appended to the web group. The shop-module
-    | provider extends the core handler to add cart / wishlist / currency
-    | shared props.
+    | Shared props handler appended to the web group. Modules contribute
+    | shared props declaratively via FeatureRegistry::getAllSharedData().
     |
     */
 
@@ -58,7 +56,6 @@ return [
     */
 
     'orphan_media' => [
-        'products' => Product::class,
         'posts' => Post::class,
         'avatars' => User::class,
     ],
@@ -73,7 +70,7 @@ return [
     */
 
     'settings' => [
-        'groups' => ['localization', 'shop'],
+        'groups' => ['localization'],
     ],
 
 ];

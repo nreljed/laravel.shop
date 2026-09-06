@@ -19,6 +19,10 @@
         ],
         "paths": {
             "@dashboard/*": ["./vendor/nreljed/dashboard-core/resources/js/*"],
+            "@dashboard-blog": ["./vendor/nreljed/dashboard-core/src/Blog/Resources/js"],
+            "@dashboard-blog/*": ["./vendor/nreljed/dashboard-core/src/Blog/Resources/js/*"],
+            "@dashboard-themes": ["./vendor/nreljed/dashboard-core/resources/themes"],
+            "@dashboard-themes/*": ["./vendor/nreljed/dashboard-core/resources/themes/*"],
             "@/*": ["./vendor/nreljed/dashboard-core/resources/js/*"],
             "@shop": ["./vendor/nreljed/shop-module/src/Resources/js"],
             "@shop/*": ["./vendor/nreljed/shop-module/src/Resources/js/*"],
@@ -39,6 +43,9 @@
         "vendor/nreljed/dashboard-core/resources/js/**/*.ts",
         "vendor/nreljed/dashboard-core/resources/js/**/*.tsx",
         "vendor/nreljed/dashboard-core/resources/js/**/*.d.ts",
+        "vendor/nreljed/dashboard-core/resources/themes/**/*.ts",
+        "vendor/nreljed/dashboard-core/resources/themes/**/*.tsx",
+        "vendor/nreljed/dashboard-core/resources/themes/**/*.d.ts",
         "vendor/nreljed/dashboard-core/src/**/Resources/js/**/*.ts",
         "vendor/nreljed/dashboard-core/src/**/Resources/js/**/*.tsx",
         "vendor/nreljed/dashboard-core/src/**/Resources/js/**/*.d.ts"

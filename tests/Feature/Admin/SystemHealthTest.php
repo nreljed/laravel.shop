@@ -7,6 +7,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Nreljed\DashboardCore\Models\Role;
+use Nreljed\DashboardCore\Services\PackageVersionService;
 use Tests\TestCase;
 
 class SystemHealthTest extends TestCase
@@ -45,6 +46,44 @@ class SystemHealthTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('core_package')
             ->has('modules'));
+    }
+
+    public function test_system_health_reports_module_composer_versions(): void
+    {
+        $installed = json_decode(
+            (string) file_get_contents(base_path('vendor/composer/installed.json')),
+            true
+        );
+
+        $shopVersion = null;
+        foreach ($installed['packages'] as $package) {
+            if (($package['name'] ?? null) === 'nreljed/shop-module') {
+                $shopVersion = $package['version'] ?? null;
+                break;
+            }
+        }
+
+        $this->assertNotNull($shopVersion, 'nreljed/shop-module not found in installed.json');
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('dashboard.admin.system-health'));
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('modules', 3)
+            ->where('modules.2.slug', 'shop')
+            ->where('modules.2.package', 'nreljed/shop-module')
+            ->where('modules.2.composer_version', $shopVersion)
+            ->where('modules.0.composer_version', null)
+            ->where('modules.1.composer_version', null));
+    }
+
+    public function test_package_version_service_resolves_installed_versions(): void
+    {
+        $service = app(PackageVersionService::class);
+
+        $this->assertNotNull($service->installedVersion('nreljed/shop-module'));
+        $this->assertNotNull($service->installedVersion('nreljed/dashboard-core'));
+        $this->assertNull($service->installedVersion('nreljed/does-not-exist'));
     }
 
     public function test_system_health_refresh_returns_json(): void

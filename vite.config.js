@@ -17,7 +17,7 @@ export default defineConfig({
             ],
         refresh: [
             ...(typeof globalThis !== 'undefined' && globalThis.process?.env?.APP_ENV !== 'production'
-                ? [{ server: false, paths: ['vendor/nreljed/shop-module/src/Resources/js/**', 'vendor/nreljed/dashboard-core/resources/js/**'] }]
+                ? [{ server: false, paths: ['vendor/nreljed/shop-module/src/Resources/js/**', 'vendor/nreljed/dashboard-core/resources/js/**', 'vendor/nreljed/dashboard-core/resources/themes/**', 'vendor/nreljed/dashboard-core/src/**/Resources/js/**'] }]
                 : []),
         ],
         }),
@@ -29,6 +29,8 @@ export default defineConfig({
         dedupe: packageDedupes,
         alias: {
             '@dashboard': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/resources/js'),
+            '@dashboard-blog': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/src/Blog/Resources/js'),
+            '@dashboard-themes': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/resources/themes'),
             '@': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/resources/js'),
             '@shop': path.resolve(__dirname, 'vendor/nreljed/shop-module/src/Resources/js'),
         },

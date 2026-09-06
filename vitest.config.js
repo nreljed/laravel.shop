@@ -9,6 +9,7 @@ export default defineConfig({
     test: {
         environment: "jsdom",
         globals: true,
+        pool: "threads",
         include: [
             "resources/js/**/*.test.{ts,tsx}",
         ],
@@ -29,7 +30,11 @@ export default defineConfig({
     resolve: {
         dedupe: packageDedupes,
         alias: {
+            "@dashboard": path.resolve(__dirname, "vendor/nreljed/dashboard-core/resources/js"),
+            "@dashboard-blog": path.resolve(__dirname, "vendor/nreljed/dashboard-core/src/Blog/Resources/js"),
+            "@dashboard-themes": path.resolve(__dirname, "vendor/nreljed/dashboard-core/resources/themes"),
             "@": path.resolve(__dirname, "vendor/nreljed/dashboard-core/resources/js"),
+            "@shop": path.resolve(__dirname, "vendor/nreljed/shop-module/src/Resources/js"),
         },
     },
 });
