@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/playwright-mcp/main/config.schema.json",
   "browser": {
     "browserName": "chromium",
-    "isolated": true,
+    "isolated": false,
     "launchOptions": {
       "headless": false,
       "args": [
