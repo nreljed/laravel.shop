@@ -3556,16 +3556,16 @@
         },
         {
             "name": "nreljed/dashboard-core",
-            "version": "0.1.24",
+            "version": "0.1.27",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/dashboard-core.git",
-                "reference": "ca75cf6dc4db9a7eea4d786f0d93a6805061e113"
+                "reference": "bc997b34a7da8e5893960e416948741d16cd9b38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/ca75cf6dc4db9a7eea4d786f0d93a6805061e113",
-                "reference": "ca75cf6dc4db9a7eea4d786f0d93a6805061e113",
+                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/bc997b34a7da8e5893960e416948741d16cd9b38",
+                "reference": "bc997b34a7da8e5893960e416948741d16cd9b38",
                 "shasum": ""
             },
             "require": {
@@ -3610,11 +3610,7 @@
                 }
             ],
             "description": "Shared dashboard core platform for Laravel apps (dashboard, admin, auth, blog, AI, deploy).",
-            "support": {
-                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.24",
-                "issues": "https://github.com/nreljed/dashboard-core/issues"
-            },
-            "time": "2026-09-07T13:31:36+00:00"
+            "time": "2026-09-07T15:50:52+00:00"
         },
         {
             "name": "nreljed/shop-module",

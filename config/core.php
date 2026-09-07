@@ -1,5 +1,6 @@
 <?php
 
+use Nreljed\DashboardCore\Ai\AiServiceProvider;
 use Nreljed\DashboardCore\Blog\BlogServiceProvider;
 use Nreljed\DashboardCore\Blog\Models\Post;
 use Nreljed\DashboardCore\Http\Middleware\HandleInertiaRequests;
@@ -46,6 +47,7 @@ return [
     'features' => [
         PublicSiteServiceProvider::class,
         BlogServiceProvider::class,
+        AiServiceProvider::class,
         ShopServiceProvider::class,
     ],
 

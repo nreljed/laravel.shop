@@ -69,12 +69,13 @@ class SystemHealthTest extends TestCase
             ->get(route('dashboard.admin.system-health'));
 
         $response->assertInertia(fn (Assert $page) => $page
-            ->has('modules', 3)
-            ->where('modules.2.slug', 'shop')
-            ->where('modules.2.package', 'nreljed/shop-module')
-            ->where('modules.2.composer_version', $shopVersion)
+            ->has('modules', 4)
+            ->where('modules.3.slug', 'shop')
+            ->where('modules.3.package', 'nreljed/shop-module')
+            ->where('modules.3.composer_version', $shopVersion)
             ->where('modules.0.composer_version', null)
-            ->where('modules.1.composer_version', null));
+            ->where('modules.1.composer_version', null)
+            ->where('modules.2.composer_version', null));
     }
 
     public function test_package_version_service_resolves_installed_versions(): void
