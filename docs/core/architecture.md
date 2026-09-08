@@ -41,7 +41,6 @@ Applied in `kernel.php`:
 - `ShareErrorsFromSession`
 - `SubstituteBindings`
 - `ContentSecurityPolicy`
-- `ForceInertiaCacheHeaders`
 
 **Web Group:**
 - All global middleware
