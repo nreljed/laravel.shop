@@ -49,7 +49,6 @@ jobs:
 
       - name: Create build .env
         run: |
-          DB_PATH="$(pwd)/database/database.sqlite"
           cat > .env << ENVEOF
           APP_NAME="Shop App"
           APP_ENV=local
@@ -57,7 +56,6 @@ jobs:
           APP_DEBUG=true
           APP_URL=http://localhost
           DB_CONNECTION=sqlite
-          DB_DATABASE=$DB_PATH
           SESSION_DRIVER=file
           FILESYSTEM_DISK=local
           QUEUE_CONNECTION=sync
