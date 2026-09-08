@@ -1,10 +1,10 @@
 <?php
 
 use Nreljed\DashboardCore\Ai\AiServiceProvider;
-use Nreljed\DashboardCore\Posts\PostsServiceProvider;
-use Nreljed\DashboardCore\Posts\Models\Post;
 use Nreljed\DashboardCore\Http\Middleware\HandleInertiaRequests;
 use Nreljed\DashboardCore\Models\User;
+use Nreljed\DashboardCore\Posts\Models\Post;
+use Nreljed\DashboardCore\Posts\PostsServiceProvider;
 use Nreljed\DashboardCore\PublicSite\PublicSiteServiceProvider;
 use Nreljed\ShopModule\ShopServiceProvider;
 
