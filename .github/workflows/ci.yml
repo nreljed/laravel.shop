@@ -43,6 +43,10 @@ jobs:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer install --prefer-dist --no-interaction --no-scripts
 
+      - name: composer audit
+        shell: bash
+        run: composer audit --no-interaction
+
       - name: Generate application key + migrate
         shell: bash
         run: php artisan key:generate && php artisan migrate --force
@@ -52,6 +56,10 @@ jobs:
         run: |
           npm ci --legacy-peer-deps
           npm run build
+
+      - name: npm audit
+        shell: bash
+        run: npm audit --audit-level=high
 
       - name: Laravel Pint
         shell: bash

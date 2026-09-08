@@ -65,15 +65,36 @@ jobs:
           ENVEOF
           touch database/database.sqlite
 
-      - name: Install Composer dependencies (production)
+      - name: Install Composer dependencies (with dev, for validation)
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-interaction --no-scripts
+
+      - name: Generate application key + migrate
+        run: php artisan key:generate && php artisan migrate --force
 
       - name: Install npm dependencies + build
         run: |
           npm ci --legacy-peer-deps
           npm run build
+
+      - name: composer audit
+        run: composer audit --no-interaction
+
+      - name: Laravel Pint
+        run: php vendor/bin/pint --test
+
+      - name: PHP tests
+        run: php -d memory_limit=512M artisan test --compact
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript check
+        run: npm run typecheck
+
+      - name: Prune dev dependencies (production install)
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
 
       - name: Overwrite .env with production settings
         run: |
@@ -228,13 +249,17 @@ jobs:
           CHECK_URL="${{ vars.APP_URL }}/deploy/check?token=${{ secrets.DEPLOY_TOKEN }}"
           UPLOAD_URL="${{ vars.APP_URL }}/deploy/upload?token=${{ secrets.DEPLOY_TOKEN }}"
 
-          poll_check() {
+          # Poll /deploy/check until the server confirms it is deployed on $VER
+          # (or "deployed" / "current"), fast-failing if the server stops
+          # responding. $1 is the log prefix (e.g. "poll" or "confirm").
+          wait_until_deployed() {
+            local prefix="$1" msg
             CONSECUTIVE_NON_JSON=0
             for i in $(seq 1 8); do
               RESP=$(curl -s -X POST --max-time 30 "$CHECK_URL" 2>&1)
               FIRST=$(echo "$RESP" | head -1)
               if echo "$FIRST" | grep -q '"status":"deployed"'; then
-                echo "Deployed via /deploy/check (GitHub API)"
+                echo "Deployed via /deploy/check"
                 echo "$FIRST"
                 return 0
               elif echo "$FIRST" | grep -q '"status":"current"'; then
@@ -244,13 +269,13 @@ jobs:
                   echo "$FIRST"
                   return 0
                 fi
-                echo "[poll $i/8] server waiting for $VER"
+                echo "[$prefix $i/8] server waiting for $VER"
               elif echo "$FIRST" | grep -q '"status":"locked"'; then
                 CONSECUTIVE_NON_JSON=0
-                echo "[poll $i/8] server still working (locked)"
+                echo "[$prefix $i/8] server still working (locked)"
               else
                 CONSECUTIVE_NON_JSON=$((CONSECUTIVE_NON_JSON + 1))
-                echo "[poll $i/8] server not responding (non-JSON $CONSECUTIVE_NON_JSON/2)"
+                echo "[$prefix $i/8] server not responding (non-JSON $CONSECUTIVE_NON_JSON/2)"
                 if [ "$CONSECUTIVE_NON_JSON" -ge 2 ]; then
                   echo "Fast-fail: server is broken, skipping remaining polls"
                   return 1
@@ -261,40 +286,7 @@ jobs:
             return 1
           }
 
-          confirm_deployed() {
-            CONSECUTIVE_NON_JSON=0
-            for i in $(seq 1 8); do
-              RESP=$(curl -s --max-time 30 "$CHECK_URL" 2>&1)
-              FIRST=$(echo "$RESP" | head -1)
-              if echo "$FIRST" | grep -q '"status":"deployed"'; then
-                echo "Confirmed deployed via /deploy/check"
-                echo "$FIRST"
-                return 0
-              elif echo "$FIRST" | grep -q '"status":"current"'; then
-                CONSECUTIVE_NON_JSON=0
-                if echo "$FIRST" | grep -q "\"tag\":\"$VER\""; then
-                  echo "Confirmed on $VER via /deploy/check"
-                  echo "$FIRST"
-                  return 0
-                fi
-                echo "[confirm $i/8] tag not yet $VER, retrying"
-              elif echo "$FIRST" | grep -q '"status":"locked"'; then
-                CONSECUTIVE_NON_JSON=0
-                echo "[confirm $i/8] server still working (locked), retrying"
-              else
-                CONSECUTIVE_NON_JSON=$((CONSECUTIVE_NON_JSON + 1))
-                echo "[confirm $i/8] server not responding (non-JSON $CONSECUTIVE_NON_JSON/2)"
-                if [ "$CONSECUTIVE_NON_JSON" -ge 2 ]; then
-                  echo "Fast-fail: server is broken, skipping remaining confirms"
-                  return 1
-                fi
-              fi
-              [ "$i" -lt 8 ] && sleep 15
-            done
-            return 1
-          }
-
-          if poll_check; then
+          if wait_until_deployed "poll"; then
             echo "push-deploy OK (check path)"
           else
             echo "check path did not confirm $VER, uploading deploy.zip directly"
@@ -309,7 +301,7 @@ jobs:
               echo "push-deploy OK (upload path)"
             else
               echo "Upload response not clean (HTTP $HTTP_CODE), confirming via /deploy/check..."
-              if confirm_deployed; then
+              if wait_until_deployed "confirm"; then
                 echo "push-deploy OK (confirmed after upload)"
               else
                 echo "Deploy not confirmed. Release at: https://github.com/${{ github.repository }}/releases/tag/$VER"
