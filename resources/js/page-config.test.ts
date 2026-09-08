@@ -2,25 +2,25 @@ import { describe, expect, it } from "vitest";
 
 import { registerCoreTemplates } from "@dashboard/dashboard";
 import { registerStarterThemePages } from "@dashboard-themes/starter";
-import { registerBlogPages } from "@dashboard-blog/pages";
+import { registerPostsPages } from "@dashboard-posts/pages";
 import { registerShopPages } from "@shop/pages";
 
 /**
  * Mirrors `resources/js/page-config.ts`: every feature module's page kit is
  * spread exactly once, and the host's marketing overrides are applied last.
  * This locks the contract that every Inertia page key a controller renders
- * resolves to a real component — regressions (like the blog kit never being
+ * resolves to a real component — regressions (like the posts kit never being
  * wired) surface here instead of as runtime "Page not found" errors.
  */
 const coreKit = registerCoreTemplates();
 const themeKit = registerStarterThemePages();
-const blogKit = registerBlogPages();
+const postsKit = registerPostsPages();
 const shopKit = registerShopPages();
 
 const pageMap = {
     ...coreKit,
     ...themeKit,
-    ...blogKit,
+    ...postsKit,
     ...shopKit,
     "public/about": () => import("./public/about"),
     "public/services": () => import("./public/services"),
@@ -70,9 +70,9 @@ const SHOP_PAGE_KEYS = [
 ] as const;
 
 /**
-Keys rendered by the BLOG feature module (admin/editor pages).
+Keys rendered by the POSTS feature module (admin/editor pages).
 */
-const BLOG_PAGE_KEYS = ["blog/categories/index", "blog/dashboard", "blog/form", "blog/index", "blog/tags/index"] as const;
+const POSTS_PAGE_KEYS = ["posts/categories/index", "posts/create", "posts/dashboard", "posts/edit", "posts/index", "posts/media", "posts/tags/index"] as const;
 
 /**
 Keys provided by the starter theme kit (marketing pages + blog public templates).
@@ -102,8 +102,8 @@ describe("feature page kits", () => {
         }
     });
 
-    it("registers every BLOG admin page key under the blog/ prefix", () => {
-        for (const key of BLOG_PAGE_KEYS) {
+    it("registers every POSTS admin page key under the posts/ prefix", () => {
+        for (const key of POSTS_PAGE_KEYS) {
             expect(pageMap, `missing page map entry for ${key}`).toHaveProperty(key);
         }
     });
@@ -127,7 +127,7 @@ describe("feature page kits", () => {
     });
 
     it("no two kits shadow the same key (deterministic merge, no silent override)", () => {
-        const kits = [coreKit, themeKit, blogKit, shopKit];
+        const kits = [coreKit, themeKit, postsKit, shopKit];
         const seen = new Set<string>();
         const collisions: string[] = [];
 

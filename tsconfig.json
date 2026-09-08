@@ -19,8 +19,8 @@
         ],
         "paths": {
             "@dashboard/*": ["./vendor/nreljed/dashboard-core/resources/js/*"],
-            "@dashboard-blog": ["./vendor/nreljed/dashboard-core/src/Blog/Resources/js"],
-            "@dashboard-blog/*": ["./vendor/nreljed/dashboard-core/src/Blog/Resources/js/*"],
+            "@dashboard-posts": ["./vendor/nreljed/dashboard-core/src/Posts/Resources/js"],
+            "@dashboard-posts/*": ["./vendor/nreljed/dashboard-core/src/Posts/Resources/js/*"],
             "@dashboard-themes": ["./vendor/nreljed/dashboard-core/resources/themes"],
             "@dashboard-themes/*": ["./vendor/nreljed/dashboard-core/resources/themes/*"],
             "@/*": ["./vendor/nreljed/dashboard-core/resources/js/*"],

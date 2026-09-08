@@ -29,7 +29,7 @@ export default defineConfig({
         dedupe: packageDedupes,
         alias: {
             '@dashboard': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/resources/js'),
-            '@dashboard-blog': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/src/Blog/Resources/js'),
+            '@dashboard-posts': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/src/Posts/Resources/js'),
             '@dashboard-themes': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/resources/themes'),
             '@': path.resolve(__dirname, 'vendor/nreljed/dashboard-core/resources/js'),
             '@shop': path.resolve(__dirname, 'vendor/nreljed/shop-module/src/Resources/js'),

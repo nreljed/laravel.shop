@@ -8,9 +8,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Nreljed\DashboardCore\Blog\Models\Post;
-use Nreljed\DashboardCore\Blog\Models\PostCategory;
-use Nreljed\DashboardCore\Blog\Models\PostTag;
+use Nreljed\DashboardCore\Posts\Models\Post;
+use Nreljed\DashboardCore\Posts\Models\PostCategory;
+use Nreljed\DashboardCore\Posts\Models\PostTag;
 use Nreljed\ShopModule\Models\Coupon;
 use Nreljed\ShopModule\Models\CouponUsage;
 use Nreljed\ShopModule\Models\Order;
@@ -951,7 +951,7 @@ class GenerateDemoData extends Command
 
     private function createBlogPosts(): void
     {
-        if (! class_exists('Nreljed\DashboardCore\Blog\Models\Post')) {
+        if (! class_exists('Nreljed\DashboardCore\Posts\Models\Post')) {
             $this->line('[SKIP] Posts module not available');
 
             return;
