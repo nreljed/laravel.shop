@@ -2,22 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/playwright-mcp/main/config.schema.json",
   "browser": {
     "browserName": "chromium",
-    "isolated": false,
-    "launchOptions": {
-      "headless": false,
-      "args": [
-        "--disable-features=OptimizationGuideModelDownloading,OptimizationHints,OptimizationTargetPrediction,OptimizationGuideFetching",
-        "--disable-component-update",
-        "--disable-background-networking",
-        "--disable-sync",
-        "--disable-default-apps",
-        "--no-first-run"
-      ]
-    },
-    "contextOptions": {
-      "viewport": { "width": 1920, "height": 1080 },
-      "locale": "en-US"
-    }
+    "isolated": true
   },
   "server": {
     "allowedHosts": ["*"]
@@ -31,7 +16,6 @@
   },
   "outputDir": "./storage/debug/playwright-output",
   "outputMaxSize": 52428800,
-  "saveSession": false,
   "snapshot": {
     "mode": "full"
   }

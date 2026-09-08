@@ -4,185 +4,122 @@
 
 | Field | Value |
 |-------|-------|
-| Style | `new-york` |
+| Style | `base-vega` (Base UI primitive registry — NOT `new-york`/Radix) |
 | Base color | `neutral` |
 | CSS variables | `true` |
-| Tailwind config | Empty (Tailwind v4 native) |
+| Tailwind config | Empty (Tailwind v4 CSS-first, no config file) |
 | Icon library | `lucide` |
 | React Server Components | `false` |
 | Aliases | `@/components`, `@/lib/utils`, `@/components/ui`, `@/lib`, `@/hooks` |
+| Registries | `@wds`, `@diceui` (+ default shadcn registry) |
 
-Components registry: Standard shadcn/ui registry (no third-party registries like CRM-dashboard's `@wds`, `@diceui`, `@shadcn-map`).
+`components.json` uses `"style": "base-vega"` — the `base-` prefix selects the Base UI primitive registry, `vega` is the theme style. This is the official shadcn mechanism so `npx shadcn add/view` resolves Base UI components (from `{@base-ui/react}`) instead of Radix. Do NOT rename to a bare theme name (`nova`/`vega`) — that drops the Base UI base and fetches Radix components. Do NOT run `npx shadcn apply --preset` — it overwrites all UI components + theme CSS.
 
----
+## Where Components Live
+
+Components do NOT live in this repo (host). They are vendored into `vendor/` from the `nreljed/dashboard-core` composer package:
+
+| Location | Contents |
+|----------|----------|
+| `vendor/nreljed/dashboard-core/resources/js/Components/ui/` | 67 shadcn/ui primitives (all Base UI) |
+| `vendor/nreljed/dashboard-core/resources/js/Components/shared/` | App-shared components |
+| `vendor/nreljed/dashboard-core/resources/js/Components/dashboard/` | KpiCard, charts, tables |
+| `vendor/nreljed/shop-module/src/Resources/js/` | Shop feature pages/components |
+
+Editing UI components = package change → PR in `nreljed/dashboard-core` → tag → release → `core-update` fan-out. NEVER edit `vendor/` directly.
 
 ## Dependency Versions
 
-| Package | Laravel | CRM-dashboard | Status |
-|---------|---------|---------------|--------|
-| `radix-ui` | ^1.6.0 | ^1.6.0 | Same |
-| `class-variance-authority` | ^0.7.1 | ^0.7.1 | Same |
-| `clsx` | ^2.1.1 | ^2.1.1 | Same |
-| `tailwind-merge` | ^3.6.0 | ^3.6.0 | Same |
-| `lucide-react` | ^1.20.0 | ^1.21.0 | Slightly behind |
-| `tailwindcss-animate` | ^1.0.7 | Not used | **CRM uses `tw-animate-css` v1.4.0** |
-| `tw-animate-css` | Not used | ^1.4.0 | **Missing in Laravel** |
-| `tailwindcss` | ^4.0.0 | ^4.3.1 | Behind |
-| `@tailwindcss/vite` | ^4.0.0 | ^4.3.1 | Behind |
-| `cmdk` | ^1.1.1 | ^1.1.1 | Same |
-| `input-otp` | ^1.4.2 | ^1.4.2 | Same |
-| `sonner` | ^2.0.7 | ^2.0.7 | Same |
-| `vaul` | ^1.1.2 | ^1.1.2 | Same |
-| `embla-carousel-react` | ^8.6.0 | ^8.6.0 | Same |
-| `react-day-picker` | ^10.0.1 | ^10.0.1 | Same |
-| `@tanstack/react-table` | ^8.21.3 | ^8.21.3 | Same |
-| `@base-ui/react` | ^1.5.0 | ^1.6.0 | Behind (combobox only) |
+| Package | Version | Notes |
+|---------|---------|-------|
+| `@base-ui/react` | ^1.5.0 (installed 1.7.x) | Unstyled primitives — used by ALL 67 ui/ components |
+| `shadcn` (devDep) | ^4.19.1 (installed 4.21.0) | Component generator / `npx shadcn diff` |
+| `@shadcn/react` | ^0.3.0 | shadcn unstyled React kit (`message-scroller`) |
+| `tailwindcss` | ^4.0.0 (installed 4.3.x) | v4 — no config file, CSS-first |
+| `@tailwindcss/vite` | ^4.0.0 (installed 4.3.x) | Vite plugin (NOT PostCSS) |
+| `tw-animate-css` | ^1.4.0 | Animation utilities (`animate-in`, `fade-in-0`, …) |
+| `class-variance-authority` | ^0.7.1 | Variants (`cva`) |
+| `clsx` + `tailwind-merge` | ^2.1.1 / ^3.6.0 | `cn()` composition |
+| `lucide-react` | ^1.35.0 | Icons |
+| `embla-carousel-react` | ^8.6.0 | `carousel.tsx` |
+| `input-otp` | ^1.5.0 | `input-otp.tsx` |
+| `sonner` | to be removed | Being migrated to Base UI toast — see Toast below |
+| `vaul` | removed (was ^1.1.2) | Superceded by `@base-ui/react/drawer` |
 
----
+NO `radix-ui` / `@radix-ui/react-*` in direct deps or source imports. `@radix-ui/*` only exists transitively (cmdk). There is no `tailwindcss-animate` (legacy v3 plugin) — the codebase is on v4-native `tw-animate-css`.
 
-## Component Inventory
-
-### Standard shadcn/ui Components (37)
+## Component Inventory (67 ui/ primitives, all Base UI)
 
 ```
-accordion   alert       alert-dialog   aspect-ratio
-avatar      badge       breadcrumb     button
-calendar    card        carousel       checkbox
-collapsible command     context-menu   dialog
-drawer      dropdown-menu form         hover-card
-input       input-otp   label          menubar
-navigation-menu  pagination  popover   progress
-radio-group scroll-area  select        separator
-sheet       sidebar     skeleton       slider
-switch      table       tabs           textarea
-toggle      toggle-group  tooltip
+accordion  alert  alert-dialog  aspect-ratio  attachment  avatar  badge
+breadcrumb  bubble  button-group  button  calendar  card  carousel  chart
+checkbox  collapsible  combobox  command  context-menu  data-table (+ column-header,
+filters, pagination, toolbar)  dialog  direction  drawer  dropdown-menu  empty  field
+form  hover-card  input-group  input-otp  input  item  kbd  label  marker  menubar
+message-scroller  message  native-select  navigation-menu  pagination  popover
+progress  radio-group  resizable  scroll-area  select  separator  sheet  sidebar
+skeleton  slider  spinner  status-badge  switch  table  tabs  textarea  toast
+toggle-group  toggle  tooltip
 ```
 
-### Custom/Extended Components (43)
+## Key Patterns
 
-```
-avatar-uploader       button-group         combobox
-country-select       cropper-dialog       current-password-input
-data-table           data-table-column-header
-data-table-filters   data-table-pagination
-data-table-toolbar   datetime-picker      empty
-featured-image-selector   field           file-upload
-gallery-sortable-image   gallery-uploader
-input-group          map                  map-debug-panel
-mobile-detail-dialog number-input        password-input
-phone-input          place-autocomplete   publish-section
-repeater             settings-accordion   sonner
-spinner              taxonomy-selector    terms-badge
-terms-selector       url-input            url-video
+### Base UI primitives (NOT Radix)
+
+```tsx
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { Select as SelectPrimitive } from "@base-ui/react/select";
 ```
 
----
+- Follow shadcn/ui v4 anatomy: `data-slot="component-name"` on every primitive root, `cn()` for class composition, `cva` for variants.
+- Base UI state attributes are `data-open`/`data-closed` (NOT Radix `data-state`).
+- Composition uses the `render` prop (NOT `asChild`/`Slot`):
 
-## Audit Findings
-
-### ✅ Correct — Already on Latest shadcn/ui v4 Patterns
-
-| Pattern | Status |
-|---------|--------|
-| `data-slot` attributes on all primitives | ✅ All components |
-| `radix-ui` monorepo (Feb 2026 change) | ✅ All except `button-group.tsx` (now fixed) |
-| OKLCH color space (not HSL) | ✅ |
-| Tailwind v4 (`@import "tailwindcss"`) | ✅ |
-| React 19 types (no `forwardRef`) | ✅ All components |
-| `@theme inline` CSS variable mapping | ✅ |
-| `new-york` style | ✅ |
-| `neutral` base color | ✅ |
-| Sonner for toasts (no legacy `toast.tsx`) | ✅ |
-| CSS variables complete (sidebar + chart tokens) | ✅ |
-
-### 🐛 Issues Found & Fixed
-
-| File | Issue | Fix Applied |
-|------|-------|-------------|
-| `button-group.tsx` | Used `@radix-ui/react-slot` (old scoped import) instead of `radix-ui` monorepo | ✅ Changed to `import { Slot } from "radix-ui"` + `Slot.Root` |
-
-### ⚠️ Remaining Issues
-
-| Issue | Priority | Impact | Fix |
-|-------|----------|--------|-----|
-| `tailwindcss-animate` vs `tw-animate-css` | Medium | `tw-animate-css` is the Tailwind v4-native animation plugin; `tailwindcss-animate` is the legacy v3 port | Migrate to `tw-animate-css` |
-| `@base-ui/react` outdated (1.5.0 vs 1.6.0) | Low | Used only in `combobox.tsx` | `npm install @base-ui/react@^1.6.0` |
-| `lucide-react` outdated (1.20.0 vs 1.21.0) | Low | Icon version drift | `npm install lucide-react@^1.21.0` |
-| `tailwindcss` outdated (4.0.0 vs 4.3.1) | Low | Missing Tailwind v4.1+ features | `npm install tailwindcss@^4.3.1` |
-
----
-
-## CSS Variables Audit
-
-### Present (both :root and .dark)
-
-All standard shadcn/neutral tokens present: `background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-1` through `chart-5`, `sidebar` through `sidebar-ring`.
-
-### Missing vs CRM-dashboard
-
-| Token | CRM-dashboard | Laravel | Priority |
-|-------|---------------|---------|----------|
-| `--warning` (oklch) | ✅ | ❌ | Low |
-| `--status-available` / `--status-booked` / etc. | ✅ | ❌ | Low (booking-specific) |
-| `--featured` | ✅ | ❌ | Low |
-| `--password-fair` / `--password-strong` | ✅ | ❌ | Low (password input styling) |
-| `--sidebar-width` / `--sidebar-width-icon` | In CSS variables | In sidebar.tsx constants | Low |
-
----
-
-## Recommended Actions
-
-### 1. Migrate from `tailwindcss-animate` to `tw-animate-css`
-
-`tw-animate-css` is the Tailwind v4-native animation plugin. `tailwindcss-animate` is a legacy port.
-
-```bash
-npm uninstall tailwindcss-animate
-npm install tw-animate-css@^1.4.0
+```tsx
+<DialogPrimitive.Close render={<Button variant="ghost" size="icon-sm" />}>
+  <XIcon />
+</DialogPrimitive.Close>
 ```
 
-Then update `resources/css/app.css`:
+- Floating components (`dialog`, `dropdown-menu`, `popover`, `select`, `tooltip`, `sheet`, `drawer`) use `<Primitive.Positioner side=… sideOffset={4}>` + `<Primitive.Popup>` and animate with `data-open:*` / `data-closed:*` + `slide-in-from-*` / `fade-*`.
 
-```css
-@plugin "tw-animate-css";
-/* Remove: @plugin "tailwindcss-animate"; */
+### Toast (Base UI, single source)
+
+`Components/ui/toast.tsx` wraps `@base-ui/react/toast` via `createToastManager()`. The core shell mounts `<Toaster />` once. Usage anywhere (including shop-module pages):
+
+```tsx
+import { toast } from "@/Components/ui/toast";
+
+toast.add({ title: "Saved", type: "success" });   // success | info | warning | error | loading
 ```
 
-Typecheck + build to verify.
+This is a BREAKING CHANGE from the old sonner API: `toast.success("msg")` → `toast.add({ title: "msg", type: "success" })`, `toast.error("msg")` → `toast.add({ title: "msg", type: "error" })`. The `sonner` dependency is being removed with the shop-module migration — do not `import { toast } from "sonner"`.
 
-### 2. Upgrade dependencies
+### Design tokens
 
-```bash
-npm install tailwindcss@^4.3.1 @tailwindcss/vite@^4.3.1 lucide-react@^1.21.0 @base-ui/react@^1.6.0
-```
+- Token source of truth: `vendor/nreljed/dashboard-core/resources/css/core.css` — imported into `resources/css/app.css` AFTER `@import "tailwindcss"`. Per-app overrides live in the host `app.css` (`--warning` etc.).
+- `@theme inline` maps `--color-*` → Tailwind utilities. Includes `--warning`, `--status-{success,error,info}` + foreground tokens.
+- Radius: multiplicative scale via `--radius` (`calc(var(--radius) * 0.6)` etc.).
+- No `--overlay` token in this app (unlike Project-WP). Overlays use `bg-black/10`.
+- Dark mode: `@custom-variant dark (&:is(.dark *))`, class-based on `<html>`, toggled by `next-themes` `<ThemeProvider>`.
 
-### 3. Add third-party registries (optional)
+### CRITICAL — Dark Mode Text Rule
 
-CRM-dashboard uses `@wds`, `@diceui`, `@shadcn-map` registries in `components.json`. These are optional but could be useful if you want:
+Tailwind v4 sets no default text color. Every user-visible text node needs an explicit `text-foreground` / `text-muted-foreground` / `text-destructive`, otherwise it renders black-on-dark in dark mode. Exempt components that set their own color: `Button`, `Badge`, `Label`, `DialogTitle`/`Description`, `AlertDialogTitle`/`Description`, `Checkbox`, `SelectTrigger`, `DropdownMenuItem`, `Input`, `Skeleton`. NOT exempt: headings, `<p>`, `<span>`, `<code>`, `<a>`, bare text in table cells / custom cell renderers, `<td>`/`TableCell`.
 
-- `@wds`: Additional shadcn components from Webscope's design system
-- `@diceui`: Collection of extended UI primitives
-- `@shadcn-map`: Ready-made Leaflet map shadcn components
+### Focus rings
 
-### 4. Use `@import "tailwindcss" source(none)` with `@source` directives
+Use `ring-[3px] ring-ring/50` (explicit px) — `ring-3` numeric shorthand is not reliable cross-version.
 
-CRM-dashboard uses a more explicit Tailwind v4 content source config:
+## Dev Workflow
 
-```css
-@import "tailwindcss" source(none);
-@source "../resources/js/";
-@source "../../app/Modules/Properties/Resources/js/";
-@source "../../app/Modules/Booking/Resources/js/";
-@source "../../app/Modules/Shop/Resources/js/";
-@source "../../app/Modules/Posts/Resources/js/";
-```
-
-This is more maintainable than relying on the default source resolution.
-
----
+- Install: `npm ci --legacy-peer-deps` (required — repo has a pre-existing eslint 10 / eslint-plugin-react peer conflict that CI tolerates).
+- Build: `npm run typecheck` → `npm run build`. `public/hot` must not exist.
+- Tailwind content: `@source` globs in `app.css` cover host + both vendored packages. When a package adds JS, its `@source` glob must exist.
 
 ## Version History
 
 | Date | Action |
 |------|--------|
-| 2026-06-30 | Audit created — button-group.tsx import fixed |
+| 2026-06-30 | Initial audit created |
+| 2026-09-08 | Base UI migration (in progress) — `base-vega` style, `@base-ui/react` everywhere, removed `radix-ui`/`vaul`, `shadcn` CLI added, toast migrating from `sonner` to Base UI `toast.add()` |

@@ -43,7 +43,6 @@ export default defineConfig({
                 manualChunks(id) {
                     if (id.includes('Components/ui/')) return 'ui-kit';
                     if (id.includes('node_modules/react')) return 'react-vendor';
-                    if (id.includes('node_modules/@radix-ui')) return 'ui-vendor';
                     if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
                     if (id.includes('node_modules/@inertiajs')) return 'inertia-vendor';
                     if (id.includes('node_modules/leaflet')) return 'leaflet-vendor';
