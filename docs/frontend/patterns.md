@@ -49,17 +49,17 @@ route('dashboard.bookings.show', booking.id)
 route('dashboard.bookings.index', [], false)
 ```
 
-## Toast (sonner)
+## Toast (Base UI)
 
 ```typescript
-import { toast } from 'sonner';
+import { toast } from "@/Components/ui/toast";
 
-toast.success('Booking created!');
-toast.error('Something went wrong.');
-toast.message('Info message', { description: 'Detail' });
+toast.add({ title: 'Booking created!', type: 'success' });
+toast.add({ title: 'Something went wrong.', type: 'error' });
+toast.add({ title: 'Info message', description: 'Detail', type: 'info' });
 ```
 
-Flash messages from `usePage().props.flash` are wrapped in page components and displayed via sonner toast.
+Flash messages from `usePage().props.flash` are wrapped in page components and displayed via Base UI toast.
 
 ## Theme (next-themes)
 

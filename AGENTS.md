@@ -45,7 +45,7 @@ Shared packages are **products**; this repo is a **consumer**. Golden rules:
 - Inertia `useForm` for all form state (not react-hook-form)
 - `useAuth` hook from `@/hooks/use-auth` for auth state
 - `next-themes` `<ThemeProvider>` for dark mode
-- `toast()` from `sonner` for flash messages (wrapped in pages from `usePage().props.flash`)
+- `toast.add()` from `@/Components/ui/toast` for flash messages (wrapped in pages from `usePage().props.flash`)
 
 ## Architecture
 

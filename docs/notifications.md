@@ -103,7 +103,7 @@ Sound:
 
 ### Flash Consumer (`app.tsx` → InertiaFlashListener)
 
-Listens for `router.on('navigate')` and reads `flash.status` / `flash.error` from props. Displays as sonner toasts. This catches flash messages from **any** navigation, not just notification actions.
+Listens for `router.on('navigate')` and reads `flash.status` / `flash.error` from props. Displays as Base UI toasts from `@/Components/ui/toast`. This catches flash messages from **any** navigation, not just notification actions.
 
 ### Notifications Page (`resources/js/Pages/Dashboard/Notifications.tsx`)
 

@@ -43,7 +43,7 @@ Editing UI components = package change → PR in `nreljed/dashboard-core` → ta
 | `lucide-react` | ^1.35.0 | Icons |
 | `embla-carousel-react` | ^8.6.0 | `carousel.tsx` |
 | `input-otp` | ^1.5.0 | `input-otp.tsx` |
-| `sonner` | to be removed | Being migrated to Base UI toast — see Toast below |
+| `sonner` | removed (^2.0.8) | Migrated to Base UI toast — see Toast below (2026-09-08) |
 | `vaul` | removed (was ^1.1.2) | Superceded by `@base-ui/react/drawer` |
 
 NO `radix-ui` / `@radix-ui/react-*` in direct deps or source imports. `@radix-ui/*` only exists transitively (cmdk). There is no `tailwindcss-animate` (legacy v3 plugin) — the codebase is on v4-native `tw-animate-css`.
@@ -93,7 +93,7 @@ import { toast } from "@/Components/ui/toast";
 toast.add({ title: "Saved", type: "success" });   // success | info | warning | error | loading
 ```
 
-This is a BREAKING CHANGE from the old sonner API: `toast.success("msg")` → `toast.add({ title: "msg", type: "success" })`, `toast.error("msg")` → `toast.add({ title: "msg", type: "error" })`. The `sonner` dependency is being removed with the shop-module migration — do not `import { toast } from "sonner"`.
+This is a BREAKING CHANGE from the old sonner API: `toast.success("msg")` → `toast.add({ title: "msg", type: "success" })`, `toast.error("msg")` → `toast.add({ title: "msg", type: "error" })`. The `sonner` dependency was REMOVED with the shop-module migration (v0.1.10) — do not `import { toast } from "sonner"`.
 
 ### Design tokens
 
@@ -122,4 +122,4 @@ Use `ring-[3px] ring-ring/50` (explicit px) — `ring-3` numeric shorthand is no
 | Date | Action |
 |------|--------|
 | 2026-06-30 | Initial audit created |
-| 2026-09-08 | Base UI migration (in progress) — `base-vega` style, `@base-ui/react` everywhere, removed `radix-ui`/`vaul`, `shadcn` CLI added, toast migrating from `sonner` to Base UI `toast.add()` |
+| 2026-09-08 | Base UI migration — `base-vega` style, `@base-ui/react` everywhere, removed `radix-ui`/`vaul`/`sonner`, `shadcn` CLI added, all toasts on Base UI `toast.add()` |

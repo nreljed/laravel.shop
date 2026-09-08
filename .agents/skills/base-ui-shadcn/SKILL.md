@@ -101,8 +101,8 @@ toast.add({ title: "Saved", type: "success" }); // success | info | warning | er
 | `toast.error("msg")`          | `toast.add({ title: "msg", type: "error" })`   |
 | `import { toast } from "sonner"` | `import { toast } from "@/Components/ui/toast"` |
 
-**Do NOT** `import { toast } from "sonner"` — the sonner package is being
-removed and there is NO sonner `<Toaster />` mounted (sonner toasts are silent
+**Do NOT** `import { toast } from "sonner"` — sonner was REMOVED (2026-09-08)
+and there is NO sonner `<Toaster />` mounted (sonner toasts are silent
 no-ops). Optional `description` field is supported:
 `toast.add({ title, description, type })`.
 

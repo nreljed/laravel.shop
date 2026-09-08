@@ -36,7 +36,7 @@ CRM-dashboard reference: `react@^19.2.7`, same major.
 ### Key Libraries
 
 - `next-themes` `<ThemeProvider>` for dark mode
-- `sonner` `toast()` for flash notifications
+- `@/Components/ui/toast` `toast.add()` for flash notifications (Base UI)
 - `cmdk` for command palette
 - `react-leaflet` for maps
 - `@dnd-kit` / `@hello-pangea/dnd` for drag-and-drop

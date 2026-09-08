@@ -114,7 +114,7 @@ Validation runs on submit (not on change). On failure, errors are set via `setEr
 - **Status**: `session()->flash('status', '...')` (auth status messages)
 - **Error**: `session()->flash('error', '...')`
 
-Bridged in `HandleInertiaRequests::share()` via a single `'flash'` prop that reads from all three session keys. Pages use `sonner` `toast()` on mount to display them.
+Bridged in `HandleInertiaRequests::share()` via a single `'flash'` prop that reads from all three session keys. Pages use Base UI `toast.add()` from `@/Components/ui/toast` on mount to display them.
 
 ## All 6 Auth Pages Coverage Matrix
 
