@@ -1,8 +1,8 @@
 <?php
 
 use Nreljed\DashboardCore\Ai\AiServiceProvider;
-use Nreljed\DashboardCore\Blog\BlogServiceProvider;
-use Nreljed\DashboardCore\Blog\Models\Post;
+use Nreljed\DashboardCore\Posts\PostsServiceProvider;
+use Nreljed\DashboardCore\Posts\Models\Post;
 use Nreljed\DashboardCore\Http\Middleware\HandleInertiaRequests;
 use Nreljed\DashboardCore\Models\User;
 use Nreljed\DashboardCore\PublicSite\PublicSiteServiceProvider;
@@ -40,13 +40,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Self-contained features discovered by the shared FeatureRegistry.
-    | Blog is provided by dashboard-core; Shop by the shop-module package.
+    | Posts is provided by dashboard-core; Shop by the shop-module package.
     |
     */
 
     'features' => [
         PublicSiteServiceProvider::class,
-        BlogServiceProvider::class,
+        PostsServiceProvider::class,
         AiServiceProvider::class,
         ShopServiceProvider::class,
     ],
