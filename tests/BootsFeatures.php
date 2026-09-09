@@ -8,6 +8,7 @@ use Nreljed\DashboardCore\Models\Permission;
 use Nreljed\DashboardCore\Models\Role;
 use Nreljed\DashboardCore\Services\FeatureRegistry;
 use Nreljed\DashboardCore\Services\PermissionCacheService;
+use Nreljed\DashboardCore\Support\RoleCatalog;
 
 trait BootsFeatures
 {
@@ -70,6 +71,12 @@ trait BootsFeatures
             }
         }
 
+        // Re-sync all other roles so that feature permissions created above
+        // (from disabled providers) are properly linked. The seeder only
+        // assigned permissions that existed at sync time; feature providers
+        // that were fail-closed during seeding had no Permission rows yet.
+        $this->resyncRolePermissions();
+
         $this->clearPermissionCache();
     }
 
@@ -90,5 +97,47 @@ trait BootsFeatures
     protected function clearUserPermissionCache(int $userId): void
     {
         app(PermissionCacheService::class)->forgetUser($userId);
+    }
+
+    /**
+     * Re-sync role → permission assignments from the RoleCatalog config.
+     *
+     * The seeder runs early when some feature providers are fail-closed,
+     * so their Permission rows don't exist yet. After BootsFeatures
+     * creates them, this re-applies the role config so every declared
+     * permission is actually linked.
+     */
+    protected function resyncRolePermissions(): void
+    {
+        foreach (RoleCatalog::roles() as $slug => $definition) {
+            $role = Role::where('slug', $slug)->first();
+
+            if (! $role || $slug === 'admin') {
+                continue;
+            }
+
+            $entries = is_array($definition['permissions'] ?? []) ? $definition['permissions'] : [$definition['permissions'] ?? '*'];
+            $excludedSlugs = [];
+
+            foreach ($entries as $entry) {
+                if (is_string($entry) && str_starts_with($entry, '!')) {
+                    $excludedSlugs[] = substr($entry, 1);
+                }
+            }
+
+            if (in_array('*', $entries, true)) {
+                $ids = Permission::pluck('id')->all();
+            } else {
+                $slugs = array_values(array_filter($entries, fn ($e) => $e !== '*' && ! str_starts_with((string) $e, '!')));
+                $ids = Permission::whereIn('slug', $slugs)->pluck('id')->all();
+            }
+
+            if ($excludedSlugs !== []) {
+                $excludedIds = Permission::whereIn('slug', $excludedSlugs)->pluck('id')->all();
+                $ids = array_values(array_diff($ids, $excludedIds));
+            }
+
+            $role->permissions()->sync(array_values(array_unique($ids)));
+        }
     }
 }

@@ -53,6 +53,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Feature Defaults
+    |--------------------------------------------------------------------------
+    |
+    | Per-feature enabled/disabled defaults. These sit below the persisted
+    | settings table (FeatureSettingsService) but above the fail-closed
+    | fallback in InteractsWithFeatures::defaultEnabled(). An admin can
+    | toggle any feature at runtime via the modules settings page; this
+    | config only controls the out-of-the-box state.
+    |
+    */
+
+    'features_enabled' => [
+        'public-site' => true,
+        'posts' => true,
+        'ai' => true,
+        'shop' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Orphan Media Targets
     |--------------------------------------------------------------------------
     */
