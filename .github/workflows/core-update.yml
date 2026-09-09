@@ -141,8 +141,12 @@ jobs:
       # Free private repos have no branch protection rules, so the merge is
       # instantaneous once issued. Validation already passed above; merging
       # fires deploy.yml (build + release + deploy).
+      #
+      # Use the PAT (secrets.GH_TOKEN), NOT github.token: pushes made with
+      # GITHUB_TOKEN do NOT emit a `push` event (GitHub suppresses recursive
+      # workflow runs), so a github.token merge would silently skip deploy.yml.
       - name: Merge pull request
         if: steps.check.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: gh pr merge --squash --delete-branch "${{ steps.pr.outputs.branch }}"
