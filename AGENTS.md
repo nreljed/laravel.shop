@@ -232,7 +232,7 @@ Deploys automatically on every push to `main`:
 | PHP | 8.3+ (8.4 recommended) |
 | MySQL | 8.0+ |
 | SSH | Not required |
-| GitHub PAT | Fine-grained with **Contents: Read and Write** (stored as `GH_TOKEN`) |
+| GitHub PAT | One fine-grained PAT over all six nreljed repos: Contents + Pull requests R/W (see "GitHub Token Structure") |
 
 ### GitHub Secrets
 
@@ -241,7 +241,7 @@ All secrets are managed via the `gh` CLI (NOT the GitHub web UI — see `gh CLI`
 | Secret | Purpose |
 |--------|---------|
 | `DEPLOY_TOKEN` | Must match `config('app.deploy_token')` in server `.env` |
-| `GH_TOKEN` | ONE fine-grained PAT covering all four repos (see "GitHub Token Structure" below) |
+| `GH_TOKEN` | ONE fine-grained PAT covering all six repos (see "GitHub Token Structure" below) |
 | `DB_DATABASE` | Production MySQL database name |
 | `DB_USERNAME` | Production MySQL username |
 | `DB_PASSWORD` | Production MySQL password |
@@ -256,33 +256,49 @@ All secrets are managed via the `gh` CLI (NOT the GitHub web UI — see `gh CLI`
 
 ### GitHub Token Structure
 
-The CI/CD spans four repos owned by the same user. Composer's `COMPOSER_AUTH`
-accepts only ONE token per host (`github.com`), yet the Shop CI must clone BOTH
-private VCS repos (`dashboard-core` + `shop-module`) in the same install. Per-repo
+The CI/CD spans six repos owned by the same user. Composer's `COMPOSER_AUTH`
+accepts only ONE token per host (`github.com`), yet each app's CI must clone its
+private VCS packages in the same install (Shop: `dashboard-core` + `shop-module`;
+Booking: `dashboard-core` + `booking-module`; monorepo: `dashboard-core`). Per-repo
 tokens can't express that — so the design is **ONE fine-grained PAT covering all
-four repos**, stored as `GH_TOKEN` in BOTH the monorepo and the Shop app.
+six repos**, stored as `GH_TOKEN` in all three app repos (and pushed to each
+server's `.env` on deploy so the server can call the GitHub API).
 
 ```
 ONE fine-grained PAT "nreljed-deploy"
 ├── Repository access → Only select repositories:
-│     ✅ nreljed/laravel          → Contents: Read+Write
-│     ✅ nreljed/laravel.shop     → Contents: Read+Write
+│     ✅ nreljed/laravel          → Contents: Read+Write · Pull requests: Read+Write
+│     ✅ nreljed/laravel.shop     → Contents: Read+Write · Pull requests: Read+Write
+│     ✅ nreljed/laravel.booking  → Contents: Read+Write · Pull requests: Read+Write
 │     ✅ nreljed/dashboard-core   → Contents: Read+Write
-│     ✅ nreljed/shop-module      → Contents: Read+Write
-└── Repository permissions:
-      ✅ Contents: Read+Write
+│     ✅ nreljed/shop-module      → Contents: Read
+│     ✅ nreljed/booking-module   → Contents: Read
+└── Repository permissions (all repos):
+      Contents: Read+Write    (composer VCS clones, server release downloads, release creation)
+      Pull requests: Read+Write (required: `gh pr merge` uses the GraphQL `repository.pullRequest` lookup;
+                                without it merges fail with "Resource not accessible by personal access token")
+      Metadata: Read           (implicit baseline for fine-grained PATs)
 ```
 
 Why each repo is needed (workflow → usage → requirement):
 
 | Repo | Used by | Requirement |
 |------|---------|-------------|
-| `laravel.shop` | Shop `deploy.yml` `softprops/action-gh-release` (creates Release on itself) + server downloads the release zipball | Read+Write |
-| `dashboard-core` | Shop `ci.yml`/`core-update.yml`/`deploy-package.yml` composer VCS clone; monorepo `core-publish.yml` mirror push + `gh release` | Read+Write |
+| `laravel.shop` | Shop `deploy.yml` `softprops/action-gh-release` (creates Release on itself) + server downloads the release zipball; `core-update.yml`/`shop-update.yml` merge step | Read+Write + Pull requests: Read+Write |
+| `laravel.booking` | Booking `deploy.yml` release creation + server release download; `core-update.yml` merge step | Read+Write + Pull requests: Read+Write |
+| `dashboard-core` | Shop/Booking/monorepo `ci.yml` + `*-update.yml` composer VCS clone; monorepo `core-publish.yml` mirror push + `gh release` | Read+Write |
 | `shop-module` | Shop `ci.yml`/`shop-update.yml`/`deploy-package.yml` composer VCS clone | Read |
-| `laravel` | Monorepo `deploy.yml` release creation; `core-publish.yml` dispatch to consumer | Read+Write |
+| `booking-module` | Booking `ci.yml`/`core-update.yml`/`deploy-*.yml` composer VCS clone | Read |
+| `laravel` | Monorepo `deploy.yml` release creation; `core-publish.yml` dispatch to consumers | Read+Write |
 
-Set the SAME token value as `GH_TOKEN` in both `nreljed/laravel` and `nreljed/laravel.shop`.
+Set the SAME token value as `GH_TOKEN` in `nreljed/laravel`, `nreljed/laravel.shop`
+and `nreljed/laravel.booking` (edited PAT permissions do NOT rotate the token value,
+so no secret re-push is needed after permission changes).
+
+**Never use `github.token` for merges.** GITHUB_TOKEN-authored pushes emit no `push`
+event (GitHub suppresses recursive workflow runs), so a `github.token` merge silently
+skips `deploy.yml`. Every `*-update.yml` merge step MUST use `secrets.GH_TOKEN`
+(= this PAT). This bit laravel.shop (fixed) and laravel.booking (fixed via PR #29).
 
 ### GitHub CLI (`gh`)
 
