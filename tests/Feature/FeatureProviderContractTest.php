@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Nreljed\DashboardCore\Concerns\InteractsWithFeatures;
 use Nreljed\DashboardCore\Contracts\FeatureProvider;
 use Nreljed\DashboardCore\Services\FeatureRegistry;
+use Nreljed\DashboardCore\Support\ContentDescription;
+use Nreljed\DashboardCore\Support\SettingsSection;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 
@@ -75,7 +77,7 @@ class FeatureProviderContractTest extends TestCase
                 $violations[] = "$label must return a non-empty slug()";
             }
 
-            foreach (['getNavItems', 'getDashboardData', 'getSharedData', 'getEmailTemplates', 'getNotificationTypes', 'permissions'] as $arrayMethod) {
+            foreach (['getNavItems', 'getDashboardData', 'getSharedData', 'getEmailTemplates', 'getNotificationTypes', 'permissions', 'getHealthChecks', 'getScheduledTasks'] as $arrayMethod) {
                 if (! is_array($provider->{$arrayMethod}())) {
                     $violations[] = "$label $arrayMethod() must return an array";
                 }
@@ -87,9 +89,43 @@ class FeatureProviderContractTest extends TestCase
                     $violations[] = "$label $nullableMethod() must return a string or null";
                 }
             }
+
+            foreach (['getMediaSubdirectory', 'getDeactivationNotice'] as $nullableStringMethod) {
+                $value = $provider->{$nullableStringMethod}();
+                if ($value !== null && ! is_string($value)) {
+                    $violations[] = "$label $nullableStringMethod() must return a string or null";
+                }
+            }
+
+            $description = $provider->getContentDescription();
+            if ($description !== null && ! $description instanceof ContentDescription) {
+                $violations[] = "$label getContentDescription() must return a ContentDescription or null";
+            }
+
+            $section = $provider->getSettingsSection();
+            if ($section !== null && ! $section instanceof SettingsSection) {
+                $violations[] = "$label getSettingsSection() must return a SettingsSection or null";
+            }
         }
 
         $this->assertSame([], $violations, 'Feature provider shape violations:'.PHP_EOL.implode(PHP_EOL, $violations));
+    }
+
+    public function test_content_descriptions_and_media_subdirectories_are_aggregated(): void
+    {
+        $registry = app(FeatureRegistry::class);
+
+        $subdirs = $registry->getAllMediaSubdirectories();
+        $this->assertIsArray($subdirs);
+        $this->assertSame('products', $subdirs['shop'] ?? null);
+
+        $descriptions = $registry->getAllContentDescriptions();
+        $this->assertIsArray($descriptions);
+        foreach ($descriptions as $description) {
+            $this->assertInstanceOf(ContentDescription::class, $description);
+            $this->assertNotSame('', $description->getSlug());
+            $this->assertNotSame('', $description->getModelClass());
+        }
     }
 
     public function test_providers_declare_scoped_permission_slugs(): void
