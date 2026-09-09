@@ -20,6 +20,11 @@ Shared packages are **products**; this repo is a **consumer**. Golden rules:
   suite on the updated tree, open a lock-only PR and squash-merge it
   immediately (no branch protection exists; PR-check approval would stall).
   Merging fires `deploy.yml`. Weekly Monday cron is the fallback trigger.
+  **The merge step MUST use the PAT (`secrets.GH_TOKEN`), never
+  `github.token`** — pushes made with `GITHUB_TOKEN` emit no `push` event
+  (GitHub suppresses recursive workflow runs), so a `github.token` merge
+  silently skips `deploy.yml`/`ci.yml`. `deploy.yml` also supports
+  `workflow_dispatch` for manual redeploys.
 - `composer.lock` is the pin of record — commit it whenever packages update.
 
 ## Tech Stack
