@@ -8,9 +8,9 @@ import { registerShopPages } from "@shop/pages";
 Host-owned public marketing pages override the starter theme's fork-me templates.
 */
 export const pageOverrides: Record<string, PageImport> = {
-    "public/about": () => import("./public/about"),
-    "public/services": () => import("./public/services"),
-    "public/contact": () => import("./public/contact"),
+  "public/about": () => import("./public/about"),
+  "public/services": () => import("./public/services"),
+  "public/contact": () => import("./public/contact"),
 };
 
 /**
@@ -20,11 +20,11 @@ export const pageOverrides: Record<string, PageImport> = {
  * contribute their own prefixes (posts/*, shop/*).
  */
 export const pageConfig: FoundationAppConfig = {
-    basePages: {
-        ...registerCoreTemplates(),
-        ...registerStarterThemePages(),
-        ...registerPostsPages(),
-        ...registerShopPages(),
-    },
-    pageOverrides,
+  basePages: {
+    ...registerCoreTemplates(),
+    ...registerStarterThemePages(),
+    ...registerPostsPages(),
+    ...registerShopPages(),
+  },
+  pageOverrides,
 };
