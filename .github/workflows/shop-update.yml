@@ -82,6 +82,8 @@ jobs:
       # Step-per-command (mirrors ci.yml) — combined blocks die silently on this runner.
       - name: Validate — composer install
         if: steps.check.outputs.changed == 'true'
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: |
           cp .env.example .env
           touch database/database.sqlite

@@ -189,7 +189,7 @@ jobs:
           fi
           SKIP="false"
           if git ls-remote --exit-code origin "refs/tags/v$VER" >/dev/null 2>&1; then
-            echo "::warning::Tag v$VER already exists - a newer deploy supersedes this run, skipping release/deploy"
+            echo "tag v$VER already exists - a newer deploy supersedes this run, skipping release/deploy"
             SKIP="true"
           fi
           echo "version=$VER" >> "$GITHUB_OUTPUT"
@@ -245,7 +245,7 @@ jobs:
             RESP=$(curl -s -X POST --max-time 60 -H "Content-Type: application/json" \
               -d "{\"values\":{\"GITHUB_TOKEN\":\"${{ secrets.GH_TOKEN }}\"}}" \
               "$ENV_URL" 2>&1)
-            FIRST=$(echo "$RESP" | head -1)
+            FIRST="${RESP%%$'\n'*}"
             echo "[env $i/3] $FIRST"
             if echo "$FIRST" | grep -q '"success":true'; then
               echo "GITHUB_TOKEN pushed to server .env"

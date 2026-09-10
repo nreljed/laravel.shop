@@ -36,6 +36,6 @@
 12. Create GitHub Release with semver tag `vX.Y.Z`
 13. Curl `/deploy/check?token=` on server
 
-## Cron Deploy
+## Manual Deploy Check
 
-`.github/workflows/cron-deploy.yml` — periodic deploy via cron trigger.
+The server auto-deploys via the `deploy:auto` command (every 5 min in `routes/console.php`). To jump the queue, hit `/deploy/check?token=...` once. The former `.github/workflows/cron-deploy.yml` manual trigger was removed in the 2026-09-10 workflow audit.

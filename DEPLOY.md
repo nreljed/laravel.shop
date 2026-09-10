@@ -246,9 +246,7 @@ On every deploy, the server runs `app:create-admin` after `migrate`. On the firs
 
 ### Cron-Based Fallback
 
-`.github/workflows/cron-deploy.yml` — manually triggerable from GitHub Actions tab. Calls `/deploy/check?token=...` on demand. Useful if:
-- The auto-trigger in deploy.yml failed but the Release was created
-- You want to re-deploy an existing Release without rebuilding
+The server auto-deploys via `deploy:auto` (every 5 min in `routes/console.php`). If a Release exists but the server hasn't deployed yet, hit `/deploy/check?token=...` once (or wait ≤5 min for `deploy:auto`). This replaces the former `.github/workflows/cron-deploy.yml` manual trigger, which was removed.
 
 ## Automated Quality Gates
 
@@ -300,20 +298,11 @@ GitHub-native bot that scans your dependencies for updates every Monday. It open
 
 PRs include updated lock files (package-lock.json, composer.lock). Merge them to keep dependencies current and secure. These commits are conventional — they trigger a patch version bump.
 
-### Manual Deploy Check (`.github/workflows/cron-deploy.yml`)
+### Manual Deploy Check (removed)
 
-A workflow you can trigger manually from the GitHub Actions tab (no automatic schedule). It sends a single curl request to `/deploy/check?token=...` on the server, telling it to check GitHub for a new release and deploy.
-
-When to use:
-- The auto-trigger (final step in deploy.yml) failed but the Release was created
-- You want to re-deploy the latest existing Release without rebuilding
-- Server needs a kick after a transient network error
-
-### Stale Bot (`.github/stale.yml`)
-
-- Issues/PRs with 60 days of inactivity get the `stale` label
-- Closed after 14 more days if no activity
-- Exempts `pinned`, `security`, and `blocked` labels
+> `.github/workflows/cron-deploy.yml` was removed on 2026-09-10 as part of a workflow audit — the server's
+> `deploy:auto` command (every 5 min) supersedes it. If a Release exists but the server didn't deploy,
+> just hit `/deploy/check?token=...` once (or wait ≤5 min for `deploy:auto`).
 
 ### Issue & PR Templates
 

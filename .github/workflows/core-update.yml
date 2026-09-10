@@ -87,6 +87,8 @@ jobs:
       # (exit 1, output lost); discrete steps are how ci.yml always ran.
       - name: Validate — composer install
         if: steps.check.outputs.changed == 'true'
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: |
           cp .env.example .env
           touch database/database.sqlite
