@@ -22,7 +22,7 @@ This app is a thin consumer of two private Composer packages:
 
 **Where to edit what:**
 - **Package feature code** (models, controllers, services, routes, migrations, policies, package frontend pages) → edit in the **package repo**, NOT `app/`. Changes release via a semver tag in the package repo, then the app's `core-update.yml` / `shop-update.yml` picks them up automatically.
-- **Cross-package orchestration / host glue** (`GenerateDemoData`, `config/core.php` feature list, public pages, the `/`→storefront route override) → edit in `app/`, deploy via the normal `deploy.yml` pipeline.
+- **Cross-package orchestration / host glue** (`GenerateDemoData`, `config/features.php` provider list, public pages, the `/`→storefront route override) → edit in `app/`, deploy via the normal `deploy.yml` pipeline.
 
 **Never edit `vendor/`.** `vendor/nreljed/*` is a Composer-managed copy/checkout; edits there are lost on the next install and bypass peer review. The current dev loop keeps `vendor/nreljed/dashboard-core` in sync with the local `C:\Users\nrelj\Local Sites\dashboard-core` checkout — the vendor copy must mirror the local repo.
 

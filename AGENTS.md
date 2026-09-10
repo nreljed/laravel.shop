@@ -148,13 +148,13 @@ Each service provider implements `Nreljed\DashboardCore\Contracts\FeatureProvide
 
 ### FeatureRegistry
 `Nreljed\DashboardCore\Services\FeatureRegistry` (in the `dashboard-core` package) replaces the old `ModuleRegistry`. It:
-- Collects the feature providers listed in `config/core.php` `features` (host adds `Nreljed\ShopModule\ShopServiceProvider` alongside the core `BlogServiceProvider`)
+- Collects the feature providers listed in `config/features.php` `providers` (host adds `Nreljed\ShopModule\ShopServiceProvider` alongside the core `PublicSiteServiceProvider`/`PostsServiceProvider`/`AiServiceProvider`)
 - Exposes `allProviders()`, `getModuleList()`, `getAllNavItems()`, `getAllSharedData()`, `permissions()`, `missingDependencies()`, etc. **There is NO public `get(string $slug)` method** — build slug→provider maps from `allProviders()` instead
 - Used by `HandleInertiaRequests`, `PermissionGateServiceProvider`, `DashboardService`, `FormattingService`, `NotificationTypeRegistry`, `EmailSettingsController`, and other services
 
 ### Module Enable/Disable (Project-WP parity)
 Features are readable as enabled/disabled and can be toggled at runtime by an admin from `GET/PUT /dashboard/admin/settings/modules` (route names `dashboard.admin.settings.modules.{index,update}`, admin-role gated, CSRF protected).
-- **State**: `FeatureSettingsService` (dashboard-core) persists per-feature state in the `settings` table, group `core`, key `feature_enabled.<slug>`, layered above the `core.features_enabled` config default. `isEnabled()` caches via `Cache::remember('feature_enabled.<slug>', 300, ...)`; `setEnabled()` forgets on write. Correct slugs: `feature_enabled.public-site`, `feature_enabled.posts`, `feature_enabled.shop`.
+- **State**: `FeatureSettingsService` (dashboard-core) persists per-feature state in the `settings` table, group `core`, key `feature_enabled.<slug>`, layered above the `features.enabled.<slug>` config default. `isEnabled()` caches via `Cache::remember('feature_enabled.<slug>', 300, ...)`; `setEnabled()` forgets on write. Correct slugs: `feature_enabled.public-site`, `feature_enabled.posts`, `feature_enabled.shop`.
 - **Route gating**: each provider self-gates in `boot()` by early-returning before `loadRoutes()`/`loadPublicRoutes()` when `enabled()` is false. Shop wraps only `loadRoutes()` in `if ($this->enabled())` (migrations/views/policies/commands still load so re-enable is non-destructive). Disabled features → their routes 404 and nav items vanish.
 - **API contract**: the update payload is a NESTED `modules` map (`{ modules: { 'shop': true, ... } }`). The controller only toggles the slugs explicitly present in the payload (unknown slugs ignored) — a partial payload preserves untoggled features. `setEnabled()` returns the previous state; `onDisable()` (FeatureProvider contract, no-op default) runs on disable.
 - **Tests**: `tests/Feature/ModuleManagementTest.php` asserts nested-payload persistence, partial-payload preservation, unknown-slug tolerance, admin/403 gating, and disable→re-enable roundtrips.

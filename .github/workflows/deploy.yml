@@ -13,7 +13,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
   build:
+    needs: ci
     runs-on: self-hosted
     defaults:
       run:
@@ -23,7 +28,7 @@ jobs:
       skip: ${{ steps.version.outputs.skip }}
     steps:
       - name: Checkout (full history for git-cliff)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -39,10 +44,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '26'
 
       - name: Cache composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: vendor
           key: composer-prod-${{ runner.os }}-${{ hashFiles('composer.lock') }}
@@ -77,8 +82,17 @@ jobs:
           npm ci --legacy-peer-deps
           npm run build
 
-      - name: composer audit
+      - name: Check core dependency parity
+        run: npm run check:core-deps
+
+      - name: npm audit
+        run: npm audit --audit-level=high
+
+      - name: Composer audit
         run: composer audit --no-interaction
+
+      - name: Foundation boundary check
+        run: php scripts/foundation-check.php
 
       - name: Laravel Pint
         run: php vendor/bin/pint --test

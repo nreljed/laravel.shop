@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import inertia from '@inertiajs/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { packageDedupes } from './vite.dedupe.js';
+import { packageDedupes } from './vendor/nreljed/dashboard-core/vite.dedupe.js';
 
 const __dirname = import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
 

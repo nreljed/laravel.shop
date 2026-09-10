@@ -3556,16 +3556,16 @@
         },
         {
             "name": "nreljed/dashboard-core",
-            "version": "0.1.33",
+            "version": "0.1.35",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/dashboard-core.git",
-                "reference": "49dfbd36beb1c74bdc50506fd62e0fcbe9ef32d9"
+                "reference": "b093876c9f3b430d2601009131d9a6ddc3325337"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/49dfbd36beb1c74bdc50506fd62e0fcbe9ef32d9",
-                "reference": "49dfbd36beb1c74bdc50506fd62e0fcbe9ef32d9",
+                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/b093876c9f3b430d2601009131d9a6ddc3325337",
+                "reference": "b093876c9f3b430d2601009131d9a6ddc3325337",
                 "shasum": ""
             },
             "require": {
@@ -3610,11 +3610,7 @@
                 }
             ],
             "description": "Shared dashboard core platform for Laravel apps (dashboard, admin, auth, blog, AI, deploy).",
-            "support": {
-                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.33",
-                "issues": "https://github.com/nreljed/dashboard-core/issues"
-            },
-            "time": "2026-09-09T22:07:48+00:00"
+            "time": "2026-09-10T12:47:46+00:00"
         },
         {
             "name": "nreljed/shop-module",
@@ -3669,10 +3665,6 @@
                 }
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
-            "support": {
-                "source": "https://github.com/nreljed/shop-module/tree/v0.1.11",
-                "issues": "https://github.com/nreljed/shop-module/issues"
-            },
             "time": "2026-09-09T22:07:48+00:00"
         },
         {

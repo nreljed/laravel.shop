@@ -2,77 +2,25 @@ name: CI Validation
 
 on:
   workflow_call:
+    inputs:
+      skip-php-tests:
+        description: "Skip PHP tests and Pint"
+        type: boolean
+        default: false
+      skip-npm-tests:
+        description: "Skip npm lint, typecheck, format, test, and build"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   validate:
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: mbstring, xml, ctype, fileinfo, sqlite3, pdo_sqlite, bcmath, zip, gd, intl
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: composer-ci-${{ runner.os }}-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-ci-${{ runner.os }}-
-
-      - name: Create .env + SQLite database
-        shell: bash
-        run: |
-          cp .env.example .env
-          touch database/database.sqlite
-
-      - name: Install Composer dependencies
-        shell: bash
-        env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
-        run: composer install --prefer-dist --no-interaction --no-scripts
-
-      - name: composer audit
-        shell: bash
-        run: composer audit --no-interaction
-
-      - name: Generate application key + migrate
-        shell: bash
-        run: php artisan key:generate && php artisan migrate --force
-
-      - name: Install npm dependencies + build
-        shell: bash
-        run: |
-          npm ci --legacy-peer-deps
-          npm run build
-
-      - name: npm audit
-        shell: bash
-        run: npm audit --audit-level=high
-
-      - name: Laravel Pint
-        shell: bash
-        run: php vendor/bin/pint --test
-
-      - name: PHP tests
-        shell: bash
-        run: php -d memory_limit=512M artisan test --compact
-
-      - name: ESLint
-        shell: bash
-        run: npm run lint
-
-      - name: TypeScript check
-        shell: bash
-        run: npm run typecheck
+    uses: nreljed/dashboard-core/.github/workflows/consumer-ci.yml@main
+    with:
+      skip-php-tests: ${{ inputs.skip-php-tests || false }}
+      skip-npm-tests: ${{ inputs.skip-npm-tests || false }}
+      php-tests-parallel: false
+      pass-with-no-tests: false
+    secrets: inherit
