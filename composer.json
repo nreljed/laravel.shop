@@ -101,8 +101,7 @@
         "sort-packages": true,
         "allow-plugins": {
             "php-http/discovery": true
-        },
-        "source-fallback": true
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true
