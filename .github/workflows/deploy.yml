@@ -19,7 +19,9 @@ jobs:
 
   build:
     needs: ci
-    runs-on: self-hosted
+    # Runner switch (self-hosted ⇄ GitHub-hosted): 7-Zip packaging is
+    # Windows-bound, reads RUNNER_PACKAGE (self-hosted | windows-latest).
+    runs-on: ${{ vars.RUNNER_PACKAGE || 'self-hosted' }}
     defaults:
       run:
         shell: bash
@@ -212,7 +214,8 @@ jobs:
   push-deploy:
     needs: build
     if: needs.build.outputs.skip != 'true'
-    runs-on: self-hosted
+    # Runner switch (self-hosted ⇄ GitHub-hosted): RUNNER_CI var on this repo.
+    runs-on: ${{ vars.RUNNER_CI || 'self-hosted' }}
     defaults:
       run:
         shell: bash

@@ -27,7 +27,10 @@ concurrency:
 
 jobs:
   shop-update:
-    runs-on: [self-hosted]
+    # Runner switch (self-hosted ⇄ GitHub-hosted): RUNNER_CI var on this repo.
+    # setup-php is skipped on the self-hosted Windows runner (preinstalled) and
+    # runs on GitHub-hosted Linux.
+    runs-on: ${{ vars.RUNNER_CI || 'self-hosted' }}
     defaults:
       run:
         shell: bash
