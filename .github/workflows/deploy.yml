@@ -46,13 +46,6 @@ jobs:
         with:
           node-version: '26'
 
-      - name: Cache composer dependencies
-        uses: actions/cache@v6
-        with:
-          path: vendor
-          key: composer-prod-${{ runner.os }}-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-prod-${{ runner.os }}-
-
       - name: Create build .env
         run: |
           cat > .env << ENVEOF
