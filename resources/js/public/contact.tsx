@@ -89,10 +89,8 @@ export default function Contact() {
             day.
           </p>
           {email.length > 0 && (
-            <Button asChild size="lg">
-              <a href={`mailto:${email}`}>
-                <Mail className="mr-2 h-4 w-4" /> Email {email}
-              </a>
+            <Button render={<a href={`mailto:${email}`} />} size="lg">
+              <Mail className="mr-2 h-4 w-4" /> Email {email}
             </Button>
           )}
         </div>

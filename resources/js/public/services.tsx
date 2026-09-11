@@ -112,10 +112,8 @@ export default function Services() {
           <p className="max-w-xl text-muted-foreground">
             Tell us what you're after and we'll confirm availability and get you a quote.
           </p>
-          <Button asChild size="lg">
-            <Link href={route("contact")}>
-              Ask us <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+          <Button render={<Link href={route("contact")} />} size="lg">
+            Ask us <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </section>

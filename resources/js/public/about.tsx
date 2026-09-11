@@ -75,13 +75,11 @@ export default function About() {
             power banks, we stock what we'd buy ourselves.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Button asChild size="lg">
-              <Link href={route("services")}>
-                See what we offer <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+            <Button render={<Link href={route("services")} />} size="lg">
+              See what we offer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href={route("contact")}>Get in touch</Link>
+            <Button render={<Link href={route("contact")} />} size="lg" variant="outline">
+              Get in touch
             </Button>
           </div>
         </div>
