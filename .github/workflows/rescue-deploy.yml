@@ -18,12 +18,14 @@ jobs:
       - name: Download + extract known-good v0.10.24
         run: |
           rm -rf x && mkdir x
-          curl -sL -o v01024.zip "https://github.com/nreljed/laravel.shop/releases/download/v0.10.24/deploy.zip"
+          ASSET_ID=$(gh api "repos/nreljed/laravel.shop/releases/tags/v0.10.24" --jq '.assets[] | select(.name=="deploy.zip") | .id')
+          echo "asset id: $ASSET_ID"
+          gh api "repos/nreljed/laravel.shop/releases/assets/$ASSET_ID" -H "Accept: application/octet-stream" > v01024.zip
           ls -la v01024.zip
           ( "/c/Program Files/7-Zip/7z.exe" x v01024.zip -ox -y >/dev/null 2>&1 && echo "7z extract ok" ) \
             || ( tar -xf v01024.zip -C x && echo "tar extract ok" )
           ls x | head -30
-          echo "count: $(ls x/vendor | wc -l)"
+          echo "vendor count: $(ls x/vendor 2>/dev/null | wc -l)"
 
       - name: Write mirror script
         run: |
