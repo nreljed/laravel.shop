@@ -1,0 +1,31 @@
+name: Rescue Diagnose Shop
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [rescue-test]
+
+jobs:
+  diag:
+    runs-on: ${{ vars.RUNNER_CI || 'self-hosted' }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Read deployed state + cache listings
+        run: |
+          U="${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+          B="ftp://${{ secrets.FTP_SERVER }}:${{ secrets.FTP_PORT }}"
+          echo "===== .deployed-version ====="
+          curl -s --max-time 30 --user "$U" "$B/.deployed-version" || echo "(unreadable)"
+          echo ""
+          echo "===== bootstrap/cache/ ====="
+          curl -s --list-only --max-time 30 --user "$U" "$B/bootstrap/cache/" || echo "(list failed)"
+          echo "===== storage/framework/cache/ ====="
+          curl -s --list-only --max-time 30 --user "$U" "$B/storage/framework/cache/" || echo "(list failed)"
+          echo "===== vendor top ====="
+          curl -s --list-only --max-time 30 --user "$U" "$B/vendor/" || echo "(vendor missing!)"
+          echo "===== vendor/composer top ====="
+          curl -s --list-only --max-time 30 --user "$U" "$B/vendor/composer/" | head -20 || echo "(vendor/composer partial)"
+          echo "===== .env head (keys only) ====="
+          curl -s --max-time 30 --user "$U" "$B/.env" | cut -d= -f1 | sort | head -60 || echo "(no .env)"
