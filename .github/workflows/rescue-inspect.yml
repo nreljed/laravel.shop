@@ -1,0 +1,30 @@
+name: Rescue Inspect Shop
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [rescue-test]
+
+jobs:
+  inspect:
+    runs-on: ${{ vars.RUNNER_CI || 'self-hosted' }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: List candidate docroot dirs
+        run: |
+          U="${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+          B="ftp://${{ secrets.FTP_SERVER }}:${{ secrets.FTP_PORT }}"
+          for d in "" public public_html public_html/public domains domains/shop.laravel.tunispromo.tn domains/shop.laravel.tunispromo.tn/public_html; do
+            echo "===== LIST ::$d/ ====="
+            curl -s --list-only --max-time 30 --user "$U" "$B/$d/" || echo "(list failed for $d)"
+          done
+          echo "===== probe: artisan at root? ====="
+          curl -sI --max-time 20 --user "$U" "$B/artisan" || echo "(no artisan@root)"
+          echo "===== probe: public/artisan? ====="
+          curl -sI --max-time 20 --user "$U" "$B/public/artisan" || echo "(no public/artisan)"
+          echo "===== probe: public/index.php? ====="
+          curl -sI --max-time 20 --user "$U" "$B/public/index.php" || echo "(no public/index.php)"
+          echo "===== probe: restore.php already at root (from last run)? ====="
+          curl -sI --max-time 20 --user "$U" "$B/restore.php" || echo "(none/absent)"
