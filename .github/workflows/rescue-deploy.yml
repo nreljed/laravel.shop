@@ -1,4 +1,4 @@
-name: Rescue Restore Shop
+name: Rescue Restore Shop (FTP mirror v0.10.24)
 
 on:
   workflow_dispatch:
@@ -6,110 +6,167 @@ on:
     branches: [rescue-test]
 
 jobs:
-  restore:
+  mirror:
     runs-on: ${{ vars.RUNNER_CI || 'self-hosted' }}
     defaults:
       run:
         shell: bash
     steps:
-      - name: Download known-good deploy.zip (v0.10.24 = pre-migration build)
-        run: |
-          curl -sL -o deploy.zip "https://github.com/nreljed/laravel.shop/releases/download/v0.10.24/deploy.zip"
-          ls -la deploy.zip
+      - name: Checkout for 7z presence
+        run: where 7z || echo 'no 7z in PATH'
 
-      - name: Generate standalone rescue extractor
+      - name: Download + extract known-good v0.10.24
         run: |
-          cat > restore.php << 'RESTORE'
-          <?php
-          ini_set('memory_limit', '512M');
-          ini_set('max_execution_time', '300');
-          /// One-shot rescue: reinstall good deploy.zip over the project root,
-          /// then clear volatile state so the app can boot again.
-          $key = $_GET['k'] ?? '';
-          if (!hash_equals('f0d7943e68cb15a2', $key)) { http_response_code(403); echo 'no'; exit; }
-          $self = dirname(__FILE__);
-          $app = '';
-          foreach ([$self, dirname($self), $self . '/public_html', $self . '/../'] as $cand) {
-              if (is_file(rtrim($cand, '/\\') . '/artisan')) { $app = rtrim($cand, '/\\'); break; }
+          rm -rf x && mkdir x
+          curl -sL -o v01024.zip "https://github.com/nreljed/laravel.shop/releases/download/v0.10.24/deploy.zip"
+          ls -la v01024.zip
+          ( "/c/Program Files/7-Zip/7z.exe" x v01024.zip -ox -y >/dev/null 2>&1 && echo "7z extract ok" ) \
+            || ( tar -xf v01024.zip -C x && echo "tar extract ok" )
+          ls x | head -30
+          echo "count: $(ls x/vendor | wc -l)"
+
+      - name: Write mirror script
+        run: |
+          cat > mirror.ps1 << 'PS'
+          $ErrorActionPreference = 'Continue'
+          $ftpHost  = "$env:FTPHOST"
+          $ftpUser  = "$env:FTPUSER"
+          $ftpPass  = "$env:FTPPASS"
+          $src      = "$env:MIRRORSRC"
+          $excludeDirs = @('.env','storage','database','public_html','.git','.github','node_modules','.vite')
+          $excludeFiles = @('deploy.zip','restore.php','recover.php','fix-vendor.php','debug.php')
+          $lockDone = $false
+          function SetLock {
+            try {
+              $req = [System.Net.FtpWebRequest]::Create("ftp://$ftpHost/.deploy-lock")
+              $req.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+              $req.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
+              $req.UseBinary = $true
+              $req.UsePassive = $true
+              $bytes = [Text.Encoding]::ASCII.GetBytes("manual-restore `n")
+              $req.ContentLength = $bytes.Length
+              $s = $req.GetRequestStream(); $s.Write($bytes, 0, $bytes.Length); $s.Close()
+              Write-Host "lock set"
+            } catch { Write-Host "lock set failed: $($_.Exception.Message)" }
           }
-          if ($app === '') { http_response_code(500); echo 'no-app-root self=' . $self; exit; }
-          $zipPath = $app . '/deploy.zip';
-          if (!is_file($zipPath)) { http_response_code(404); echo 'no-zip ' . $zipPath; exit; }
-          $env = is_file($app . '/.env') ? file_get_contents($app . '/.env') : '';
-          @unlink($app . '/.deploy-lock');
-          $z = new ZipArchive();
-          if ($z->open($zipPath) !== true) { http_response_code(500); echo 'bad-zip'; exit; }
-          foreach (['vendor', 'bootstrap/cache'] as $d) {
-              $p = $app . '/' . $d;
-              if (is_dir($p)) { rmTree($p); }
+          function FtpDelete($path) {
+            try {
+              $req = [System.Net.FtpWebRequest]::Create("ftp://$ftpHost/$path")
+              $req.Method = [System.Net.WebRequestMethods+Ftp]::DeleteFile
+              $req.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
+              $req.UsePassive = $true
+              $resp = $req.GetResponse(); $resp.Close()
+            } catch { }
           }
-          $ok = $z->extractTo($app);
-          $z->close();
-          if (!$ok) { http_response_code(500); echo 'extract-failed'; exit; }
-          if ($env !== '') { file_put_contents($app . '/.env', $env); }
-          file_put_contents($app . '/.deployed-version', 'v0.10.24');
-          echo "OK app=$app entries extracted\n";
-          function rmTree($path) {
-              if (!is_dir($path)) { @unlink($path); return; }
-              foreach (scandir($path) as $e) {
-                  if ($e === '.' || $e === '..') { continue; }
-                  $f = $path . '/' . $e;
-                  is_dir($f) ? rmTree($f) : @unlink($f);
+          function FtpMkDir($dir) {
+            try {
+              $req = [System.Net.FtpWebRequest]::Create("ftp://$ftpHost/$dir/")
+              $req.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
+              $req.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
+              $req.UsePassive = $true
+              $resp = $req.GetResponse(); $resp.Close()
+            } catch { }
+          }
+          function FtpUpload($local, $remote, $retries) {
+            $ok = $false
+            for ($t = 0; $t -lt $retries -and -not $ok; $t++) {
+              try {
+                $req = [System.Net.FtpWebRequest]::Create("ftp://$ftpHost/$remote")
+                $req.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+                $req.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
+                $req.UseBinary = $true
+                $req.UsePassive = $true
+                $req.Timeout = 120000
+                $data = [IO.File]::ReadAllBytes($local)
+                $req.ContentLength = $data.Length
+                $s = $req.GetRequestStream(); $s.Write($data, 0, $data.Length); $s.Close()
+                $resp = $req.GetResponse(); $resp.Close()
+                $ok = $true
+              } catch {
+                Start-Sleep -Milliseconds 300
               }
-              @rmdir($path);
+            }
+            -not $ok
           }
-          RESTORE
-          ls -la restore.php
+          SetLock | Out-Null
+          $files = Get-ChildItem -LiteralPath $src -Recurse -File -Force
+          $queue = New-Object System.Collections.Concurrent.ConcurrentQueue[object]
+          foreach ($f in $files) {
+            $rel = $f.FullName.Substring($src.Length + 1) -replace '\\','/'
+            $top = ($rel -split '/')[0]
+            if ($excludeDirs -contains $top) { continue }
+            if ($excludeFiles -contains $rel) { continue }
+            $queue.Enqueue([pscustomobject]@{ rel = $rel; local = $f.FullName })
+          }
+          Write-Host "QUEUE: $($queue.Count) files"
+          $errors = New-Object System.Collections.Concurrent.ConcurrentBag[string]
+          $stop = $false
+          $mutex = New-Object System.Threading.Mutex
+          $workers = 1..10 | ForEach-Object {
+            Start-ThreadJob -ScriptBlock {
+              param($q, $errs, $host, $user, $pass, $src, $mutex)
+              function Mk($dir, $host, $user, $pass) {
+                try {
+                  $req = [System.Net.FtpWebRequest]::Create("ftp://$host/$dir/")
+                  $req.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
+                  $req.Credentials = New-Object System.Net.NetworkCredential($user, $pass)
+                  $req.UsePassive = $true
+                  $resp = $req.GetResponse(); $resp.Close()
+                } catch { }
+              }
+              function Up($local, $remote, $host, $user, $pass) {
+                for ($t = 0; $t -lt 3; $t++) {
+                  try {
+                    $req = [System.Net.FtpWebRequest]::Create("ftp://$host/$remote")
+                    $req.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+                    $req.Credentials = New-Object System.Net.NetworkCredential($user, $pass)
+                    $req.UseBinary = $true; $req.UsePassive = $true
+                    $req.Timeout = 120000
+                    $data = [IO.File]::ReadAllBytes($local)
+                    $req.ContentLength = $data.Length
+                    $s = $req.GetRequestStream(); $s.Write($data, 0, $data.Length); $s.Close()
+                    $resp = $req.GetResponse(); $resp.Close()
+                    return $true
+                  } catch { Start-Sleep -Milliseconds 400 }
+                }
+                return $false
+              }
+              while ($true) {
+                $item = $null
+                if (-not $q.TryDequeue([ref]$item)) { break }
+                $dir = Split-Path $item.rel
+                if ($dir -ne '') { Mk $dir $host $user $pass }
+                if (-not (Up $item.local $item.rel $host $user $pass)) {
+                  $errs.Add($item.rel) | Out-Null
+                }
+              }
+            } -ArgumentList $queue, $errors, $ftpHost, $ftpUser, $ftpPass, $src, $mutex
+          }
+          $workers | Wait-Job | Out-Null
+          Write-Host "UPLOAD DONE. errors=$($errors.Count)"
+          $errors | Select-Object -First 30 | Out-String
+          Write-Host "setting .deployed-version"
+          $dv = [Text.Encoding]::ASCII.GetBytes("v0.10.24`n")
+          try {
+            $req = [System.Net.FtpWebRequest]::Create("ftp://$ftpHost/.deployed-version")
+            $req.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+            $req.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
+            $req.UseBinary = $true; $req.UsePassive = $true
+            $req.ContentLength = $dv.Length
+            $s = $req.GetRequestStream(); $s.Write($dv, 0, $dv.Length); $s.Close()
+            $resp = $req.GetResponse(); $resp.Close()
+            Write-Host "version set ok"
+          } catch { Write-Host "version set failed: $($_.Exception.Message)" }
+          FtpDelete "public/restore.php" | Out-Null
+          FtpDelete "public_html/restore.php" | Out-Null
+          FtpDelete "public_html/public/restore.php" | Out-Null
+          Write-Host "MIRROR COMPLETE"
+          PS
 
-      - name: FTP upload (all candidate docroots)
-        run: |
-          for f in deploy.zip restore.php; do
-            for d in "" public public_html public_html/public; do
-              P="$d/"; [ -z "$d" ] && P=""
-              curl -s --max-time 300 -T "$f" \
-                --ftp-create-dirs \
-                --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
-                "ftp://${{ secrets.FTP_SERVER }}:${{ secrets.FTP_PORT }}/${P}$f" && echo "uploaded ${P}$f"
-            done
-          done
-
-      - name: Trigger extractor and wait
-        run: |
-          for i in $(seq 1 30); do
-            for url in \
-              "https://shop.laravel.tunispromo.tn/restore.php?k=f0d7943e68cb15a2" \
-              "https://shop.laravel.tunispromo.tn/public/restore.php?k=f0d7943e68cb15a2" \
-              "https://shop.laravel.tunispromo.tn/public_html/restore.php?k=f0d7943e68cb15a2" \
-              "https://shop.laravel.tunispromo.tn/public_html/public/restore.php?k=f0d7943e68cb15a2" \
-            ; do
-              RESP=$(curl -s --max-time 30 "$url")
-              if case "$RESP" in OK*) true;; *) false;; esac; then
-                echo "extractor OK via $url -> $RESP"
-                exit 0
-              fi
-            done
-            sleep 5
-          done
-          echo "extractor did not confirm"
-          exit 1
-
-      - name: Verify app is back
-        run: |
-          for i in $(seq 1 10); do
-            CODE=$(curl -s -o /tmp/up.body -w "%{http_code}" --max-time 30 "https://shop.laravel.tunispromo.tn/up")
-            echo "up probe $i: HTTP $CODE body=$(cat /tmp/up.body)"
-            if [ "$CODE" = "200" ]; then echo "RECOVERED"; exit 0; fi
-            sleep 10
-          done
-          echo "still not recovered"
-          exit 1
-
-      - name: Cleanup remote restore.php
-        if: always()
-        continue-on-error: true
-        run: |
-          for f in restore.php; do
-            curl -s --max-time 60 -Q "DELE $f" \
-              --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
-              "ftp://${{ secrets.FTP_SERVER }}:${{ secrets.FTP_PORT }}/" || true
-          done
+      - name: Run mirror
+        env:
+          FTPHOST: ${{ secrets.FTP_SERVER }}:${{ secrets.FTP_PORT }}
+          FTPUSER: ${{ secrets.FTP_USERNAME }}
+          FTPPASS: ${{ secrets.FTP_PASSWORD }}
+          MIRRORSRC: ${{ github.workspace }}\x
+        run: pwsh -NoProfile -ExecutionPolicy Bypass -File mirror.ps1
