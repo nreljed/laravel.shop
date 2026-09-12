@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
-use Nreljed\DashboardCore\Database\Factories\UserFactory as BaseUserFactory;
+use Nreljed\Platform\Database\Factories\UserFactory as BaseUserFactory;
 
 /**
  * @extends BaseUserFactory

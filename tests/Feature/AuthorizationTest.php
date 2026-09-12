@@ -5,8 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Nreljed\DashboardCore\Models\Role;
-use Nreljed\DashboardCore\Models\Setting;
+use Nreljed\Platform\Models\Role;
+use Nreljed\Platform\Models\Setting;
 use Tests\TestCase;
 
 class AuthorizationTest extends TestCase

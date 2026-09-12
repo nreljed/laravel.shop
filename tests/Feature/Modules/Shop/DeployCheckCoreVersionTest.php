@@ -43,7 +43,7 @@ class DeployCheckCoreVersionTest extends TestCase
             $response->assertJsonPath('status', 'current');
             $response->assertJsonPath('tag', 'v0.1.34');
             $response->assertJsonPath('core.sha', '50e9c0fabcd1234567890');
-            $response->assertJsonPath('core.name', 'dashboard-core');
+            $response->assertJsonPath('core.name', 'platform');
         } finally {
             File::delete($versionFile);
             File::delete(storage_path('app/core.sha'));

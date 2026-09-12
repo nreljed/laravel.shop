@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "29dfd7d5e0682d9f8e07bf7232f42f65",
+    "content-hash": "d7b6e1ade7ba2afe35734ca54399a6cb",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -3555,17 +3555,74 @@
             "time": "2026-07-04T14:30:18+00:00"
         },
         {
-            "name": "nreljed/dashboard-core",
-            "version": "0.1.39",
+            "name": "nreljed/blog",
+            "version": "0.1.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:nreljed/dashboard-core.git",
-                "reference": "e749f3151cb06da32f705f0b3aeab2c9eaa9cd82"
+                "url": "git@github.com:nreljed/blog.git",
+                "reference": "fbafc42f909a39721914d32ef60f02e7e52cc863"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/dashboard-core/zipball/e749f3151cb06da32f705f0b3aeab2c9eaa9cd82",
-                "reference": "e749f3151cb06da32f705f0b3aeab2c9eaa9cd82",
+                "url": "https://api.github.com/repos/nreljed/blog/zipball/fbafc42f909a39721914d32ef60f02e7e52cc863",
+                "reference": "fbafc42f909a39721914d32ef60f02e7e52cc863",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^13.0",
+                "nreljed/platform": "^0.1",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "nunomaduro/collision": "^8.6",
+                "phpunit/phpunit": "^13.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Nreljed\\Blog\\BlogServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nreljed\\Blog\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Nreljed\\Blog\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Nreljed"
+                }
+            ],
+            "description": "Blog feature for the Nreljed dashboard platform (posts, categories, tags, public blog, SEO generation).",
+            "support": {
+                "source": "https://github.com/nreljed/blog/tree/v0.1.0",
+                "issues": "https://github.com/nreljed/blog/issues"
+            },
+            "time": "2026-09-12T20:22:01+00:00"
+        },
+        {
+            "name": "nreljed/platform",
+            "version": "0.1.40",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:nreljed/platform.git",
+                "reference": "54ca9be775e8538707c05f2c30c0077a519c921a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/54ca9be775e8538707c05f2c30c0077a519c921a",
+                "reference": "54ca9be775e8538707c05f2c30c0077a519c921a",
                 "shasum": ""
             },
             "require": {
@@ -3587,18 +3644,18 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "Nreljed\\DashboardCore\\DashboardCoreServiceProvider"
+                        "Nreljed\\Platform\\PlatformServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Nreljed\\DashboardCore\\": "src/"
+                    "Nreljed\\Platform\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Nreljed\\DashboardCore\\Tests\\": "tests/"
+                    "Nreljed\\Platform\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -3609,31 +3666,31 @@
                     "name": "Nreljed"
                 }
             ],
-            "description": "Shared dashboard core platform for Laravel apps (dashboard, admin, auth, blog, AI, deploy).",
+            "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
             "support": {
-                "source": "https://github.com/nreljed/dashboard-core/tree/v0.1.39",
-                "issues": "https://github.com/nreljed/dashboard-core/issues"
+                "source": "https://github.com/nreljed/platform/tree/v0.1.40",
+                "issues": "https://github.com/nreljed/platform/issues"
             },
-            "time": "2026-09-12T15:46:19+00:00"
+            "time": "2026-09-12T20:31:31+00:00"
         },
         {
             "name": "nreljed/shop-module",
-            "version": "0.1.38",
+            "version": "0.1.39",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "53ca449d37dfa33798dd28bb9ec178c5a8d3cbbe"
+                "reference": "e7f6950b6d37e4b081b40aad70890d7613f13fc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/53ca449d37dfa33798dd28bb9ec178c5a8d3cbbe",
-                "reference": "53ca449d37dfa33798dd28bb9ec178c5a8d3cbbe",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/e7f6950b6d37e4b081b40aad70890d7613f13fc3",
+                "reference": "e7f6950b6d37e4b081b40aad70890d7613f13fc3",
                 "shasum": ""
             },
             "require": {
                 "barryvdh/laravel-dompdf": "^3.1",
                 "laravel/framework": "^13.0",
-                "nreljed/dashboard-core": "^0.1",
+                "nreljed/platform": "^0.1",
                 "php": "^8.4",
                 "stripe/stripe-php": "^20.0"
             },
@@ -3669,7 +3726,11 @@
                 }
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
-            "time": "2026-09-11T13:25:44+00:00"
+            "support": {
+                "source": "https://github.com/nreljed/shop-module/tree/v0.1.39",
+                "issues": "https://github.com/nreljed/shop-module/issues"
+            },
+            "time": "2026-09-12T21:19:49+00:00"
         },
         {
             "name": "nunomaduro/termwind",

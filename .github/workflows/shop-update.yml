@@ -2,7 +2,7 @@ name: Shop Update (shop-module)
 
 on:
   schedule:
-    # Weekly: Monday 09:15 UTC, matching the dashboard-core cadence.
+    # Weekly: Monday 09:15 UTC, matching the platform cadence.
     - cron: "15 9 * * 1"
   workflow_dispatch:
   repository_dispatch:
@@ -53,7 +53,7 @@ jobs:
         with:
           node-version: "26"
 
-      # dashboard-core + shop-module are private vcs repos; the single GH_TOKEN
+      # platform + shop-module are private vcs repos; the single GH_TOKEN
       # (Contents: Read on all four nreljed repos, see AGENTS.md) authenticates
       # both clones. --no-scripts avoids booting Laravel in a bare checkout
       # (no .env needed for the lock update).

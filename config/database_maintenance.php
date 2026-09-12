@@ -11,7 +11,7 @@ use Database\Seeders\ShopProductSeeder;
 | Database Maintenance
 |--------------------------------------------------------------------------
 |
-| Overrides the dashboard-core seeder catalog for this shop application.
+| Overrides the platform seeder catalog for this shop application.
 | Baseline groups always run on reset (roles/permissions, settings and the
 | currencies the shop needs to function). Non-baseline groups are demo
 | content and are only re-run on reset when explicitly requested via the

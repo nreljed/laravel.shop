@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Nreljed\DashboardCore\Database\Seeders\RolesAndPermissionsSeeder as BaseRolesAndPermissionsSeeder;
-use Nreljed\DashboardCore\Models\Role;
+use Nreljed\Platform\Database\Seeders\RolesAndPermissionsSeeder as BaseRolesAndPermissionsSeeder;
+use Nreljed\Platform\Models\Role;
 
 class RolesAndPermissionsSeeder extends BaseRolesAndPermissionsSeeder
 {

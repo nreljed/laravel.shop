@@ -1,7 +1,8 @@
 import { defineConfig } from "vitest/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { packageDedupes } from "./vendor/nreljed/dashboard-core/vite.dedupe.js";
+import { platformAliases } from "./vendor/nreljed/platform/platform.aliases.js";
+import { blogAliases } from "./vendor/nreljed/blog/blog.aliases.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,12 +29,10 @@ export default defineConfig({
         },
     },
     resolve: {
-        dedupe: packageDedupes,
         alias: {
-            "@dashboard": path.resolve(__dirname, "vendor/nreljed/dashboard-core/resources/js"),
-            "@dashboard-posts": path.resolve(__dirname, "vendor/nreljed/dashboard-core/src/Posts/Resources/js"),
-            "@dashboard-themes": path.resolve(__dirname, "vendor/nreljed/dashboard-core/resources/themes"),
-            "@": path.resolve(__dirname, "vendor/nreljed/dashboard-core/resources/js"),
+            ...platformAliases(),
+            ...blogAliases(),
+            "@dashboard-themes": path.resolve(__dirname, "vendor/nreljed/platform/resources/themes"),
             "@shop": path.resolve(__dirname, "vendor/nreljed/shop-module/src/Resources/js"),
         },
     },

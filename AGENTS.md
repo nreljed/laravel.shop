@@ -142,12 +142,12 @@ The old `app/Modules/*/` module system has been consolidated into two feature pr
 | Feature | Namespace | Directory | Service Provider | Slug |
 |---------|-----------|-----------|------------------|------|
 | Shop | `Nreljed\ShopModule` | `vendor/nreljed/shop-module/src/` (private GitHub repo `nreljed/shop-module`, composer pkg `nreljed/shop-module`, installed via VCS) | `ShopServiceProvider` | `shop` |
-| Blog | `Nreljed\DashboardCore\Blog` | `vendor/nreljed/dashboard-core/src/Blog/` | `BlogServiceProvider` | `posts` |
+| Blog | `Nreljed\Platform\Blog` | `vendor/nreljed/dashboard-core/src/Blog/` | `BlogServiceProvider` | `posts` |
 
-Each service provider implements `Nreljed\DashboardCore\Contracts\FeatureProvider` (via `InteractsWithFeatures`): `name()`, `slug()`, `permissions()`, `getNavItems()`, `getSharedData()`, `getEmailTemplates()`, `getNotificationTypes()`, `getDashboardData()`, `onUserDelete()`, etc., aggregated by the core `FeatureRegistry`.
+Each service provider implements `Nreljed\Platform\Contracts\FeatureProvider` (via `InteractsWithFeatures`): `name()`, `slug()`, `permissions()`, `getNavItems()`, `getSharedData()`, `getEmailTemplates()`, `getNotificationTypes()`, `getDashboardData()`, `onUserDelete()`, etc., aggregated by the core `FeatureRegistry`.
 
 ### FeatureRegistry
-`Nreljed\DashboardCore\Services\FeatureRegistry` (in the `dashboard-core` package) replaces the old `ModuleRegistry`. It:
+`Nreljed\Platform\Services\FeatureRegistry` (in the `dashboard-core` package) replaces the old `ModuleRegistry`. It:
 - Collects the feature providers listed in `config/features.php` `providers` (host adds `Nreljed\ShopModule\ShopServiceProvider` alongside the core `PublicSiteServiceProvider`/`PostsServiceProvider`/`AiServiceProvider`)
 - Exposes `allProviders()`, `getModuleList()`, `getAllNavItems()`, `getAllSharedData()`, `permissions()`, `missingDependencies()`, etc. **There is NO public `get(string $slug)` method** — build slug→provider maps from `allProviders()` instead
 - Used by `HandleInertiaRequests`, `PermissionGateServiceProvider`, `DashboardService`, `FormattingService`, `NotificationTypeRegistry`, `EmailSettingsController`, and other services
@@ -161,7 +161,7 @@ Features are readable as enabled/disabled and can be toggled at runtime by an ad
 
 ### Route Loading
 Each feature provider self-loads its own routes from its own `Routes/` directory in `boot()`:
-- Blog: `Nreljed\DashboardCore\Blog\BlogServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/web.php')` (prefix `dashboard/posts`, name `dashboard.posts.`) + public routes (prefix `blog`)
+- Blog: `Nreljed\Platform\Blog\BlogServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/web.php')` (prefix `dashboard/posts`, name `dashboard.posts.`) + public routes (prefix `blog`)
 - Shop: `vendor/nreljed/shop-module/src/Routes/*.php` (11 files: web, admin, storefront, store-cart, store-checkout, store-wishlist, store-notify, recovery, customer-portal, api, api-auth), loaded by `Nreljed\ShopModule\ShopServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/…')`, grouped with `web` middleware + `permission:shop.view` + prefixes `dashboard.shop.` / `admin.shop.` / `store.*`
 - Shop JSON API: the package registers `api.*` routes (products/orders/categories, `auth:sanctum`) — the host's `routes/api.php` does NOT require shop files
 

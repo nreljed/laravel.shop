@@ -5,7 +5,7 @@ namespace Tests\Feature\Modules\Blog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
 use Inertia\Testing\AssertableInertia as Assert;
-use Nreljed\DashboardCore\Posts\Models\Post;
+use Nreljed\Blog\Models\Post;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

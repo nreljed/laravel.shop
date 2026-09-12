@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Modules\Shop;
 
-use Nreljed\DashboardCore\Services\EmailTemplateService;
+use Nreljed\Platform\Services\EmailTemplateService;
 use Tests\TestCase;
 
 class EmailTemplateOwnershipTest extends TestCase

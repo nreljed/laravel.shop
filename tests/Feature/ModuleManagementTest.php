@@ -5,9 +5,9 @@ namespace Tests\Feature;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Nreljed\DashboardCore\Models\Role;
-use Nreljed\DashboardCore\Models\Setting;
-use Nreljed\DashboardCore\Services\FeatureSettingsService;
+use Nreljed\Platform\Models\Role;
+use Nreljed\Platform\Models\Setting;
+use Nreljed\Platform\Services\FeatureSettingsService;
 use Tests\TestCase;
 
 class ModuleManagementTest extends TestCase

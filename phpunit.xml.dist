@@ -15,7 +15,8 @@
     <source>
         <include>
             <directory>app</directory>
-            <directory>vendor/nreljed/dashboard-core/src</directory>
+            <directory>vendor/nreljed/platform/src</directory>
+            <directory>vendor/nreljed/blog/src</directory>
             <directory>vendor/nreljed/shop-module/src</directory>
         </include>
     </source>

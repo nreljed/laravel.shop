@@ -5,7 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Nreljed\DashboardCore\Models\User as CoreUser;
+use Nreljed\Platform\Models\User as CoreUser;
 use Nreljed\ShopModule\Models\Order;
 
 /**

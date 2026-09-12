@@ -4,9 +4,9 @@ namespace Tests\Feature\Modules\Shop;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
-use Nreljed\DashboardCore\Models\Permission;
-use Nreljed\DashboardCore\Models\Role;
-use Nreljed\DashboardCore\Services\FeatureRegistry;
+use Nreljed\Platform\Models\Permission;
+use Nreljed\Platform\Models\Role;
+use Nreljed\Platform\Services\FeatureRegistry;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

@@ -3,11 +3,11 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Nreljed\DashboardCore\Concerns\InteractsWithFeatures;
-use Nreljed\DashboardCore\Contracts\FeatureProvider;
-use Nreljed\DashboardCore\Services\FeatureRegistry;
-use Nreljed\DashboardCore\Support\ContentDescription;
-use Nreljed\DashboardCore\Support\SettingsSection;
+use Nreljed\Platform\Concerns\InteractsWithFeatures;
+use Nreljed\Platform\Contracts\FeatureProvider;
+use Nreljed\Platform\Services\FeatureRegistry;
+use Nreljed\Platform\Support\ContentDescription;
+use Nreljed\Platform\Support\SettingsSection;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

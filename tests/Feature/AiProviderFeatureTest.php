@@ -12,12 +12,12 @@ use Laravel\Ai\Responses\Data\Meta;
 use Laravel\Ai\Responses\Data\Usage;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use Nreljed\DashboardCore\Ai\Exceptions\MissingAiProviderException;
-use Nreljed\DashboardCore\Ai\Models\AiProvider;
-use Nreljed\DashboardCore\Ai\Models\AiUsageSetting;
-use Nreljed\DashboardCore\Ai\Services\AiHttpClient;
-use Nreljed\DashboardCore\Ai\Services\AiService;
-use Nreljed\DashboardCore\Ai\Services\AiTaskRunner;
+use Nreljed\Platform\Ai\Exceptions\MissingAiProviderException;
+use Nreljed\Platform\Ai\Models\AiProvider;
+use Nreljed\Platform\Ai\Models\AiUsageSetting;
+use Nreljed\Platform\Ai\Services\AiHttpClient;
+use Nreljed\Platform\Ai\Services\AiService;
+use Nreljed\Platform\Ai\Services\AiTaskRunner;
 use Tests\TestCase;
 
 class AiProviderFeatureTest extends TestCase

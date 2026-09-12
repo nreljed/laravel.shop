@@ -4,7 +4,7 @@ namespace Tests\Feature\Modules\Blog;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-use Nreljed\DashboardCore\Models\Media;
+use Nreljed\Platform\Models\Media;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

@@ -5,8 +5,8 @@ namespace Tests\Feature\Modules\Blog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Nreljed\DashboardCore\Models\Media;
-use Nreljed\DashboardCore\Services\UploadProfiles;
+use Nreljed\Platform\Models\Media;
+use Nreljed\Platform\Services\UploadProfiles;
 use Tests\BootsFeatures;
 use Tests\TestCase;
 

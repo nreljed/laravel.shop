@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Nreljed\DashboardCore\Models\Role;
+use Nreljed\Platform\Models\Role;
 
 class RoleFactory extends Factory
 {

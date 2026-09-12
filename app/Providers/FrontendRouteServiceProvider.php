@@ -8,9 +8,9 @@ use Nreljed\ShopModule\Http\Controllers\StorefrontController;
 
 /**
  * Registers project-level public routes that must take precedence over the
- * dashboard-core package defaults.
+ * nreljed/platform package defaults.
  *
- * dashboard-core registers its own `/` route (named `home`) while the app
+ * platform registers its own `/` route (named `home`) while the app
  * boots. Laravel's RouteCollection keeps only the LAST route registered for a
  * given URI + method pair, so registering here in `register()` is not enough —
  * the package route would overwrite ours. Instead we register the route inside

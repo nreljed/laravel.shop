@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { registerCoreTemplates } from "@dashboard/dashboard";
 import { registerStarterThemePages } from "@dashboard-themes/starter";
-import { registerPostsPages } from "@dashboard-posts/pages";
+import { registerBlogPages } from "@blog/pages";
 import { registerShopPages } from "@shop/pages";
 
 /**
@@ -14,13 +14,13 @@ import { registerShopPages } from "@shop/pages";
  */
 const coreKit = registerCoreTemplates();
 const themeKit = registerStarterThemePages();
-const postsKit = registerPostsPages();
+const blogKit = registerBlogPages();
 const shopKit = registerShopPages();
 
 const pageMap = {
   ...coreKit,
   ...themeKit,
-  ...postsKit,
+  ...blogKit,
   ...shopKit,
   "public/about": () => import("./public/about"),
   "public/services": () => import("./public/services"),
@@ -142,7 +142,7 @@ describe("feature page kits", () => {
   });
 
   it("no two kits shadow the same key (deterministic merge, no silent override)", () => {
-    const kits = [coreKit, themeKit, postsKit, shopKit];
+    const kits = [coreKit, themeKit, blogKit, shopKit];
     const seen = new Set<string>();
     const collisions: string[] = [];
 

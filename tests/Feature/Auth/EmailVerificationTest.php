@@ -7,7 +7,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
-use Nreljed\DashboardCore\Models\Setting;
+use Nreljed\Platform\Models\Setting;
 use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase

@@ -5,7 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
-use Nreljed\DashboardCore\Notifications\ResetPassword;
+use Nreljed\Platform\Notifications\ResetPassword;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase

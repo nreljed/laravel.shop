@@ -142,12 +142,33 @@ jobs:
       - name: Copy deploy script
         run: cp scripts/deploy-cron.php deploy.php
 
-      - name: Record dashboard-core version
+      - name: Record platform + blog versions and commit
         run: |
-          CORE_VERSION=$(php -r "echo json_decode(file_get_contents('vendor/nreljed/dashboard-core/composer.json'))->version ?? 'unknown';")
-          mkdir -p storage/app
-          echo "{\"name\":\"dashboard-core\",\"version\":\"$CORE_VERSION\",\"sha\":null}" > storage/app/core.json
-          echo "core.json recorded: dashboard-core $CORE_VERSION"
+          php -r '
+          $lock = json_decode(file_get_contents("composer.lock"), true);
+          $pkgs = array_merge($lock["packages"] ?? [], $lock["packages-dev"] ?? []);
+          $find = function ($name) use ($pkgs) {
+              foreach ($pkgs as $p) { if (($p["name"] ?? "") === $name) { return $p; } }
+              return null;
+          };
+          $platform = $find("nreljed/platform");
+          if (! $platform) { fwrite(STDERR, "nreljed/platform not found in composer.lock\n"); exit(1); }
+          $blog = $find("nreljed/blog");
+          $sha = $platform["source"]["reference"] ?? $platform["dist"]["reference"] ?? null;
+          $record = [
+              "name" => "platform",
+              "version" => $platform["version"],
+              "sha" => $sha,
+              "repo" => "${{ github.repository }}",
+              "blog" => $blog
+                  ? ["version" => $blog["version"], "sha" => $blog["source"]["reference"] ?? $blog["dist"]["reference"] ?? null]
+                  : null,
+          ];
+          if (! is_dir("storage/app")) { mkdir("storage/app", 0777, true); }
+          file_put_contents("storage/app/core.json", json_encode($record, JSON_PRETTY_PRINT));
+          file_put_contents("storage/app/core.sha", $sha ?? "");
+          echo "core.json recorded: platform {$platform["version"]} @ $sha (locked)\n";
+          '
 
       - name: Create deploy.zip
         run: |

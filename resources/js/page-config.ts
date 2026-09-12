@@ -1,7 +1,7 @@
 import type { FoundationAppConfig, PageImport } from "@dashboard/app";
 import { registerCoreTemplates } from "@dashboard/dashboard";
 import { registerStarterThemePages } from "@dashboard-themes/starter";
-import { registerPostsPages } from "@dashboard-posts/pages";
+import { registerBlogPages } from "@blog/pages";
 import { registerShopPages } from "@shop/pages";
 
 /**
@@ -23,7 +23,7 @@ export const pageConfig: FoundationAppConfig = {
   basePages: {
     ...registerCoreTemplates(),
     ...registerStarterThemePages(),
-    ...registerPostsPages(),
+    ...registerBlogPages(),
     ...registerShopPages(),
   },
   pageOverrides,

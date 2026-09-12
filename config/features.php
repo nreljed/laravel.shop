@@ -1,8 +1,8 @@
 <?php
 
-use Nreljed\DashboardCore\Ai\AiServiceProvider;
-use Nreljed\DashboardCore\Posts\PostsServiceProvider;
-use Nreljed\DashboardCore\PublicSite\PublicSiteServiceProvider;
+use Nreljed\Blog\BlogServiceProvider;
+use Nreljed\Platform\Ai\AiServiceProvider;
+use Nreljed\Platform\PublicSite\PublicSiteServiceProvider;
 use Nreljed\ShopModule\ShopServiceProvider;
 
 return [
@@ -13,13 +13,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Self-contained features discovered by the shared FeatureRegistry.
-    | Posts is provided by dashboard-core; Shop by the shop-module package.
+    | Posts is provided by the blog package; Shop by the shop-module package.
     |
     */
 
     'providers' => [
         PublicSiteServiceProvider::class,
-        PostsServiceProvider::class,
+        BlogServiceProvider::class,
         AiServiceProvider::class,
         ShopServiceProvider::class,
     ],

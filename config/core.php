@@ -1,6 +1,6 @@
 <?php
 
-use Nreljed\DashboardCore\Http\Middleware\HandleInertiaRequests;
+use Nreljed\Platform\Http\Middleware\HandleInertiaRequests;
 
 return [
 

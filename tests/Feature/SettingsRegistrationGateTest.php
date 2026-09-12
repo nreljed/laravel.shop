@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
-use Nreljed\DashboardCore\Services\SettingsService;
+use Nreljed\Platform\Services\SettingsService;
 use Tests\TestCase;
 
 class SettingsRegistrationGateTest extends TestCase

@@ -4,19 +4,19 @@ use App\Providers\AppServiceProvider;
 use App\Providers\FrontendRouteServiceProvider;
 use App\Providers\TelescopeServiceProvider;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
-use Nreljed\DashboardCore\Ai\AiServiceProvider;
-use Nreljed\DashboardCore\DashboardCoreServiceProvider;
-use Nreljed\DashboardCore\Posts\PostsServiceProvider;
-use Nreljed\DashboardCore\Providers\PermissionGateServiceProvider;
-use Nreljed\DashboardCore\PublicSite\PublicSiteServiceProvider;
+use Nreljed\Blog\BlogServiceProvider;
+use Nreljed\Platform\Ai\AiServiceProvider;
+use Nreljed\Platform\PlatformServiceProvider;
+use Nreljed\Platform\Providers\PermissionGateServiceProvider;
+use Nreljed\Platform\PublicSite\PublicSiteServiceProvider;
 use Nreljed\ShopModule\ShopServiceProvider;
 
 return array_filter([
-    DashboardCoreServiceProvider::class,
+    PlatformServiceProvider::class,
     FrontendRouteServiceProvider::class,
     AppServiceProvider::class,
     ShopServiceProvider::class,
-    PostsServiceProvider::class,
+    BlogServiceProvider::class,
     PublicSiteServiceProvider::class,
     AiServiceProvider::class,
     PermissionGateServiceProvider::class,

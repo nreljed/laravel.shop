@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Nreljed\DashboardCore\Models\Permission;
+use Nreljed\Platform\Models\Permission;
 
 class PermissionFactory extends Factory
 {
