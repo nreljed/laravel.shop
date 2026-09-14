@@ -208,8 +208,15 @@ jobs:
           fi
           SKIP="false"
           if git ls-remote --exit-code origin "refs/tags/v$VER" >/dev/null 2>&1; then
-            echo "tag v$VER already exists - a newer deploy supersedes this run, skipping release/deploy"
-            SKIP="true"
+            echo "tag v$VER already exists — incrementing patch to find next free version"
+            MAJOR=$(echo "$VER" | cut -d. -f1)
+            MINOR=$(echo "$VER" | cut -d. -f2)
+            PATCH=$(echo "$VER" | cut -d. -f3)
+            while git ls-remote --exit-code origin "refs/tags/v$VER" >/dev/null 2>&1; do
+              PATCH=$((PATCH + 1))
+              VER="$MAJOR.$MINOR.$PATCH"
+            done
+            echo "Resolved to v$VER"
           fi
           echo "version=$VER" >> "$GITHUB_OUTPUT"
           echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
