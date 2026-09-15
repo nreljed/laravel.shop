@@ -8,11 +8,12 @@ Shared packages are **products**; this repo is a **consumer**. Golden rules:
 
 | Package | Source of truth (edit here) | Consumed as |
 |---------|----------------------------|-------------|
-| `dashboard-core` | `nreljed/dashboard-core` repo, developed directly | composer `^0.1` from `vendor/` |
+| `platform` | `nreljed/platform` repo, developed directly | composer `^0.1` from `vendor/` |
+| `blog` | `nreljed/blog` repo | composer `^0.1` from `vendor/` |
 | `shop-module` | `nreljed/shop-module` repo | composer `^0.1` from `vendor/` |
 
 - **Never edit `vendor/`, and never push feature code to a package repo from
-  inside an app checkout.** Core/shop-module changes happen via PRs in the
+  inside an app checkout.** Platform/blog/shop-module changes happen via PRs in the
   package repos, released with a semver tag.
 - Releases fan out automatically: tag → GitHub Release → `core-updated`
   repository_dispatch → this repo's `core-update.yml`.
@@ -66,7 +67,7 @@ app/                          # Core Laravel application (thin host shell)
     TelescopeServiceProvider.php
 
 > Everything else (controllers, middleware, policies, services, migrations, seeders,
-> dashboard/shop/blog resources) lives in the `nreljed/dashboard-core` and
+> dashboard/shop/blog resources) lives in the `nreljed/platform` and
 > `nreljed/shop-module` packages (see Feature Architecture). The host `app/Http`,
 > `app/Policies`, `app/Services`, `app/Shop`, `app/Blog` trees are gone — edit the
 > packages, not the host.
@@ -104,7 +105,7 @@ routes/
   web.php                 # Dashboard, admin, public, deploy routes
   api.php, channels.php, console.php
 
-> Shop + Blog routes are self-loaded by their package providers (`vendor/nreljed/shop-module` + `vendor/nreljed/dashboard-core`); there are no `routes/shop*.php` or `routes/blog.php` files in the host.
+> Shop + Blog routes are self-loaded by their package providers (`vendor/nreljed/shop-module` + `vendor/nreljed/blog`); there are no `routes/shop*.php` or `routes/blog.php` files in the host.
 
 ## Routes
 
@@ -124,7 +125,7 @@ routes/
 
 - **Shared props**: `HandleInertiaRequests` shares `auth.user`, `latestNotifications`, `notificationUnreadCount`, `flash`, `userMode`, `canSwitchMode`, `sharedData` (from FeatureRegistry), `featureNavItems` (with `groupLabel`), `userCapabilities`, `repeaterConfigs`, `profileFieldConfigs`, `emailSettings`, `brand`, `impersonating`
 - **Admin check**: `useAuth().isAdmin` + `admin` middleware + `User::isAdmin()`
-- **Component imports**: Use `@/Components/...` alias (NOT `@/components/...`) — Windows case-insensitive FS workaround; use `@shop` for Shop modules. There is NO `@blog` alias — Blog pages come from the core package glob
+- **Component imports**: Use `@/Components/...` alias (NOT `@/components/...`) — Windows case-insensitive FS workaround; use `@nreljed/shop-module/...` for Shop modules and `@nreljed/blog/...` for Blog pages (both mapped in vite.config.js + tsconfig.json)
 - **No ShadCN `asChild`**: Avoid `Slot` pattern when possible; use plain `<Link>` instead
 - **Authorization**: Route groups use `permission:{slug}` middleware. Individual create/edit/delete actions are authorized via Policy + `$this->authorize()` in controllers or FormRequest `authorize()`
 - **Policies**: Registered in `AppServiceProvider` via `Gate::policy()`
@@ -142,35 +143,39 @@ The old `app/Modules/*/` module system has been consolidated into two feature pr
 | Feature | Namespace | Directory | Service Provider | Slug |
 |---------|-----------|-----------|------------------|------|
 | Shop | `Nreljed\ShopModule` | `vendor/nreljed/shop-module/src/` (private GitHub repo `nreljed/shop-module`, composer pkg `nreljed/shop-module`, installed via VCS) | `ShopServiceProvider` | `shop` |
-| Blog | `Nreljed\Platform\Blog` | `vendor/nreljed/dashboard-core/src/Blog/` | `BlogServiceProvider` | `posts` |
+| Blog | `Nreljed\Blog` | `vendor/nreljed/blog/src/` (private GitHub repo `nreljed/blog`, composer pkg `nreljed/blog`, installed via VCS) | `BlogServiceProvider` | `posts` |
 
 Each service provider implements `Nreljed\Platform\Contracts\FeatureProvider` (via `InteractsWithFeatures`): `name()`, `slug()`, `permissions()`, `getNavItems()`, `getSharedData()`, `getEmailTemplates()`, `getNotificationTypes()`, `getDashboardData()`, `onUserDelete()`, etc., aggregated by the core `FeatureRegistry`.
 
 ### FeatureRegistry
-`Nreljed\Platform\Services\FeatureRegistry` (in the `dashboard-core` package) replaces the old `ModuleRegistry`. It:
-- Collects the feature providers listed in `config/features.php` `providers` (host adds `Nreljed\ShopModule\ShopServiceProvider` alongside the core `PublicSiteServiceProvider`/`PostsServiceProvider`/`AiServiceProvider`)
+`Nreljed\Platform\Services\FeatureRegistry` (in the `nreljed/platform` package) replaces the old `ModuleRegistry`. It:
+- Collects the feature providers listed in `config/features.php` `providers` (host adds `Nreljed\ShopModule\ShopServiceProvider` alongside the `PublicSiteServiceProvider`/`PostsServiceProvider`/`AiServiceProvider` from the `nreljed/platform` and `nreljed/blog` packages)
 - Exposes `allProviders()`, `getModuleList()`, `getAllNavItems()`, `getAllSharedData()`, `permissions()`, `missingDependencies()`, etc. **There is NO public `get(string $slug)` method** — build slug→provider maps from `allProviders()` instead
 - Used by `HandleInertiaRequests`, `PermissionGateServiceProvider`, `DashboardService`, `FormattingService`, `NotificationTypeRegistry`, `EmailSettingsController`, and other services
 
 ### Module Enable/Disable (Project-WP parity)
 Features are readable as enabled/disabled and can be toggled at runtime by an admin from `GET/PUT /dashboard/admin/settings/modules` (route names `dashboard.admin.settings.modules.{index,update}`, admin-role gated, CSRF protected).
-- **State**: `FeatureSettingsService` (dashboard-core) persists per-feature state in the `settings` table, group `core`, key `feature_enabled.<slug>`, layered above the `features.enabled.<slug>` config default. `isEnabled()` caches via `Cache::remember('feature_enabled.<slug>', 300, ...)`; `setEnabled()` forgets on write. Correct slugs: `feature_enabled.public-site`, `feature_enabled.posts`, `feature_enabled.shop`.
+- **State**: `FeatureSettingsService` (platform package) persists per-feature state in the `settings` table, group `core`, key `feature_enabled.<slug>`, layered above the `features.enabled.<slug>` config default. `isEnabled()` caches via `Cache::remember('feature_enabled.<slug>', 300, ...)`; `setEnabled()` forgets on write. Correct slugs: `feature_enabled.public-site`, `feature_enabled.posts`, `feature_enabled.shop`.
 - **Route gating**: each provider self-gates in `boot()` by early-returning before `loadRoutes()`/`loadPublicRoutes()` when `enabled()` is false. Shop wraps only `loadRoutes()` in `if ($this->enabled())` (migrations/views/policies/commands still load so re-enable is non-destructive). Disabled features → their routes 404 and nav items vanish.
 - **API contract**: the update payload is a NESTED `modules` map (`{ modules: { 'shop': true, ... } }`). The controller only toggles the slugs explicitly present in the payload (unknown slugs ignored) — a partial payload preserves untoggled features. `setEnabled()` returns the previous state; `onDisable()` (FeatureProvider contract, no-op default) runs on disable.
 - **Tests**: `tests/Feature/ModuleManagementTest.php` asserts nested-payload persistence, partial-payload preservation, unknown-slug tolerance, admin/403 gating, and disable→re-enable roundtrips.
 
 ### Route Loading
 Each feature provider self-loads its own routes from its own `Routes/` directory in `boot()`:
-- Blog: `Nreljed\Platform\Blog\BlogServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/web.php')` (prefix `dashboard/posts`, name `dashboard.posts.`) + public routes (prefix `blog`)
+- Blog: `Nreljed\Blog\BlogServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/web.php')` (prefix `dashboard/posts`, name `dashboard.posts.`) + public routes (prefix `blog`)
 - Shop: `vendor/nreljed/shop-module/src/Routes/*.php` (11 files: web, admin, storefront, store-cart, store-checkout, store-wishlist, store-notify, recovery, customer-portal, api, api-auth), loaded by `Nreljed\ShopModule\ShopServiceProvider::boot()` → `loadRoutesFrom(__DIR__.'/Routes/…')`, grouped with `web` middleware + `permission:shop.view` + prefixes `dashboard.shop.` / `admin.shop.` / `store.*`
 - Shop JSON API: the package registers `api.*` routes (products/orders/categories, `auth:sanctum`) — the host's `routes/api.php` does NOT require shop files
 
 ### Frontend Page Loading
-Inertia pages are loaded via Vite glob imports:
-- Core dashboard/admin/account/auth pages: `registerCoreTemplates()` in `resources/js/app.tsx` (globs `vendor/nreljed/dashboard-core/resources/js/Pages` + in-core feature pages under `src/*/Resources/js/Pages` — Blog included)
-- Shop pages: `import.meta.glob("@shop/Pages/**/*.tsx")` → registered under `shop/*` page keys (`projectPrefix: "shop"`)
+Inertia pages are loaded from package `pages.ts` kits, spread explicitly in `resources/js/page-config.ts`:
+- Core control-panel pages: `registerCoreTemplates()` from `@nreljed/platform/dashboard`
+- Blog pages: `registerBlogPages()` from `@nreljed/blog/pages` (registered under `posts/*`)
+- Shop pages: `registerShopPages()` from `@nreljed/shop-module/pages` (registered under `shop/*`)
+- Host-local forked templates: `localPages` gathered via `import.meta.glob("./Pages/**/*.tsx")`, with `pageOverrides` swapping `public/about`|`services`|`contact`
 
-Alias mappings: `@shop` → `vendor/nreljed/shop-module/src/Resources/js/`; `@`/`@dashboard` → `vendor/nreljed/dashboard-core/resources/js/`
+The entry (`app.tsx`) imports `pageConfig` and calls `createFoundationApp(pageConfig)` — the config block is never duplicated.
+
+Alias mappings (`vite.config.js` + `tsconfig.json`): `@nreljed/platform` → `vendor/nreljed/platform/resources/js`; `@nreljed/blog` → `vendor/nreljed/blog/src/Resources/js`; `@nreljed/shop-module` → `vendor/nreljed/shop-module/src/Resources/js`.
 
 ## Dev Environment
 
@@ -188,7 +193,6 @@ php artisan migrate      # Run migrations
 php artisan test         # PHPUnit
 npm run typecheck        # tsc --noEmit
 vendor/bin/pint          # Laravel Pint (PSR-12)
-php artisan permissions:sync         # Sync feature permissions to DB
 php artisan permissions:list         # List all permissions
 php artisan demo:generate            # Create realistic demo data (--fresh to clear first)
 php artisan demo:generate --fresh    # Clear all demo data and regenerate
@@ -200,7 +204,7 @@ php artisan demo:generate --fresh    # Clear all demo data and regenerate
 
 Deploys automatically on every push to `main`:
 
-**Workflow 1 — `deploy.yml`** (GitHub-hosted `windows-latest` runner):
+**Workflow 1 — `deploy.yml`** (runs-on via `RUNNER_CI`/`RUNNER_PACKAGE` Actions variables — `self-hosted` by default, flip to `ubuntu-latest`/`windows-latest` for cloud):
 1. Checkout with full depth + tags
 2. Setup PHP 8.4 (extensions: fileinfo, gd, mbstring, pdo_mysql, pdo_sqlite, intl, bcmath, zip) + Node 22 (npm cache on)
 3. git-cliff: parse commits → bump semver → generate CHANGELOG.md + release-notes.md
@@ -232,7 +236,7 @@ Deploys automatically on every push to `main`:
 | PHP | 8.3+ (8.4 recommended) |
 | MySQL | 8.0+ |
 | SSH | Not required |
-| GitHub PAT | One fine-grained PAT over all six nreljed repos: Contents + Pull requests R/W (see "GitHub Token Structure") |
+| GitHub PAT | One fine-grained PAT over all seven nreljed repos: Contents + Pull requests R/W (see "GitHub Token Structure") |
 
 ### GitHub Secrets
 
@@ -241,7 +245,7 @@ All secrets are managed via the `gh` CLI (NOT the GitHub web UI — see `gh CLI`
 | Secret | Purpose |
 |--------|---------|
 | `DEPLOY_TOKEN` | Must match `config('app.deploy_token')` in server `.env` |
-| `GH_TOKEN` | ONE fine-grained PAT covering all six repos (see "GitHub Token Structure" below) |
+| `GH_TOKEN` | ONE fine-grained PAT covering all seven repos (see "GitHub Token Structure" below) |
 | `DB_DATABASE` | Production MySQL database name |
 | `DB_USERNAME` | Production MySQL username |
 | `DB_PASSWORD` | Production MySQL password |
@@ -256,12 +260,11 @@ All secrets are managed via the `gh` CLI (NOT the GitHub web UI — see `gh CLI`
 
 ### GitHub Token Structure
 
-The CI/CD spans six repos owned by the same user. Composer's `COMPOSER_AUTH`
+The CI/CD spans seven repos owned by the same user. Composer's `COMPOSER_AUTH`
 accepts only ONE token per host (`github.com`), yet each app's CI must clone its
-private VCS packages in the same install (Shop: `dashboard-core` + `shop-module`;
-Booking: `dashboard-core` + `booking-module`; monorepo: `dashboard-core`). Per-repo
-tokens can't express that — so the design is **ONE fine-grained PAT covering all
-six repos**, stored as `GH_TOKEN` in all three app repos (and pushed to each
+private VCS packages in the same install (Shop: `platform` + `blog` + `shop-module`).
+Per-repo tokens can't express that — so the design is **ONE fine-grained PAT covering all
+seven repos**, stored as `GH_TOKEN` in all three app repos (and pushed to each
 server's `.env` on deploy so the server can call the GitHub API).
 
 ```
@@ -270,7 +273,8 @@ ONE fine-grained PAT "nreljed-deploy"
 │     ✅ nreljed/laravel          → Contents: Read+Write · Pull requests: Read+Write
 │     ✅ nreljed/laravel.shop     → Contents: Read+Write · Pull requests: Read+Write
 │     ✅ nreljed/laravel.booking  → Contents: Read+Write · Pull requests: Read+Write
-│     ✅ nreljed/dashboard-core   → Contents: Read+Write
+│     ✅ nreljed/platform         → Contents: Read+Write
+│     ✅ nreljed/blog             → Contents: Read
 │     ✅ nreljed/shop-module      → Contents: Read
 │     ✅ nreljed/booking-module   → Contents: Read
 └── Repository permissions (all repos):
@@ -286,10 +290,11 @@ Why each repo is needed (workflow → usage → requirement):
 |------|---------|-------------|
 | `laravel.shop` | Shop `deploy.yml` `softprops/action-gh-release` (creates Release on itself) + server downloads the release zipball; `core-update.yml`/`shop-update.yml` merge step | Read+Write + Pull requests: Read+Write |
 | `laravel.booking` | Booking `deploy.yml` release creation + server release download; `core-update.yml` merge step | Read+Write + Pull requests: Read+Write |
-| `dashboard-core` | Shop/Booking/monorepo `ci.yml` + `*-update.yml` composer VCS clone; monorepo `core-publish.yml` mirror push + `gh release` | Read+Write |
+| `platform` | Shop/Booking/monorepo `ci.yml` + `*-update.yml` composer VCS clone; release tagging | Read+Write |
+| `blog` | Shop/Booking/monorepo `ci.yml` composer VCS clone | Read |
 | `shop-module` | Shop `ci.yml`/`shop-update.yml`/`deploy-package.yml` composer VCS clone | Read |
 | `booking-module` | Booking `ci.yml`/`core-update.yml`/`deploy-*.yml` composer VCS clone | Read |
-| `laravel` | Monorepo `deploy.yml` release creation; `core-publish.yml` dispatch to consumers | Read+Write |
+| `laravel` | Monorepo `deploy.yml` release creation; `core-updated` dispatch to consumers | Read+Write |
 
 Set the SAME token value as `GH_TOKEN` in `nreljed/laravel`, `nreljed/laravel.shop`
 and `nreljed/laravel.booking` (edited PAT permissions do NOT rotate the token value,
@@ -403,7 +408,6 @@ See also: `app/Console/Commands/CreateAdmin.php`, `DEPLOY.md`
 ```bash
 php artisan migrate
 php artisan db:seed --class=RolesAndPermissionsSeeder
-php artisan permissions:sync
 ```
 
 Then run typecheck + build + phpunit and deliver the results. Do not wait for user approval to deploy — automate the full pipeline.

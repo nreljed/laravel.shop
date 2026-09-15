@@ -1,9 +1,9 @@
 ---
 name: base-ui-shadcn
-description: "Develops UI components using Base UI and shadcn/ui with Tailwind CSS v4. Activates when creating or modifying React UI components, shadcn/ui primitives, Base UI components, Tailwind utility classes, dark mode theming, CSS variables, or when working with the design system, color tokens, or responsive layouts. Also activates for the critical dark mode text rule, the Base UI toast API, and component styling patterns in the dashboard-core / shop-module Laravel stack."
+description: "Develops UI components using Base UI and shadcn/ui with Tailwind CSS v4. Activates when creating or modifying React UI components, shadcn/ui primitives, Base UI components, Tailwind utility classes, dark mode theming, CSS variables, or when working with the design system, color tokens, or responsive layouts. Also activates for the critical dark mode text rule, the Base UI toast API, and component styling patterns in the platform / shop-module Laravel stack."
 ---
 
-# Base UI + shadcn/ui Development (Laravel / dashboard-core)
+# Base UI + shadcn/ui Development (Laravel / nreljed/platform)
 
 ## When to Apply
 
@@ -26,12 +26,13 @@ Activate this skill when:
 
 The host repo (`shop-laravel`) is a THIN SHELL. All UI components, CSS tokens
 (`core.css`), and dashboard/blog/account pages live in the
-`nreljed/dashboard-core` composer package; shop pages live in
-`nreljed/shop-module`. Both install into `vendor/` and map through Vite
-aliases:
+`nreljed/platform` composer package; the blog kit lives in `nreljed/blog`; shop
+pages live in `nreljed/shop-module`. They install into `vendor/` and map through
+Vite aliases:
 
-- `@` / `@dashboard` → `vendor/nreljed/dashboard-core/resources/js`
-- `@shop` → `vendor/nreljed/shop-module/src/Resources/js`
+- `@nreljed/platform` / `@nreljed/platform/*` → `vendor/nreljed/platform/resources/js`
+- `@nreljed/blog` / `@nreljed/blog/*` → `vendor/nreljed/blog/src/Resources/js`
+- `@nreljed/shop-module` / `@nreljed/shop-module/*` → `vendor/nreljed/shop-module/src/Resources/js`
 
 **NEVER edit `vendor/`.** Edit the package checkout, commit, tag, release —
 the `core-update.yml` / `shop-update.yml` fan-out bumps `composer.lock` in the
@@ -85,10 +86,10 @@ Every one of these elements needs an explicit text color class:
 
 The core `Components/ui/toast.tsx` wraps `@base-ui/react/toast` via
 `createToastManager()`. The core shell mounts a single `<Toaster />`. Use it
-from ANY page component (dashboard-core OR shop-module):
+from ANY page component (platform OR shop-module):
 
 ```tsx
-import { toast } from "@/Components/ui/toast";
+import { toast } from "@nreljed/platform/Components/ui/toast";
 
 toast.add({ title: "Saved", type: "success" }); // success | info | warning | error | loading
 ```
@@ -99,7 +100,7 @@ toast.add({ title: "Saved", type: "success" }); // success | info | warning | er
 | ----------------------------- | ---------------------------------------------- |
 | `toast.success("msg")`        | `toast.add({ title: "msg", type: "success" })` |
 | `toast.error("msg")`          | `toast.add({ title: "msg", type: "error" })`   |
-| `import { toast } from "sonner"` | `import { toast } from "@/Components/ui/toast"` |
+| `import { toast } from "sonner"` | `import { toast } from "@nreljed/platform/Components/ui/toast"` |
 
 **Do NOT** `import { toast } from "sonner"` — sonner was REMOVED (2026-09-08)
 and there is NO sonner `<Toaster />` mounted (sonner toasts are silent
@@ -124,16 +125,16 @@ Before creating any new page or component, verify:
 
 ### Token source of truth
 
-`vendor/nreljed/dashboard-core/resources/css/core.css` — imported into the
+`vendor/nreljed/platform/resources/css/core.css` — imported into the
 host `resources/css/app.css` AFTER `@import "tailwindcss"` + `@source` globs:
 
 ```css
 @import "tailwindcss" source(none);
 @source "../";
 @source "../../vendor/nreljed/shop-module/src/Resources/js/";
-@source "../../vendor/nreljed/dashboard-core/resources/js/";
+@source "../../vendor/nreljed/platform/resources/js/";
 @import "tw-animate-css";
-@import "../../vendor/nreljed/dashboard-core/resources/css/core.css";
+@import "../../vendor/nreljed/platform/resources/css/core.css";
 ```
 
 All values use `oklch()`. `@theme inline` maps `--color-*` → Tailwind utilities.
@@ -285,7 +286,7 @@ Class-based. `.dark` is toggled on `<html>` by `next-themes` `<ThemeProvider>`.
 
 ### Source scanning
 
-Tailwind source globs live in the HOST `app.css` (`@source`), covering host JS plus both vendored packages. When a new JS dir is added in dashboard-core/shop-module, ensure the app's `@source` glob includes it.
+Tailwind source globs live in the HOST `app.css` (`@source`), covering host JS plus both vendored packages. When a new JS dir is added in platform or shop-module, ensure the app's `@source` glob includes it.
 
 ### Animation library
 
@@ -305,7 +306,7 @@ import * as React from "react";
 ### Toasts (NOT sonner)
 
 ```tsx
-import { toast } from "@/Components/ui/toast";
+import { toast } from "@nreljed/platform/Components/ui/toast";
 toast.add({ title: "Created", type: "success" });
 ```
 
@@ -393,7 +394,7 @@ toast.add({ title: "Created", type: "success" });
 
 ### DO NOT
 
-- `import { toast } from "sonner"` — use `toast.add({ title, type })` from `@/Components/ui/toast`
+- `import { toast } from "sonner"` — use `toast.add({ title, type })` from `@nreljed/platform/Components/ui/toast`
 - Use hardcoded colors (`text-green-500`, `bg-red-100`) for status — use `status-*` tokens
 - Skip `text-foreground` on `<span>`, `<p>`, `<div>`, `<h1>`–`<h6>`, `<td>` because "it works in light mode"
 - Import from `@radix-ui/react-*` or `radix-ui` for new components — use `@base-ui/react`

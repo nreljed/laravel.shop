@@ -115,10 +115,10 @@ Called automatically by `DeployController::check()` during deploy via the webhoo
 
 | Command | Purpose |
 |---------|---------|
-| `php artisan permissions:sync` | Syncs feature permissions from `ShopModule::permissions()` + `BlogModule::permissions()` to DB |
+| `php artisan db:seed --class=RolesAndPermissionsSeeder` | Syncs feature permissions from platform + module `permissions()` catalogs to DB (idempotent) |
 | `php artisan permissions:list` | Lists all registered permissions with their features |
 
-Module permissions (e.g., `shop.products.*`, `posts.*`) are defined in each module's `ServiceProvider::permissions()` method. They are synced to the database and attached to roles by `PermissionGateServiceProvider` and `PermissionServiceProvider` on login.
+Module permissions (e.g., `shop.products.*`, `posts.*`) are defined in each package's `ServiceProvider::permissions()`. They are seeded to the database and attached to roles by `RolesAndPermissionsSeeder`, and gates auto-register from the `permissions` table plus `FeatureRegistry::permissions()`.
 
 ## Idempotency Summary
 
@@ -138,10 +138,10 @@ Module permissions (e.g., `shop.products.*`, `posts.*`) are defined in each modu
 php artisan migrate:fresh
 php artisan db:seed
 php artisan shop:product-seed
-php artisan permissions:sync
+php artisan db:seed --class=RolesAndPermissionsSeeder
 php artisan demo:generate --fresh
 
 # Quick refresh (seed essentials only)
 php artisan migrate:fresh --seed
-php artisan permissions:sync
+php artisan db:seed --class=RolesAndPermissionsSeeder
 ```

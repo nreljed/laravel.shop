@@ -5,7 +5,7 @@
 ```
   push to main (Conventional Commits)
        ↓
- deploy.yml (windows-latest, GitHub-hosted runner)
+ deploy.yml (runs-on via `RUNNER_CI`/`RUNNER_PACKAGE` Actions variables — `self-hosted` by default)
        • checkout (full depth + tags)
        • setup PHP 8.4 + extensions (fileinfo, gd, mbstring, pdo_mysql, pdo_sqlite, intl, bcmath, zip)
        • setup Node 22
@@ -167,7 +167,7 @@ The server will:
 3. Download `deploy.zip` from the release asset
 4. Extract over the project root (re-extracts the same files)
 5. Restore `.env` from backup (preserves your config)
-6. Run: `package:discover`, `migrate --force`, `app:create-admin`, `permissions:sync`, `config:cache`, `route:cache`, `view:cache`, `storage:link`
+6. Run: `package:discover`, `migrate --force`, `app:create-admin`, `config:cache`, `route:cache`, `view:cache`, `storage:link`
 7. Create the admin user from `X-Admin-Email` / `X-Admin-Password` headers
 8. Write `.deployed-version` with the release tag
 9. Return `{"status":"deployed","tag":"v0.1.0",...}`
@@ -178,7 +178,6 @@ cd /home/USER/domains/shop.example.com/public_html
 php artisan key:generate  # if not in .env
 php artisan migrate --force
 php artisan db:seed --class=RolesAndPermissionsSeeder
-php artisan permissions:sync
 php artisan storage:link --force
 php artisan config:cache
 php artisan route:cache
