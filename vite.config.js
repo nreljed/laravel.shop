@@ -5,8 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 import inertia from '@inertiajs/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { platformAliases, platformRefreshGlobs } from './vendor/nreljed/platform/platform.aliases.js';
-import { blogAliases, blogRefreshGlobs } from './vendor/nreljed/blog/blog.aliases.js';
+import { platformRefreshGlobs } from './vendor/nreljed/platform/platform.aliases.js';
+import { blogRefreshGlobs } from './vendor/nreljed/blog/blog.aliases.js';
 import { packageDedupes } from './vendor/nreljed/platform/vite.dedupe.js';
 
 const __dirname = import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
@@ -21,7 +21,6 @@ export default defineConfig({
                 'resources/js/**',
                 'app/**/Resources/js/**',
                 'vendor/nreljed/shop-module/src/Resources/js/**',
-                'vendor/nreljed/platform/resources/themes/**',
                 ...platformRefreshGlobs(),
                 ...blogRefreshGlobs(),
             ],
@@ -33,14 +32,12 @@ export default defineConfig({
     resolve: {
         dedupe: packageDedupes,
         alias: {
-            ...platformAliases(),
-            ...blogAliases(),
-            '@dashboard-themes': path.resolve(__dirname, 'vendor/nreljed/platform/resources/themes'),
-            '@shop': path.resolve(__dirname, 'vendor/nreljed/shop-module/src/Resources/js'),
             '@nreljed/platform': path.resolve(__dirname, './vendor/nreljed/platform/resources/js'),
             '@nreljed/platform/*': path.resolve(__dirname, './vendor/nreljed/platform/resources/js'),
             '@nreljed/blog': path.resolve(__dirname, './vendor/nreljed/blog/src/Resources/js'),
             '@nreljed/blog/*': path.resolve(__dirname, './vendor/nreljed/blog/src/Resources/js'),
+            '@nreljed/shop-module': path.resolve(__dirname, './vendor/nreljed/shop-module/src/Resources/js'),
+            '@nreljed/shop-module/*': path.resolve(__dirname, './vendor/nreljed/shop-module/src/Resources/js'),
         },
     },
     build: {
