@@ -34,6 +34,12 @@ export default defineConfig({
             ...blogAliases(),
             "@dashboard-themes": path.resolve(__dirname, "vendor/nreljed/platform/resources/themes"),
             "@shop": path.resolve(__dirname, "vendor/nreljed/shop-module/src/Resources/js"),
+            "@nreljed/platform": path.resolve(__dirname, "vendor/nreljed/platform/resources/js"),
+            "@nreljed/platform/*": path.resolve(__dirname, "vendor/nreljed/platform/resources/js"),
+            "@nreljed/blog": path.resolve(__dirname, "vendor/nreljed/blog/src/Resources/js"),
+            "@nreljed/blog/*": path.resolve(__dirname, "vendor/nreljed/blog/src/Resources/js"),
+            "@nreljed/shop-module": path.resolve(__dirname, "vendor/nreljed/shop-module/src/Resources/js"),
+            "@nreljed/shop-module/*": path.resolve(__dirname, "vendor/nreljed/shop-module/src/Resources/js"),
         },
     },
 });
