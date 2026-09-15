@@ -21,6 +21,10 @@ updates:
         versions: [">=0.50.0"]
       - dependency-name: "@lexical/*"
         versions: [">=0.50.0"]
+      # cn is a required core peer (^0.2.6). App-level bumps to 0.3.x fail
+      # the check-core-deps parity gate. Platform controls the cn version.
+      - dependency-name: "cn"
+        versions: [">=0.3.0"]
     groups:
       minor-and-patch:
         applies-to: version-updates
