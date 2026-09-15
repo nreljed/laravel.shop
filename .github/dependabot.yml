@@ -32,11 +32,7 @@ updates:
           - "minor"
           - "patch"
 
-  # GitHub Actions themselves
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
+  # GitHub Actions ecosystem intentionally removed - workflows reference
+  # private reusable workflows (nreljed/platform/.github/workflows/...@main)
+  # that dependabot cannot auth to, so every github-actions run fails with
+  # git_dependencies_not_reachable. Action pin updates are handled manually.
