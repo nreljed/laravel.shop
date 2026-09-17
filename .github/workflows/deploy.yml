@@ -202,17 +202,29 @@ jobs:
           [ -f release-notes.md ] || echo "No changes for v${{ steps.version.outputs.version }}" > release-notes.md
           git-cliff -o CHANGELOG.md 2>/dev/null || true
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release (release assets, not Actions artifacts)
         if: steps.version.outputs.skip != 'true'
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: v${{ steps.version.outputs.version }}
-          body_path: release-notes.md
-          files: deploy.zip
-          fail_on_unmatched_files: true
+        # Use the `gh` CLI instead of softprops/action-gh-release: GitHub's
+        # uploads.github.com began rejecting the action's streamed upload body
+        # ("Error building asset temp dir") on 2026-09-17, while gh's
+        # Content-Length upload succeeds. On a failed rerun, the tag/release
+        # may already exist with 0 or partial assets, so delete and recreate.
+        shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          $VER = "v${{ steps.version.outputs.version }}"
+          if (-not (Test-Path deploy.zip)) {
+            throw "deploy.zip does not exist - create it before releasing"
+          }
+          gh release create $VER deploy.zip --title $VER --notes-file release-notes.md *> $null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Output "Release $VER already exists (prior failed run) - deleting and recreating"
+            gh release delete $VER --yes --cleanup-tag 2>$null
+            gh release create $VER deploy.zip --title $VER --notes-file release-notes.md
+          }
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed (exit $LASTEXITCODE)" }
+          Write-Output "Release ready: https://github.com/${{ github.repository }}/releases/tag/$VER"
 
   push-deploy:
     needs: build
