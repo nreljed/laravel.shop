@@ -3681,12 +3681,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "336173abff8fd7a78b2a1b974f74dd207f2bc1df"
+                "reference": "1c1d1b3aad8cf984f54c2cf2852c7d16748c04de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/336173abff8fd7a78b2a1b974f74dd207f2bc1df",
-                "reference": "336173abff8fd7a78b2a1b974f74dd207f2bc1df",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/1c1d1b3aad8cf984f54c2cf2852c7d16748c04de",
+                "reference": "1c1d1b3aad8cf984f54c2cf2852c7d16748c04de",
                 "shasum": ""
             },
             "require": {
@@ -3732,7 +3732,7 @@
                 "source": "https://github.com/nreljed/shop-module/tree/v0.1.40",
                 "issues": "https://github.com/nreljed/shop-module/issues"
             },
-            "time": "2026-09-15T17:09:03+00:00"
+            "time": "2026-09-15T17:37:46+00:00"
         },
         {
             "name": "nunomaduro/termwind",
