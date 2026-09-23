@@ -3739,16 +3739,16 @@
         },
         {
             "name": "nreljed/shop-module",
-            "version": "0.1.45",
+            "version": "0.1.46",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "764cd2b39a3eae44d72452e8fe41db37ea2709cd"
+                "reference": "77c30756fb15676bb6f4501b2ef468e1b44b6248"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/764cd2b39a3eae44d72452e8fe41db37ea2709cd",
-                "reference": "764cd2b39a3eae44d72452e8fe41db37ea2709cd",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/77c30756fb15676bb6f4501b2ef468e1b44b6248",
+                "reference": "77c30756fb15676bb6f4501b2ef468e1b44b6248",
                 "shasum": ""
             },
             "require": {
@@ -3792,10 +3792,10 @@
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
             "support": {
-                "source": "https://github.com/nreljed/shop-module/tree/v0.1.45",
+                "source": "https://github.com/nreljed/shop-module/tree/v0.1.46",
                 "issues": "https://github.com/nreljed/shop-module/issues"
             },
-            "time": "2026-09-23T14:33:49+00:00"
+            "time": "2026-09-23T17:13:55+00:00"
         },
         {
             "name": "nunomaduro/termwind",
