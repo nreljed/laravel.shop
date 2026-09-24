@@ -27,7 +27,7 @@
     "fakerphp/faker": "^1.23",
     "nreljed/blog": "^0.1",
     "nreljed/platform": "^0.1",
-    "nreljed/shop-module": "0.1.52",
+    "nreljed/shop-module": "0.1.53",
     "inertiajs/inertia-laravel": "^3.3.3",
     "intervention/image-laravel": "^4.0",
     "laravel/ai": "^0.10",
