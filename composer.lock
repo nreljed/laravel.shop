@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02fda2b7818dd83d506333ef7224dc8c",
+    "content-hash": "1815a98dabb1628b611239b7adfa9d64",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -3739,16 +3739,16 @@
         },
         {
             "name": "nreljed/shop-module",
-            "version": "0.1.54",
+            "version": "0.1.56",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "28849f8e98fad3b2a4f6b831edb4471622d4ca5b"
+                "reference": "ab10664e9c70512250ccace9da8a48d4c0351209"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/28849f8e98fad3b2a4f6b831edb4471622d4ca5b",
-                "reference": "28849f8e98fad3b2a4f6b831edb4471622d4ca5b",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/ab10664e9c70512250ccace9da8a48d4c0351209",
+                "reference": "ab10664e9c70512250ccace9da8a48d4c0351209",
                 "shasum": ""
             },
             "require": {
@@ -3792,10 +3792,10 @@
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
             "support": {
-                "source": "https://github.com/nreljed/shop-module/tree/v0.1.54",
+                "source": "https://github.com/nreljed/shop-module/tree/v0.1.56",
                 "issues": "https://github.com/nreljed/shop-module/issues"
             },
-            "time": "2026-09-25T00:01:31+00:00"
+            "time": "2026-09-25T00:54:01+00:00"
         },
         {
             "name": "nunomaduro/termwind",
