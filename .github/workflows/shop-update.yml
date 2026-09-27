@@ -24,6 +24,20 @@ concurrency:
 # branch protection (so `gh pr merge --auto` can never fire). Validating the
 # exact tree in this job makes an instant merge safe; the PR stays as the
 # audit trail. If validation fails, the job fails and NO merge happens.
+#
+# A validation failure still opens the PR. That is the whole difference between
+# a diagnosable failure and a mystery: v0.1.70 was the first release whose
+# behaviour change the app's own suite pinned, so this job went red at
+# `Validate - PHP tests` with no branch, no PR and no diff to look at - just a
+# failed run on a schedule. The cause was one assertion (422 where the release
+# now returns 404), which is a two-minute fix once you can see it, but nothing
+# in the failed run said that. Opening the PR unconditionally turns "the
+# automation broke" into "this version needs its tests updated", with the exact
+# red test quoted in the PR body.
+#
+# The safety property is unchanged and still the point: the merge step is gated
+# on `success()`, so a failed validation can never auto-merge. It only changes
+# what the failure leaves behind.
 
 jobs:
   shop-update:
@@ -110,18 +124,33 @@ jobs:
 
       # Assets must exist before PHP tests: view-rendering tests hit @vite()
       # and 500 without public/build/manifest.json (same order as ci.yml).
+      #
+      # `id: tests` so the PR body below can report the real outcome. No
+      # `continue-on-error` — a failure here has to keep the job red so the
+      # merge step's `success()` gate stays shut.
       - name: Validate — PHP tests
         if: steps.check.outputs.changed == 'true'
+        id: tests
         shell: bash
         run: php -d memory_limit=512M artisan test --compact
 
+      # `!cancelled()` rather than plain `success()`: this step is the artifact
+      # that makes a validation failure diagnosable, so it has to run *because*
+      # validation failed, not despite it. Guarded against cancellation so it
+      # cannot resurrect a superseded run.
+      # `${{ }}` wrapper, not a bare `!cancelled()`: YAML reads a leading `!`
+      # as a tag indicator, so the unquoted form fails to parse the whole
+      # workflow file rather than just this condition.
       - name: Create pull request
-        if: steps.check.outputs.changed == 'true'
+        if: ${{ !cancelled() && steps.check.outputs.changed == 'true' }}
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
+          TESTS_OUTCOME: ${{ steps.tests.outcome }}
         run: |
           BRANCH="shop/update-v${{ steps.version.outputs.version }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
           # Clean up a stale branch left behind by a previously failed run.
@@ -131,27 +160,45 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add composer.lock
-          git commit -m "chore: update shop-module to v${{ steps.version.outputs.version }}"
+          git commit -m "chore: update shop-module to v$VERSION"
           git push -u origin "$BRANCH"
+
+          # Assembled with single-quoted `printf` and handed to `gh` as a file.
+          # A multi-line double-quoted shell string is the trap here: its
+          # continuation lines sit at column 1, which silently terminates the
+          # YAML block scalar and corrupts the entire workflow file rather than
+          # just this step. Single-quoted format strings also mean the markdown
+          # backticks need no escaping.
+          if [ "$TESTS_OUTCOME" = "success" ]; then
+            SUFFIX=""
+            NOTE="Full validation (migrations, tests, typecheck, build) passed on this exact tree, so this PR is queued for automatic squash-merge."
+          else
+            SUFFIX=" (validation failed - needs test updates)"
+            NOTE="**This PR will not be auto-merged.** Full validation failed on this exact tree - see the \`Validate - PHP tests\` step in the failing run: $RUN_URL -- that is expected when a new release changes behaviour this app's suite pins, because the lock bump and the assertions describing it have to land together and only a human can tell which side is wrong. Check whether the failing test asserts superseded behaviour (update it) or catches a real regression (do not merge - fix the package instead). Push the fix to this branch and merge."
+          fi
+
+          printf 'Automated update of `nreljed/shop-module` (`shop-update.yml`).\n\n- Resolved version: v%s\n- Only `composer.lock` changed.\n\n%s\n' "$VERSION" "$NOTE" > "$RUNNER_TEMP/pr-body.md"
+
           gh pr create \
             --base main \
             --head "$BRANCH" \
-            --title "chore: update shop-module to v${{ steps.version.outputs.version }}" \
-            --body "Automated update of \`nreljed/shop-module\` (\`shop-update.yml\`).
-
-            - Resolved version: v${{ steps.version.outputs.version }}
-            - Only \`composer.lock\` changed; full validation (tests, typecheck, build) ran on this exact tree before merge.
-            "
+            --title "chore: update shop-module to v$VERSION$SUFFIX" \
+            --body-file "$RUNNER_TEMP/pr-body.md"
 
       # Free private repos have no branch protection rules, so the merge is
       # instantaneous once issued. Validation already passed above; merging
       # fires deploy.yml (build + release + deploy).
       #
+      # `success()` is the safety property this workflow exists for: it is
+      # false whenever any earlier step failed, so a red validation leaves an
+      # open PR for a human and never a silent merge. The PR body says which
+      # case it is.
+      #
       # Use the PAT (secrets.GH_TOKEN), NOT github.token: pushes made with
       # GITHUB_TOKEN do NOT emit a `push` event (GitHub suppresses recursive
       # workflow runs), so a github.token merge would silently skip deploy.yml.
       - name: Merge pull request
-        if: steps.check.outputs.changed == 'true'
+        if: success() && steps.check.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: gh pr merge --squash --delete-branch "${{ steps.pr.outputs.branch }}"
