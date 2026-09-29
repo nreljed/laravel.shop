@@ -3675,16 +3675,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "0.1.67",
+            "version": "0.1.68",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/platform.git",
-                "reference": "c636413b7362f5ba92afd4e59b61d14f5bd3a58c"
+                "reference": "df74132c303fb1a2a1ab330b36d5fcaa7ec8251a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/c636413b7362f5ba92afd4e59b61d14f5bd3a58c",
-                "reference": "c636413b7362f5ba92afd4e59b61d14f5bd3a58c",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/df74132c303fb1a2a1ab330b36d5fcaa7ec8251a",
+                "reference": "df74132c303fb1a2a1ab330b36d5fcaa7ec8251a",
                 "shasum": ""
             },
             "require": {
@@ -3732,10 +3732,10 @@
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
             "support": {
-                "source": "https://github.com/nreljed/platform/tree/v0.1.67",
+                "source": "https://github.com/nreljed/platform/tree/v0.1.68",
                 "issues": "https://github.com/nreljed/platform/issues"
             },
-            "time": "2026-09-29T13:43:31+00:00"
+            "time": "2026-09-29T14:59:57+00:00"
         },
         {
             "name": "nreljed/shop-module",
@@ -6080,16 +6080,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v8.1.7",
+            "version": "v8.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "d8fdc670ed510a69e3a9eb4f5eac89f5ed627e17"
+                "reference": "662f5257658d4f60deff1bc790e9f2c68cb391bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/d8fdc670ed510a69e3a9eb4f5eac89f5ed627e17",
-                "reference": "d8fdc670ed510a69e3a9eb4f5eac89f5ed627e17",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/662f5257658d4f60deff1bc790e9f2c68cb391bf",
+                "reference": "662f5257658d4f60deff1bc790e9f2c68cb391bf",
                 "shasum": ""
             },
             "require": {
@@ -6137,7 +6137,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v8.1.7"
+                "source": "https://github.com/symfony/http-foundation/tree/v8.1.8"
             },
             "funding": [
                 {
@@ -6157,7 +6157,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-14T17:47:24+00:00"
+            "time": "2026-09-24T07:13:53+00:00"
         },
         {
             "name": "symfony/http-kernel",
