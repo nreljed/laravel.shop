@@ -35,6 +35,8 @@ composer.phar
 /_fix_autoload.php
 /_schema_dump.php
 /storage/debug/playwright-output/*
+/test-results/
+/playwright-report/
 /check_users.php
 /*-desktop.png
 /*-mobile.png

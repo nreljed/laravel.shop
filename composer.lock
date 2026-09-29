@@ -3675,16 +3675,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "0.1.68",
+            "version": "0.1.70",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/platform.git",
-                "reference": "df74132c303fb1a2a1ab330b36d5fcaa7ec8251a"
+                "reference": "325644420ad78deefedb0b1a94f46394aa96910d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/df74132c303fb1a2a1ab330b36d5fcaa7ec8251a",
-                "reference": "df74132c303fb1a2a1ab330b36d5fcaa7ec8251a",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/325644420ad78deefedb0b1a94f46394aa96910d",
+                "reference": "325644420ad78deefedb0b1a94f46394aa96910d",
                 "shasum": ""
             },
             "require": {
@@ -3732,23 +3732,23 @@
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
             "support": {
-                "source": "https://github.com/nreljed/platform/tree/v0.1.68",
+                "source": "https://github.com/nreljed/platform/tree/v0.1.70",
                 "issues": "https://github.com/nreljed/platform/issues"
             },
-            "time": "2026-09-29T14:59:57+00:00"
+            "time": "2026-09-29T19:30:55+00:00"
         },
         {
             "name": "nreljed/shop-module",
-            "version": "0.1.72",
+            "version": "0.1.75",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "ecb0756f4fb8a902ce37b5e0898db96f1b6a0b19"
+                "reference": "40436430038077b55204fbb04b92be4c64164c48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/ecb0756f4fb8a902ce37b5e0898db96f1b6a0b19",
-                "reference": "ecb0756f4fb8a902ce37b5e0898db96f1b6a0b19",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/40436430038077b55204fbb04b92be4c64164c48",
+                "reference": "40436430038077b55204fbb04b92be4c64164c48",
                 "shasum": ""
             },
             "require": {
@@ -3792,10 +3792,10 @@
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
             "support": {
-                "source": "https://github.com/nreljed/shop-module/tree/v0.1.72",
+                "source": "https://github.com/nreljed/shop-module/tree/v0.1.75",
                 "issues": "https://github.com/nreljed/shop-module/issues"
             },
-            "time": "2026-09-28T17:43:58+00:00"
+            "time": "2026-09-29T20:58:23+00:00"
         },
         {
             "name": "nunomaduro/termwind",
