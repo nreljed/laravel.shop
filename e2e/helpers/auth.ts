@@ -9,21 +9,25 @@ export const ADMIN_PASSWORD = process.env.E2E_PASSWORD ?? "azerty123/*";
  * button carries the Inertia redirect, awaited via waitForURL.
  */
 export async function login(page: Page): Promise<void> {
-    await page.goto("/login", { waitUntil: "networkidle" });
-    await page.locator('input[type="text"]').first().fill(ADMIN_EMAIL);
-    await page.locator('input[type="password"]').first().fill(ADMIN_PASSWORD);
-    await Promise.all([
-        page.waitForURL(/\/dashboard/, { timeout: 20_000 }),
-        page.locator('button[type="submit"]').first().click(),
-    ]);
+  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.locator('input[type="text"]').first().fill(ADMIN_EMAIL);
+  await page.locator('input[type="password"]').first().fill(ADMIN_PASSWORD);
+  await Promise.all([
+    page.waitForURL(/\/dashboard/, { timeout: 20_000 }),
+    page.locator('button[type="submit"]').first().click(),
+  ]);
 }
 
-/** Attaches console/pageerror listeners and returns the collected messages. */
+/**
+Attaches console/pageerror listeners and returns the collected messages.
+*/
 export function collectConsoleErrors(page: Page, bucket: string[]): void {
-    page.on("pageerror", (e) => bucket.push(`pageerror: ${e}`));
-    page.on("console", (m) => {
-        if (m.type() === "error") {
-            bucket.push(m.text());
-        }
-    });
+  page.on("pageerror", (e) => {
+    bucket.push(`pageerror: ${e}`);
+  });
+  page.on("console", (m) => {
+    if (m.type() === "error") {
+      bucket.push(m.text());
+    }
+  });
 }
