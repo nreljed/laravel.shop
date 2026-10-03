@@ -83,8 +83,11 @@ jobs:
       - name: Check core dependency parity
         run: npm run check:core-deps
 
+      # Shipped dependencies only -- dev-only advisories with no upstream patch
+      # (the unfixable `braces` DoS via the `shadcn` codegen CLI) must not block
+      # a deploy; see platform consumer-ci.yml for the full rationale.
       - name: npm audit
-        run: npm audit --audit-level=high
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Composer audit
         run: composer audit --no-interaction
