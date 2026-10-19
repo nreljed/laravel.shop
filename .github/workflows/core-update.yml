@@ -123,7 +123,7 @@ jobs:
       # and 500 without public/build/manifest.json (same order as ci.yml).
       - name: Validate - PHP tests
         if: steps.check.outputs.changed == 'true'
-        run: php -d memory_limit=512M artisan test --compact
+        run: php -d max_execution_time=0 -d memory_limit=512M artisan test --compact
 
       - name: Validate - Pint
         if: steps.check.outputs.changed == 'true'

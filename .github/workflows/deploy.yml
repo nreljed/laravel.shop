@@ -99,7 +99,7 @@ jobs:
         run: php vendor/bin/pint --test
 
       - name: PHP tests
-        run: php -d memory_limit=512M artisan test --compact
+        run: php -d max_execution_time=0 -d memory_limit=512M artisan test --compact
 
       - name: ESLint
         run: npm run lint

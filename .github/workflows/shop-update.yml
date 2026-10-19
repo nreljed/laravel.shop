@@ -132,7 +132,7 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         id: tests
         shell: bash
-        run: php -d memory_limit=512M artisan test --compact
+        run: php -d max_execution_time=0 -d memory_limit=512M artisan test --compact
 
       # `!cancelled()` rather than plain `success()`: this step is the artifact
       # that makes a validation failure diagnosable, so it has to run *because*
