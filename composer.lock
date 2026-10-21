@@ -3675,16 +3675,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "0.1.86",
+            "version": "0.1.87",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/platform.git",
-                "reference": "f68adbbdacb353c061de34401d3cf4690905687b"
+                "reference": "e1155c7d7cb682b65d7bd3c93782084d74556855"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/f68adbbdacb353c061de34401d3cf4690905687b",
-                "reference": "f68adbbdacb353c061de34401d3cf4690905687b",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/e1155c7d7cb682b65d7bd3c93782084d74556855",
+                "reference": "e1155c7d7cb682b65d7bd3c93782084d74556855",
                 "shasum": ""
             },
             "require": {
@@ -3732,10 +3732,10 @@
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
             "support": {
-                "source": "https://github.com/nreljed/platform/tree/v0.1.86",
+                "source": "https://github.com/nreljed/platform/tree/v0.1.87",
                 "issues": "https://github.com/nreljed/platform/issues"
             },
-            "time": "2026-10-21T00:51:50+00:00"
+            "time": "2026-10-21T17:30:54+00:00"
         },
         {
             "name": "nreljed/shop-module",
