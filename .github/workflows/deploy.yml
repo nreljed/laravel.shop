@@ -156,6 +156,34 @@ jobs:
           SIZE=$(du -h deploy.zip | cut -f1)
           echo "deploy.zip created: $SIZE"
 
+      - name: Verify deploy.zip carries the nreljed packages
+        # A `path` composer repo installs as a junction/symlink, and the archiver
+        # does not follow it: the archive then ships an EMPTY vendor/nreljed/*
+        # and the host boots without the platform classes ("Target class [view]
+        # does not exist", every route 500). Fail the build here instead of
+        # shipping that.
+        shell: bash
+        run: |
+          LISTING=$(mktemp)
+          # 7z prints archive paths with Windows separators - normalise them.
+          "C:/Program Files/7-Zip/7z.exe" l -slt deploy.zip | tr '\\' '/' > "$LISTING"
+          MISSING=""
+          for NEEDLE in \
+            "vendor/nreljed/platform/src/PlatformServiceProvider.php" \
+            "vendor/nreljed/blog/composer.json" \
+            "vendor/nreljed/shop-module/composer.json"
+          do
+            if ! grep -Fq "Path = $NEEDLE" "$LISTING"; then
+              MISSING="$MISSING $NEEDLE"
+            fi
+          done
+          rm -f "$LISTING"
+          if [ -n "$MISSING" ]; then
+            echo "deploy.zip is missing package files:$MISSING"
+            exit 1
+          fi
+          echo "deploy.zip carries platform, blog and shop-module"
+
       - name: Determine version
         id: version
         run: |
