@@ -7,6 +7,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { platformRefreshGlobs } from './vendor/nreljed/platform/platform.aliases.js';
 import { blogRefreshGlobs } from './vendor/nreljed/blog/blog.aliases.js';
+import {
+    marketingAliases,
+    marketingRefreshGlobs,
+} from './vendor/nreljed/marketing-module/marketing.aliases.js';
 import { packageDedupes } from './vendor/nreljed/platform/vite.dedupe.js';
 
 const __dirname = import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +27,7 @@ export default defineConfig({
                 'vendor/nreljed/shop-module/src/Resources/js/**',
                 ...platformRefreshGlobs(),
                 ...blogRefreshGlobs(),
+                ...marketingRefreshGlobs(),
             ],
         }),
         react(),
@@ -38,6 +43,9 @@ export default defineConfig({
             '@nreljed/blog/*': path.resolve(__dirname, './vendor/nreljed/blog/src/Resources/js'),
             '@nreljed/shop-module': path.resolve(__dirname, './vendor/nreljed/shop-module/src/Resources/js'),
             '@nreljed/shop-module/*': path.resolve(__dirname, './vendor/nreljed/shop-module/src/Resources/js'),
+            '@nreljed/marketing-module': path.resolve(__dirname, './vendor/nreljed/marketing-module/src/Resources/js'),
+            '@nreljed/marketing-module/*': path.resolve(__dirname, './vendor/nreljed/marketing-module/src/Resources/js'),
+            ...marketingAliases(),
         },
     },
     build: {

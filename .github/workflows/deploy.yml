@@ -171,6 +171,7 @@ jobs:
           for NEEDLE in \
             "vendor/nreljed/platform/src/PlatformServiceProvider.php" \
             "vendor/nreljed/blog/composer.json" \
+            "vendor/nreljed/marketing-module/composer.json" \
             "vendor/nreljed/shop-module/composer.json"
           do
             if ! grep -Fq "Path = $NEEDLE" "$LISTING"; then
@@ -182,7 +183,7 @@ jobs:
             echo "deploy.zip is missing package files:$MISSING"
             exit 1
           fi
-          echo "deploy.zip carries platform, blog and shop-module"
+          echo "deploy.zip carries platform, blog, marketing-module and shop-module"
 
       - name: Determine version
         id: version
