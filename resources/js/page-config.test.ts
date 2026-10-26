@@ -151,7 +151,7 @@ function renderedPageKeys(): string[] {
     }
   }
 
-  return [...keys].sort();
+  return [...keys].toSorted((a, b) => a.localeCompare(b));
 }
 
 /**
