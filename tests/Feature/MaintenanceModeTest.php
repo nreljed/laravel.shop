@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Nreljed\Platform\Http\Middleware\CheckMaintenanceMode;
@@ -214,6 +215,25 @@ class MaintenanceModeTest extends TestCase
 
         $this->assertStringContainsString("'queue:work'", $platform);
         $this->assertStringContainsString('--stop-when-empty', $platform);
+
+        // And the scheduled line must actually be runnable. A flag passed as
+        // `'--stop-when-empty' => true` renders as `--stop-when-empty="1"`,
+        // which Symfony rejects - the drain would then fail on every tick
+        // while `schedule:list` still showed it as configured.
+        $drain = collect($this->schedule()->events())
+            ->first(fn ($event) => str_contains($event->buildCommand(), 'queue:work'));
+
+        $this->assertNotNull($drain, 'The scheduler no longer drains the queue.');
+
+        $command = $drain->buildCommand();
+
+        $this->assertStringNotContainsString(
+            '="1"',
+            $command,
+            "The scheduled queue worker passes a value to a valueless flag: {$command}",
+        );
+
+        $this->assertStringContainsString('--stop-when-empty ', $command.' ');
     }
 
     public function test_admins_bypass_maintenance_mode(): void
@@ -226,6 +246,14 @@ class MaintenanceModeTest extends TestCase
         foreach (['/services', '/', '/store', '/blog'] as $uri) {
             $this->actingAs($user)->get($uri)->assertOk();
         }
+    }
+
+    /**
+     * The application scheduler, with every provider's events registered.
+     */
+    protected function schedule(): Schedule
+    {
+        return app(Schedule::class);
     }
 
     /**
