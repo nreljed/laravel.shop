@@ -155,6 +155,67 @@ class MaintenanceModeTest extends TestCase
         $response->assertStatus(400);
     }
 
+    public function test_the_way_back_in_stays_open_during_maintenance(): void
+    {
+        SettingsService::set('maintenance_mode', '1');
+
+        // Lockout safety: admins bypass the middleware, but only while their
+        // session lasts (120 minutes by default). If `/login` were gated too,
+        // an expired session during a maintenance window would be unrecoverable
+        // - the emailed recovery link depends on mail the host may not send,
+        // and the bypass token is only readable from the admin UI they can no
+        // longer open.
+        $this->get('/login')->assertOk();
+        $this->get('/forgot-password')->assertOk();
+
+        // Signup stays closed: an account created while the site is closed
+        // cannot be used anyway.
+        $this->get('/register')->assertStatus(503);
+
+        $gated = $this->routesCarryingMaintenance();
+
+        foreach (['login', 'forgot-password', 'reset-password/{token}'] as $uri) {
+            $this->assertNotContains(
+                $uri,
+                $gated,
+                "Route [{$uri}] is behind maintenance mode again: an admin whose session "
+                .'expires during a maintenance window could not sign back in.',
+            );
+        }
+
+        $this->assertContains('register', $gated);
+
+        // The open login form must not become a hole: a real, authenticated
+        // non-admin still gets the maintenance page everywhere.
+        $nonAdmin = User::factory()->create();
+
+        $this->actingAs($nonAdmin)->get('/services')->assertStatus(503);
+        $this->actingAs($nonAdmin)->get('/dashboard')->assertStatus(503);
+    }
+
+    public function test_recovery_mail_is_sent_synchronously(): void
+    {
+        // The recovery link is the lockout lifeline. `Mail::queue()` would park
+        // it in the `jobs` table on any host without a queue worker - which is
+        // the default `database` connection on shared hosting - so it must be
+        // sent inline.
+        $source = (string) file_get_contents(
+            base_path('vendor/nreljed/platform/src/Http/Controllers/RecoveryController.php'),
+        );
+
+        $this->assertStringNotContainsString('->queue(new RecoveryMail', $source);
+        $this->assertSame(2, substr_count($source, '->send(new RecoveryMail'));
+
+        // And the one thing shared hosts do run - `schedule:run` via cron -
+        // must drain that queue, or every queued mail/job is silently lost.
+        $platform = (string) file_get_contents(
+            base_path('vendor/nreljed/platform/src/PlatformServiceProvider.php'),
+        );
+
+        $this->assertStringContainsString("'queue:work'", $platform);
+        $this->assertStringContainsString('--stop-when-empty', $platform);
+    }
+
     public function test_admins_bypass_maintenance_mode(): void
     {
         $user = User::factory()->create();
