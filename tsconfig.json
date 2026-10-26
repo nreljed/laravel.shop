@@ -47,6 +47,9 @@
         "vendor/nreljed/blog/src/Resources/js/**/*.d.ts",
         "vendor/nreljed/marketing-module/src/Resources/js/**/*.ts",
         "vendor/nreljed/marketing-module/src/Resources/js/**/*.tsx",
-        "vendor/nreljed/marketing-module/src/Resources/js/**/*.d.ts"
+        "vendor/nreljed/marketing-module/src/Resources/js/**/*.d.ts",
+        "vendor/nreljed/shop-module/src/Resources/js/**/*.ts",
+        "vendor/nreljed/shop-module/src/Resources/js/**/*.tsx",
+        "vendor/nreljed/shop-module/src/Resources/js/**/*.d.ts"
     ]
 }
