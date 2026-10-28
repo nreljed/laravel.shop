@@ -5966,16 +5966,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v20.3.1",
+            "version": "v20.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "bf2c6caf886a88e35f831a68f3b6a49ac85cb357"
+                "reference": "e03f6cb42c3e420093b28169d5f422788782ed77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/bf2c6caf886a88e35f831a68f3b6a49ac85cb357",
-                "reference": "bf2c6caf886a88e35f831a68f3b6a49ac85cb357",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/e03f6cb42c3e420093b28169d5f422788782ed77",
+                "reference": "e03f6cb42c3e420093b28169d5f422788782ed77",
                 "shasum": ""
             },
             "require": {
@@ -6022,9 +6022,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v20.3.1"
+                "source": "https://github.com/stripe/stripe-php/tree/v20.3.2"
             },
-            "time": "2026-07-09T17:57:50+00:00"
+            "time": "2026-10-27T19:47:06+00:00"
         },
         {
             "name": "symfony/clock",
