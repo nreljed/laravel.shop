@@ -3903,16 +3903,16 @@
         },
         {
             "name": "nreljed/marketing-module",
-            "version": "0.14.3",
+            "version": "0.14.4",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/marketing-module.git",
-                "reference": "f26709ffc764d6546e5702eb47978a3e10a0f49d"
+                "reference": "f509d387db5aa1c9b2b7eee3c262422842428077"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/marketing-module/zipball/f26709ffc764d6546e5702eb47978a3e10a0f49d",
-                "reference": "f26709ffc764d6546e5702eb47978a3e10a0f49d",
+                "url": "https://api.github.com/repos/nreljed/marketing-module/zipball/f509d387db5aa1c9b2b7eee3c262422842428077",
+                "reference": "f509d387db5aa1c9b2b7eee3c262422842428077",
                 "shasum": ""
             },
             "require": {
@@ -3958,10 +3958,10 @@
             ],
             "description": "Marketing automation and social publishing feature for the Nreljed dashboard platform (social accounts, scheduled posts, campaigns, audience segments, contact tagging, workflow automation and engagement analytics).",
             "support": {
-                "source": "https://github.com/nreljed/marketing-module/tree/v0.14.3",
+                "source": "https://github.com/nreljed/marketing-module/tree/v0.14.4",
                 "issues": "https://github.com/nreljed/marketing-module/issues"
             },
-            "time": "2026-10-26T13:08:02+00:00"
+            "time": "2026-10-28T00:44:44+00:00"
         },
         {
             "name": "nreljed/platform",
