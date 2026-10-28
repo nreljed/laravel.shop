@@ -43,20 +43,29 @@ class ProcessMarketingOrders extends Command
             }
 
             $contact = Contact::where('email', $email)->first();
+            $orderTotal = (float) $order->total;
 
             if (! $contact) {
                 $contact = Contact::create([
                     'email' => $email,
+                    'user_id' => $order->user_id,
                     'first_name' => $order->customer_name,
                     'phone' => $order->customer_phone,
                     'status' => ContactStatus::Active,
                     'source' => 'shop',
+                    'total_spent' => $orderTotal,
+                    'order_count' => 1,
+                    'last_order_at' => $order->created_at,
                 ]);
             } else {
                 $contact->fill([
+                    'user_id' => $contact->user_id ?: $order->user_id,
                     'first_name' => $contact->first_name ?: $order->customer_name,
                     'phone' => $contact->phone ?: $order->customer_phone,
                     'source' => 'shop',
+                    'total_spent' => (float) $contact->total_spent + $orderTotal,
+                    'order_count' => (int) $contact->order_count + 1,
+                    'last_order_at' => $order->created_at,
                 ])->save();
             }
 
