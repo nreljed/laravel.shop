@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "937eb9b0b8d61f68bd716a562d51ea8a",
+    "content-hash": "c647b41145d81e2b12b2efd1b0173545",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -4021,10 +4021,6 @@
                 }
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
-            "support": {
-                "source": "https://github.com/nreljed/platform/tree/v0.1.95",
-                "issues": "https://github.com/nreljed/platform/issues"
-            },
             "time": "2026-10-26T20:35:42+00:00"
         },
         {
