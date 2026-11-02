@@ -46,6 +46,7 @@ export default function Contact() {
       description="Get in touch with our team — we'd love to hear from you."
       ogType="website"
     >
+      {/* Hero */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Get in touch</h1>
@@ -55,7 +56,7 @@ export default function Contact() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {channels.map((c) => {
             const content = (
               <CardHeader>
@@ -81,19 +82,19 @@ export default function Contact() {
           })}
         </div>
 
-        <div className="mt-16 flex flex-col items-center gap-4 rounded-xl border bg-muted/30 p-10 text-center">
-          <Send className="h-8 w-8 text-primary" />
-          <h2 className="text-2xl font-bold tracking-tight">Prefer to write to us?</h2>
-          <p className="max-w-xl text-muted-foreground">
-            Email is the fastest way to reach the team and we typically reply within one business
-            day.
-          </p>
-          {email.length > 0 && (
+        {email.length > 0 && (
+          <div className="mt-16 flex flex-col items-center gap-4 rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-background p-10 text-center">
+            <Send className="h-8 w-8 text-primary" />
+            <h2 className="text-2xl font-bold tracking-tight">Prefer to write to us?</h2>
+            <p className="max-w-xl text-muted-foreground">
+              Email is the fastest way to reach the team and we typically reply within one business
+              day.
+            </p>
             <Button render={<a href={`mailto:${email}`} />} size="lg">
               <Mail className="mr-2 h-4 w-4" /> Email {email}
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </section>
     </PublicLayout>
   );
