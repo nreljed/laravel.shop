@@ -3635,16 +3635,16 @@
         },
         {
             "name": "nreljed/blog",
-            "version": "0.1.10",
+            "version": "0.1.11",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/blog.git",
-                "reference": "484cccb464895c1dbc548dabe8e871ce2a5ab031"
+                "reference": "ffd51d910226ad97a535869627dd87eded319b4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/blog/zipball/484cccb464895c1dbc548dabe8e871ce2a5ab031",
-                "reference": "484cccb464895c1dbc548dabe8e871ce2a5ab031",
+                "url": "https://api.github.com/repos/nreljed/blog/zipball/ffd51d910226ad97a535869627dd87eded319b4b",
+                "reference": "ffd51d910226ad97a535869627dd87eded319b4b",
                 "shasum": ""
             },
             "require": {
@@ -3684,7 +3684,11 @@
                 }
             ],
             "description": "Blog feature for the Nreljed dashboard platform (posts, categories, tags, public blog, SEO generation).",
-            "time": "2026-11-04T11:06:42+00:00"
+            "support": {
+                "source": "https://github.com/nreljed/blog/tree/v0.1.11",
+                "issues": "https://github.com/nreljed/blog/issues"
+            },
+            "time": "2026-11-04T13:01:01+00:00"
         },
         {
             "name": "nreljed/marketing-module",
@@ -3749,7 +3753,7 @@
             "version": "0.3.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:nreljed/platform.git",
+                "url": "https://github.com/nreljed/platform.git",
                 "reference": "554c7c150b3b9e8fe339976fcace8f6afb2f2393"
             },
             "dist": {
@@ -3802,6 +3806,10 @@
                 }
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
+            "support": {
+                "source": "https://github.com/nreljed/platform/tree/v0.3.0",
+                "issues": "https://github.com/nreljed/platform/issues"
+            },
             "time": "2026-11-04T10:46:24+00:00"
         },
         {
@@ -6042,16 +6050,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.7.1",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
+                "reference": "feb1edf4e546af3b85c5caebe8359a20db230ca3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/f3202fa1b5097b0af062dc978b32ecf63404e31d",
-                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/feb1edf4e546af3b85c5caebe8359a20db230ca3",
+                "reference": "feb1edf4e546af3b85c5caebe8359a20db230ca3",
                 "shasum": ""
             },
             "require": {
@@ -6064,7 +6072,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.7-dev"
+                    "dev-main": "3.8-dev"
                 }
             },
             "autoload": {
@@ -6089,7 +6097,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.1"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -6109,7 +6117,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-05T06:23:12+00:00"
+            "time": "2026-09-16T14:15:10+00:00"
         },
         {
             "name": "symfony/error-handler",
@@ -6428,16 +6436,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v8.1.10",
+            "version": "v8.1.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "79325f87c3a2acc7564ddce9f457046e980e7255"
+                "reference": "30fa3efe6e736b0d06f5331cc6abe813582c0a26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/79325f87c3a2acc7564ddce9f457046e980e7255",
-                "reference": "79325f87c3a2acc7564ddce9f457046e980e7255",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/30fa3efe6e736b0d06f5331cc6abe813582c0a26",
+                "reference": "30fa3efe6e736b0d06f5331cc6abe813582c0a26",
                 "shasum": ""
             },
             "require": {
@@ -6485,7 +6493,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v8.1.10"
+                "source": "https://github.com/symfony/http-foundation/tree/v8.1.11"
             },
             "funding": [
                 {
@@ -6505,7 +6513,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-27T12:24:10+00:00"
+            "time": "2026-11-04T08:39:20+00:00"
         },
         {
             "name": "symfony/http-kernel",
