@@ -80,14 +80,21 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Automatic / BOGO discounts**: already implemented — `is_automatic` coupons, `DiscountManager`
       with BuyXGetY/Tiered/ProductScoped/Fixed/Percentage/FreeShipping drivers,
       `CouponService::getAutoDiscounts()`. Verified 2026-11-12.
-- [ ] **Additional payment drivers**: PayPal, Apple/Google Pay, cash-on-delivery (COD for MENA).
-      Add driver classes implementing the existing `Payments\*` contract.
+- [x] **Cash on delivery (COD)**: `CashOnDeliveryDriver` registered in config + validation
+      rule updated + COD option in checkout payment select + display label. Done 2026-11-12 in shop-module.
+- [ ] **Additional payment drivers**: PayPal, Apple/Google Pay (COD done; these need SDKs).
 - [ ] **Carrier integration (Tunisia-first)**: Aramex rates + label printing + tracking webhooks.
       Currently flat/free only.
-- [ ] **Analytics depth**: see `docs/ANALYTICS-PLAN.md` — recommends Matomo (self-hosted,
-      free, PHP+MySQL) as primary; GA4 as free cloud option; internal reports (Phase A–D)
-      at zero cost. GA4 e-commerce events, conversion funnel, cohort LTV, fraud heuristics.
-- [ ] **Public storefront API**: documented, auth'd (Sanctum), rate-limited REST/GraphQL
+- [x] **Analytics Phase A (foundation)**: ReportsController expanded (net revenue, refunds,
+      cancellation rate, new/returning customers, repeat rate, avg items/order, AOV by day,
+      cumulative revenue, week/month grouping, revenue share, top refunded products); Reports
+      page updated with new KPI cards, group selector, top refunds section, currency via
+      useCurrency. GA4 snippet added to StoreLayout (conditional on VITE_GA4_MEASUREMENT_ID).
+      Done 2026-11-12 in shop-module.
+- [ ] **Analytics Phase B–F**: see `docs/ANALYTICS-PLAN.md` — cohorts/CLV, event tracking,
+      funnel/conversion, external pixels, export/scheduled reports.
+- [x] **Public storefront API**: Sanctum auth (login/logout/me), scopes, rate limits,
+      cart + orders endpoints, OpenAPI spec at docs/openapi.yaml. Done 2026-11-12 in shop-module.
       for mobile + headless clients. Currently internal JSON only.
 
 ## Phase 4 — Global & B2B (strategic, ~1–2 quarters)
