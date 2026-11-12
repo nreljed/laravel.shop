@@ -118,7 +118,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       toasts, subtotal/discount/total, proceed to checkout. Done 2026-11-12 in shop-module.
 - [x] **i18n extraction (Home)**: converted back to home, new arrivals, shop by category. Done 2026-11-12.
 - [x] **i18n extraction (Checkout)**: converted billing/shipping/payment headings, back/continue/place order. Done 2026-11-12.
-- [ ] **i18n full extraction**: remaining pages (My Orders, admin pages, emails).
+- [x] **i18n extraction (My Orders Show)**: converted items, addresses, summary, payment, return. Done 2026-11-12.
+- [ ] **i18n full extraction**: remaining pages (admin pages, emails).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
