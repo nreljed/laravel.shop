@@ -120,7 +120,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **i18n extraction (Checkout)**: converted billing/shipping/payment headings, back/continue/place order. Done 2026-11-12.
 - [x] **i18n extraction (My Orders Show)**: converted items, addresses, summary, payment, return. Done 2026-11-12.
 - [x] **i18n extraction (Returns admin)**: converted title, subtitle, empty state, columns, actions, dialog. Done 2026-11-12.
-- [ ] **i18n full extraction**: remaining pages (Questions admin, other admin pages, emails).
+- [x] **i18n extraction (Questions admin)**: converted title, subtitle, empty state, columns, actions, dialog. Done 2026-11-12.
+- [ ] **i18n full extraction**: remaining pages (other admin pages, emails).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
