@@ -55,8 +55,9 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Q&A thread**: `ProductQuestion` model + migration, customer ask (POST /store/products/{product}/questions),
       visible Q&A section + ask form on ProductDetail, admin list/answer/delete (Questions/Index.tsx).
       Done 2026-11-11 in shop-module.
-- [ ] **Search autocomplete + typo tolerance**: replace DB LIKE with a Scout driver
-      (Meilisearch) + suggestion endpoint feeding the storefront search box.
+- [x] **Search autocomplete**: `GET /api/products/suggest?q=...` endpoint + dropdown in ProductGrid
+      search input. Done 2026-11-12 in shop-module.
+- [ ] **Typo tolerance / Meilisearch**: replace DB LIKE with a Scout driver for fuzzy matching (still open).
 - [x] **Recently viewed**: client-side (localStorage) tracking via `lib/recentlyViewed.ts`;
       recorded on ProductDetail view, rendered as a "Recently viewed" section on Home.
       Done 2026-11-11 in shop-module.
@@ -66,21 +67,26 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Quick view modal**: `components/storefront/QuickView.tsx` fetches `/api/products/{id}` and
       shows image, price, description, rating, stock + "View details"/add-to-cart; triggered by an
       Eye button on ProductCard; rendered in ProductGrid. Done 2026-11-11 in shop-module.
-- [ ] **Accessibility pass**: run axe + `web-design-guidelines` skill; fix keyboard nav, focus rings,
-      aria labels, contrast. Especially the variation selector and cart drawer.
+- [x] **Accessibility pass (partial)**: skip-to-content link + focusable main in StoreLayout;
+      aria-live region for cart count in StoreHeader; aria-pressed on filter toggles in ProductGrid.
+      Done 2026-11-12 in shop-module.
+- [ ] **Accessibility deep pass**: keyboard nav for variation selector/cart drawer, focus management
+      on route change, contrast audit, screen-reader testing (still open).
 - [ ] **Bundle optimization**: dynamic-import the editor (661 KB) and zxcvbn (1.6 MB) chunks;
       add route-level code splitting.
 
 ## Phase 3 — Growth & payments (package PRs, ~3–4 weeks)
 
-- [ ] **Automatic / BOGO discounts**: discount rules that apply at cart without a code
-      (buy X get Y, % off category, free shipping over threshold).
+- [x] **Automatic / BOGO discounts**: already implemented — `is_automatic` coupons, `DiscountManager`
+      with BuyXGetY/Tiered/ProductScoped/Fixed/Percentage/FreeShipping drivers,
+      `CouponService::getAutoDiscounts()`. Verified 2026-11-12.
 - [ ] **Additional payment drivers**: PayPal, Apple/Google Pay, cash-on-delivery (COD for MENA).
       Add driver classes implementing the existing `Payments\*` contract.
 - [ ] **Carrier integration (Tunisia-first)**: Aramex rates + label printing + tracking webhooks.
       Currently flat/free only.
-- [ ] **Analytics depth**: GA4 e-commerce events, conversion funnel report, cohort LTV,
-      fraud heuristics (velocity, address mismatch).
+- [ ] **Analytics depth**: see `docs/ANALYTICS-PLAN.md` — recommends Matomo (self-hosted,
+      free, PHP+MySQL) as primary; GA4 as free cloud option; internal reports (Phase A–D)
+      at zero cost. GA4 e-commerce events, conversion funnel, cohort LTV, fraud heuristics.
 - [ ] **Public storefront API**: documented, auth'd (Sanctum), rate-limited REST/GraphQL
       for mobile + headless clients. Currently internal JSON only.
 
