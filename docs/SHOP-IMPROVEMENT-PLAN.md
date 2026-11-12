@@ -106,8 +106,10 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 ## Phase 4 — Global & B2B (strategic, ~1–2 quarters)
 
 ### Global
-- [ ] **i18n / multi-language**: extract all strings to translation files (en/fr/ar for Tunisia).
-      Big lift; touches every page and email template.
+- [x] **i18n foundation**: i18next + react-i18next, en/fr/ar translation files, language
+      switcher in StoreHeader, wired into app bootstrap. StoreHeader nav labels translated.
+      Done 2026-11-12 in shop-module.
+- [ ] **i18n full extraction**: extract remaining strings from all pages/emails (incremental).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
