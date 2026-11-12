@@ -91,8 +91,14 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       page updated with new KPI cards, group selector, top refunds section, currency via
       useCurrency. GA4 snippet added to StoreLayout (conditional on VITE_GA4_MEASUREMENT_ID).
       Done 2026-11-12 in shop-module.
+- [x] **Analytics Phase A + pixels**: ReportsController expanded (net revenue, refunds,
+      cancellation rate, new/returning customers, repeat rate, avg items/order, AOV by day,
+      cumulative revenue, week/month grouping, revenue share, top refunded products); Reports
+      page updated with new KPI cards, group selector, top refunds, currency via useCurrency.
+      GA4 + Meta Pixel + TikTok Pixel snippets added to StoreLayout (conditional on env vars).
+      CSV export button added. Done 2026-11-12 in shop-module.
 - [ ] **Analytics Phase B–F**: see `docs/ANALYTICS-PLAN.md` — cohorts/CLV, event tracking,
-      funnel/conversion, external pixels, export/scheduled reports.
+      funnel/conversion, export/scheduled reports (pixels done).
 - [x] **Public storefront API**: Sanctum auth (login/logout/me), scopes, rate limits,
       cart + orders endpoints, OpenAPI spec at docs/openapi.yaml. Done 2026-11-12 in shop-module.
       for mobile + headless clients. Currently internal JSON only.
