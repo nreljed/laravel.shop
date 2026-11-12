@@ -114,7 +114,9 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       Done 2026-11-12 in shop-module.
 - [x] **i18n extraction (ProductGrid)**: converted filters, sort, empty state, search placeholder
       to t() calls. Done 2026-11-12 in shop-module.
-- [ ] **i18n full extraction**: remaining pages (Home, Cart, Checkout, My Orders, admin pages, emails).
+- [x] **i18n extraction (ShoppingCart)**: converted title, empty cart, continue shopping, coupon
+      toasts, subtotal/discount/total, proceed to checkout. Done 2026-11-12 in shop-module.
+- [ ] **i18n full extraction**: remaining pages (Home, Checkout, My Orders, admin pages, emails).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
