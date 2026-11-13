@@ -149,14 +149,22 @@ cart abandonment rate, search terms report, product performance. Backend:
 - **Search terms report**: top queries, zero-result queries, conversion per query.
 - **Product performance**: views, add-to-cart rate, purchase rate, revenue per view.
 
-## Phase E — External integrations (optional, demand-driven)
+## Phase E — External integrations ✅ (implemented 2026-11-13)
+
+GA4 + Meta Pixel + TikTok Pixel snippets in StoreLayout (conditional on env vars).
+GA4 e-commerce events (view_item, add_to_cart, purchase) via analytics.ts trackEvent().
+Meta Pixel events (ViewContent, AddToCart, Purchase).
+TikTok Pixel events (ViewContent, AddToCart, CompletePayment).
 
 - **GA4 e-commerce events**: emit `view_item`, `add_to_cart`, `begin_checkout`, `purchase` via gtag.
 - **Meta Pixel**: `ViewContent`, `AddToCart`, `Purchase`.
 - **TikTok Pixel**: `ViewContent`, `AddToCart`, `CompletePayment`.
 - **Server-side tracking** (CAPI) for ad-blocker resilience.
 
-## Phase F — Export & scheduled reports (~3 days)
+## Phase F — Export & scheduled reports (partial, 2026-11-13)
+
+CSV export for orders (existing), products, customers. `shop:send-scheduled-report` command
+(weekly/monthly) emails summary to shop owner. Scheduled email reports via cron still open.
 
 - CSV export for: orders, products, customers, refunds, events.
 - Scheduled email reports (weekly/monthly) to shop owner (reuse mail template system).

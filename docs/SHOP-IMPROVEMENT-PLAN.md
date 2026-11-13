@@ -100,8 +100,11 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Analytics Phase A–D**: expanded reports (net revenue, cohorts, CLV segments, funnel,
       search terms), event tracking (shop_events + POST /api/events + analytics helper),
       GA4/Meta/TikTok pixel snippets, CSV export. Done 2026-11-13 in shop-module.
-- [ ] **Analytics Phase E–F**: see `docs/ANALYTICS-PLAN.md` - external pixels (done),
-      export/scheduled reports (CSV done; scheduled email reports still open).
+- [x] **Analytics Phase A-F**: expanded reports (net revenue, cohorts, CLV segments, funnel,
+      search terms), event tracking (shop_events + POST /api/events + analytics helper),
+      GA4/Meta/TikTok pixel snippets, CSV export (orders/products/customers), scheduled report
+      command (shop:send-scheduled-report). Done 2026-11-13 in shop-module.
+- [ ] **Analytics scheduled email reports**: wire shop:send-scheduled-report into cron + email templates.
 - [x] **Public storefront API**: Sanctum auth (login/logout/me), scopes, rate limits,
       cart + orders endpoints, OpenAPI spec at docs/openapi.yaml. Done 2026-11-12 in shop-module.
       for mobile + headless clients. Currently internal JSON only.
