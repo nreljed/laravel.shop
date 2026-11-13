@@ -93,7 +93,11 @@ Add to `ReportsController`:
 - **Top products table**: add revenue share + (placeholder) conversion.
 - **Export CSV** button (revenue, orders, top products).
 
-## Phase B — Cohorts & customers (~1 week)
+## Phase B — Cohorts & customers ✅ (implemented 2026-11-13)
+
+Cohort analysis (group customers by first-purchase month, track revenue/orders per cohort),
+CLV segments (VIP/regular/one-time/at-risk), refund/cancellation impact. Backend:
+`ReportsController::cohortAnalysis()`, `clvSegments()`. Frontend: Cohort Analysis table + Customer Segments table.
 
 ### B1. Cohort analysis
 - Group customers by first-purchase month.
@@ -110,7 +114,11 @@ Add to `ReportsController`:
 - Refund trend over time.
 - Top refunded products.
 
-## Phase C — Event tracking (instrumentation, ~1 week)
+## Phase C — Event tracking ✅ (implemented 2026-11-13)
+
+`shop_events` table + `ShopEvent` model + `POST /api/events` endpoint (throttled, allowlisted events).
+Frontend `lib/analytics.ts` with `trackEvent()` (GA4/Meta/TikTok forwarding + internal API).
+Event emission on ProductDetail (product.viewed, product.added_to_cart).
 
 Requires a new `shop_events` table (or reuse the platform's analytics). Events to capture:
 - `product.viewed` (product_id, user_id/session, source)
@@ -129,7 +137,11 @@ Backend:
 Frontend:
 - Emit events from ProductDetail (view), ProductCard (click), Cart (add), Checkout (start/complete), Search (performed).
 
-## Phase D — Funnel & conversion (~1 week, depends on C)
+## Phase D — Funnel & conversion ✅ (implemented 2026-11-13)
+
+Conversion funnel (product views → add to cart → checkout started → completed),
+cart abandonment rate, search terms report, product performance. Backend:
+`ReportsController::funnelData()`, `searchTerms()`. Frontend: Conversion Funnel bars + Top Search Terms table.
 
 - **Conversion funnel**: product views → add-to-cart → checkout started → checkout completed,
   with drop-off % at each step.
