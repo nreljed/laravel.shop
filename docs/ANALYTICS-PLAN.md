@@ -118,7 +118,9 @@ CLV segments (VIP/regular/one-time/at-risk), refund/cancellation impact. Backend
 
 `shop_events` table + `ShopEvent` model + `POST /api/events` endpoint (throttled, allowlisted events).
 Frontend `lib/analytics.ts` with `trackEvent()` (GA4/Meta/TikTok forwarding + internal API).
-Event emission on ProductDetail (product.viewed, product.added_to_cart).
+Event emission: ProductDetail (product.viewed, product.added_to_cart), ProductGrid (search.performed,
+product.viewed from autocomplete), ShoppingCart (cart.viewed), Checkout (checkout.started),
+Confirmation (checkout.completed).
 
 Requires a new `shop_events` table (or reuse the platform's analytics). Events to capture:
 - `product.viewed` (product_id, user_id/session, source)
