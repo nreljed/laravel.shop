@@ -122,6 +122,10 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **i18n extraction (Returns admin)**: converted title, subtitle, empty state, columns, actions, dialog. Done 2026-11-12.
 - [x] **i18n extraction (Questions admin)**: converted title, subtitle, empty state, columns, actions, dialog. Done 2026-11-12.
 - [x] **i18n extraction (Products Index)**: converted toast messages. Done 2026-11-12.
+- [x] **Loyalty/rewards**: `LoyaltyAccount` + `LoyaltyTransaction` models, migrations, `LoyaltyService`
+      (earn on order completion, redeem for discount), `SyncsLoyalty` observer, `LoyaltyController`,
+      customer portal routes, loyalty page (balance + redeem + history). Done 2026-11-13 in shop-module.
+- [ ] **Loyalty tiers/referrals**: tier upgrades + referral codes (still open).
 - [ ] **i18n full extraction**: remaining pages (other admin pages, emails).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
