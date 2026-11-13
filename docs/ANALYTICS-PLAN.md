@@ -163,7 +163,7 @@ TikTok Pixel events (ViewContent, AddToCart, CompletePayment).
 - **TikTok Pixel**: `ViewContent`, `AddToCart`, `CompletePayment`.
 - **Server-side tracking** (CAPI) for ad-blocker resilience.
 
-## Phase F — Export & scheduled reports ✅ (implemented 2026-11-13)
+## Phase F - Export & scheduled reports (completed 2026-11-13)
 
 CSV export for orders, products, customers (ReportsController + export buttons on Reports page).
 `shop:send-scheduled-report` command (weekly/monthly) emails a summary to the shop owner.
