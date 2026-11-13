@@ -163,10 +163,11 @@ TikTok Pixel events (ViewContent, AddToCart, CompletePayment).
 - **TikTok Pixel**: `ViewContent`, `AddToCart`, `CompletePayment`.
 - **Server-side tracking** (CAPI) for ad-blocker resilience.
 
-## Phase F — Export & scheduled reports (partial, 2026-11-13)
+## Phase F — Export & scheduled reports ✅ (implemented 2026-11-13)
 
-CSV export for orders (existing), products, customers. `shop:send-scheduled-report` command
-(weekly/monthly) emails summary to shop owner. Scheduled email reports via cron still open.
+CSV export for orders, products, customers (ReportsController + export buttons on Reports page).
+`shop:send-scheduled-report` command (weekly/monthly) emails a summary to the shop owner.
+Cron wiring in routes/console.php (weekly Monday 08:00, monthly 1st 08:00).
 
 - CSV export for: orders, products, customers, refunds, events.
 - Scheduled email reports (weekly/monthly) to shop owner (reuse mail template system).
