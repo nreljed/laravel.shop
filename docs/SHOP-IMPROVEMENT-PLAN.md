@@ -132,6 +132,7 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       (earn on order completion, redeem for discount), `SyncsLoyalty` observer, `LoyaltyController`,
       customer portal routes, loyalty page (balance + redeem + history). Done 2026-11-13 in shop-module.
 - [ ] **Loyalty tiers/referrals**: tier upgrades + referral codes (still open).
+- [x] **i18n extraction (Customers Index)**: converted title, subtitle, export, search. Done 2026-11-13.
 - [ ] **i18n full extraction**: remaining pages (other admin pages, emails).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
