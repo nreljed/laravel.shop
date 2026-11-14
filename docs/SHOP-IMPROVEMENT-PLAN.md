@@ -131,7 +131,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Loyalty/rewards**: `LoyaltyAccount` + `LoyaltyTransaction` models, migrations, `LoyaltyService`
       (earn on order completion, redeem for discount), `SyncsLoyalty` observer, `LoyaltyController`,
       customer portal routes, loyalty page (balance + redeem + history). Done 2026-11-13 in shop-module.
-- [ ] **Loyalty tiers/referrals**: tier upgrades + referral codes (still open).
+- [x] **Loyalty tiers/referrals**: tier upgrades (bronze/silver/gold based on lifetime points)
+      + referral codes (generate, share, reward both parties). Done 2026-11-14 in shop-module.
 - [x] **i18n extraction (Customers Index)**: converted title, subtitle, export, search. Done 2026-11-13.
 - [x] **i18n extraction (Coupons Index)**: converted title, empty state, copy code, activate/deactivate. Done 2026-11-13.
 - [x] **i18n extraction (Attributes Index)**: converted title, empty state. Done 2026-11-13.
