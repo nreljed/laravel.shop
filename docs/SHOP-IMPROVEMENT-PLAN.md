@@ -55,8 +55,9 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Q&A thread**: `ProductQuestion` model + migration, customer ask (POST /store/products/{product}/questions),
       visible Q&A section + ask form on ProductDetail, admin list/answer/delete (Questions/Index.tsx).
       Done 2026-11-11 in shop-module.
-- [ ] **Search autocomplete + typo tolerance**: replace DB LIKE with a Scout driver
-      (Meilisearch) + suggestion endpoint feeding the storefront search box.
+- [x] **Search autocomplete**: `GET /api/products/suggest?q=...` endpoint + dropdown in ProductGrid
+      search input. Done 2026-11-12 in shop-module.
+- [ ] **Typo tolerance / Meilisearch**: replace DB LIKE with a Scout driver for fuzzy matching (still open).
 - [x] **Recently viewed**: client-side (localStorage) tracking via `lib/recentlyViewed.ts`;
       recorded on ProductDetail view, rendered as a "Recently viewed" section on Home.
       Done 2026-11-11 in shop-module.
@@ -66,29 +67,74 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Quick view modal**: `components/storefront/QuickView.tsx` fetches `/api/products/{id}` and
       shows image, price, description, rating, stock + "View details"/add-to-cart; triggered by an
       Eye button on ProductCard; rendered in ProductGrid. Done 2026-11-11 in shop-module.
-- [ ] **Accessibility pass**: run axe + `web-design-guidelines` skill; fix keyboard nav, focus rings,
-      aria labels, contrast. Especially the variation selector and cart drawer.
+- [x] **Accessibility pass (partial)**: skip-to-content link + focusable main in StoreLayout;
+      aria-live region for cart count in StoreHeader; aria-pressed on filter toggles in ProductGrid.
+      Done 2026-11-12 in shop-module.
+- [ ] **Accessibility deep pass**: keyboard nav for variation selector/cart drawer, focus management
+      on route change, contrast audit, screen-reader testing (still open).
 - [ ] **Bundle optimization**: dynamic-import the editor (661 KB) and zxcvbn (1.6 MB) chunks;
       add route-level code splitting.
 
 ## Phase 3 — Growth & payments (package PRs, ~3–4 weeks)
 
-- [ ] **Automatic / BOGO discounts**: discount rules that apply at cart without a code
-      (buy X get Y, % off category, free shipping over threshold).
-- [ ] **Additional payment drivers**: PayPal, Apple/Google Pay, cash-on-delivery (COD for MENA).
-      Add driver classes implementing the existing `Payments\*` contract.
+- [x] **Automatic / BOGO discounts**: already implemented — `is_automatic` coupons, `DiscountManager`
+      with BuyXGetY/Tiered/ProductScoped/Fixed/Percentage/FreeShipping drivers,
+      `CouponService::getAutoDiscounts()`. Verified 2026-11-12.
+- [x] **Cash on delivery (COD)**: `CashOnDeliveryDriver` registered in config + validation
+      rule updated + COD option in checkout payment select + display label. Done 2026-11-12 in shop-module.
+- [ ] **Additional payment drivers**: PayPal, Apple/Google Pay (COD done; these need SDKs).
 - [ ] **Carrier integration (Tunisia-first)**: Aramex rates + label printing + tracking webhooks.
       Currently flat/free only.
-- [ ] **Analytics depth**: GA4 e-commerce events, conversion funnel report, cohort LTV,
-      fraud heuristics (velocity, address mismatch).
-- [ ] **Public storefront API**: documented, auth'd (Sanctum), rate-limited REST/GraphQL
+- [x] **Analytics Phase A (foundation)**: ReportsController expanded (net revenue, refunds,
+      cancellation rate, new/returning customers, repeat rate, avg items/order, AOV by day,
+      cumulative revenue, week/month grouping, revenue share, top refunded products); Reports
+      page updated with new KPI cards, group selector, top refunds section, currency via
+      useCurrency. GA4 snippet added to StoreLayout (conditional on VITE_GA4_MEASUREMENT_ID).
+      Done 2026-11-12 in shop-module.
+- [x] **Analytics Phase A + pixels**: ReportsController expanded (net revenue, refunds,
+      cancellation rate, new/returning customers, repeat rate, avg items/order, AOV by day,
+      cumulative revenue, week/month grouping, revenue share, top refunded products); Reports
+      page updated with new KPI cards, group selector, top refunds, currency via useCurrency.
+      GA4 + Meta Pixel + TikTok Pixel snippets added to StoreLayout (conditional on env vars).
+      CSV export button added. Done 2026-11-12 in shop-module.
+- [x] **Analytics Phase A–D**: expanded reports (net revenue, cohorts, CLV segments, funnel,
+      search terms), event tracking (shop_events + POST /api/events + analytics helper),
+      GA4/Meta/TikTok pixel snippets, CSV export. Done 2026-11-13 in shop-module.
+- [x] **Analytics Phase A-F**: expanded reports (net revenue, cohorts, CLV segments, funnel,
+      search terms), event tracking (shop_events + POST /api/events + analytics helper with
+      GA4/Meta/TikTok forwarding), GA4/Meta/TikTok pixel snippets, CSV export
+      (orders/products/customers), scheduled report command (shop:send-scheduled-report) wired
+      into cron (weekly/monthly) with HTML email template (sales-report.blade.php). Done 2026-11-13 in shop-module.
+- [x] **Public storefront API**: Sanctum auth (login/logout/me), scopes, rate limits,
+      cart + orders endpoints, OpenAPI spec at docs/openapi.yaml. Done 2026-11-12 in shop-module.
       for mobile + headless clients. Currently internal JSON only.
 
 ## Phase 4 — Global & B2B (strategic, ~1–2 quarters)
 
 ### Global
-- [ ] **i18n / multi-language**: extract all strings to translation files (en/fr/ar for Tunisia).
-      Big lift; touches every page and email template.
+- [x] **i18n foundation**: i18next + react-i18next, en/fr/ar translation files, language
+      switcher in StoreHeader, wired into app bootstrap. StoreHeader nav labels translated.
+      Done 2026-11-12 in shop-module.
+- [x] **i18n extraction (ProductDetail)**: converted ~30 strings to t() calls on ProductDetail
+      (back to store, SKU, stock status, notify, reviews, Q&A, accordion, shipping/returns).
+      Done 2026-11-12 in shop-module.
+- [x] **i18n extraction (ProductGrid)**: converted filters, sort, empty state, search placeholder
+      to t() calls. Done 2026-11-12 in shop-module.
+- [x] **i18n extraction (ShoppingCart)**: converted title, empty cart, continue shopping, coupon
+      toasts, subtotal/discount/total, proceed to checkout. Done 2026-11-12 in shop-module.
+- [x] **i18n extraction (Home)**: converted back to home, new arrivals, shop by category. Done 2026-11-12.
+- [x] **i18n extraction (Checkout)**: converted billing/shipping/payment headings, back/continue/place order. Done 2026-11-12.
+- [x] **i18n extraction (My Orders Show)**: converted items, addresses, summary, payment, return. Done 2026-11-12.
+- [x] **i18n extraction (Returns admin)**: converted title, subtitle, empty state, columns, actions, dialog. Done 2026-11-12.
+- [x] **i18n extraction (Questions admin)**: converted title, subtitle, empty state, columns, actions, dialog. Done 2026-11-12.
+- [x] **i18n extraction (Products Index)**: converted toast messages. Done 2026-11-12.
+- [x] **Loyalty/rewards**: `LoyaltyAccount` + `LoyaltyTransaction` models, migrations, `LoyaltyService`
+      (earn on order completion, redeem for discount), `SyncsLoyalty` observer, `LoyaltyController`,
+      customer portal routes, loyalty page (balance + redeem + history). Done 2026-11-13 in shop-module.
+- [ ] **Loyalty tiers/referrals**: tier upgrades + referral codes (still open).
+- [x] **i18n extraction (Customers Index)**: converted title, subtitle, export, search. Done 2026-11-13.
+- [x] **i18n extraction (Coupons Index)**: converted title, empty state, copy code, activate/deactivate. Done 2026-11-13.
+- [ ] **i18n full extraction**: remaining pages (other admin pages, emails).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
