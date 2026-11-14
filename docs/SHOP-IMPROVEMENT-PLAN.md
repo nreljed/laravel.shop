@@ -57,7 +57,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       Done 2026-11-11 in shop-module.
 - [x] **Search autocomplete**: `GET /api/products/suggest?q=...` endpoint + dropdown in ProductGrid
       search input. Done 2026-11-12 in shop-module.
-- [ ] **Typo tolerance / Meilisearch**: replace DB LIKE with a Scout driver for fuzzy matching (still open).
+- [x] **Typo tolerance / fuzzy search**: `FuzzyProductSearchDriver` using Levenshtein distance. Works on shared hosting. Done 2026-11-15 in shop-module.
+- [ ] **Meilisearch (optional)**: swap to Scout/Meilisearch for larger catalogs via `SHOP_SEARCH_DRIVER` config.
 - [x] **Recently viewed**: client-side (localStorage) tracking via `lib/recentlyViewed.ts`;
       recorded on ProductDetail view, rendered as a "Recently viewed" section on Home.
       Done 2026-11-11 in shop-module.
