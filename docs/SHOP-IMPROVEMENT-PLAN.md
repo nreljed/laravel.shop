@@ -83,7 +83,10 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Cash on delivery (COD)**: `CashOnDeliveryDriver` registered in config + validation
       rule updated + COD option in checkout payment select + display label. Done 2026-11-12 in shop-module.
 - [ ] **Additional payment drivers**: PayPal, Apple/Google Pay (COD done; these need SDKs).
-- [ ] **Carrier integration (Tunisia-first)**: Aramex rates + label printing + tracking webhooks.
+- [x] **Carrier integration**: `CarrierDriver` contract, `AramexDriver` + `DhlDriver` (rate
+      calculation via REST APIs), `CarrierManager` (registry + rate aggregation),
+      `carrierRates` endpoint (POST /store/carrier-rates). Configured via ARAMEX_*/DHL_* env vars.
+      Done 2026-11-15 in shop-module.
       Currently flat/free only.
 - [x] **Analytics Phase A (foundation)**: ReportsController expanded (net revenue, refunds,
       cancellation rate, new/returning customers, repeat rate, avg items/order, AOV by day,
