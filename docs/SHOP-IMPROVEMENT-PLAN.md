@@ -135,6 +135,9 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       + referral codes (generate, share, reward both parties). Done 2026-11-14 in shop-module.
 - [x] **i18n extraction (Customers Index)**: converted title, subtitle, export, search. Done 2026-11-13.
 - [x] **i18n extraction (Coupons Index)**: converted title, empty state, copy code, activate/deactivate. Done 2026-11-13.
+- [x] **i18n extraction (Attributes Index)**: converted title, empty state. Done 2026-11-13.
+- [x] **i18n extraction (Categories, Tags, Brands Index)**: converted title, add button. Done 2026-11-13.
+- [x] **i18n extraction (ShippingZones, TaxRates, Currencies Index)**: converted title, empty state, create button. Done 2026-11-13.
 - [ ] **i18n full extraction**: remaining pages (other admin pages, emails).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
