@@ -14,6 +14,8 @@ use Nreljed\Blog\Models\PostTag;
 use Nreljed\ShopModule\Events\WebhookEvents;
 use Nreljed\ShopModule\Models\Coupon;
 use Nreljed\ShopModule\Models\CouponUsage;
+use Nreljed\ShopModule\Models\LoyaltyAccount;
+use Nreljed\ShopModule\Models\LoyaltyTransaction;
 use Nreljed\ShopModule\Models\Order;
 use Nreljed\ShopModule\Models\OrderAction;
 use Nreljed\ShopModule\Models\OrderItem;
@@ -1102,6 +1104,7 @@ class GenerateDemoData extends Command
         $completedOrders = Order::where('status', 'completed')->take(3)->get();
         if ($completedOrders->isEmpty()) {
             $this->line('[SKIP] No completed orders for returns');
+
             return;
         }
 
@@ -1126,6 +1129,7 @@ class GenerateDemoData extends Command
 
             if (empty($items)) {
                 $bar->advance();
+
                 continue;
             }
 
@@ -1469,8 +1473,8 @@ class GenerateDemoData extends Command
         ReturnRequest::whereIn('user_id', $demoUsers)->delete();
 
         // Delete loyalty data for demo users
-        \Nreljed\ShopModule\Models\LoyaltyTransaction::whereIn('user_id', $demoUsers)->delete();
-        \Nreljed\ShopModule\Models\LoyaltyAccount::whereIn('user_id', $demoUsers)->delete();
+        LoyaltyTransaction::whereIn('user_id', $demoUsers)->delete();
+        LoyaltyAccount::whereIn('user_id', $demoUsers)->delete();
 
         // Delete demo user created coupons
         foreach (['WELCOME10', 'FLAT5', 'FREESHIP', 'VIP25', 'SUMMER20', 'EXPIRED10'] as $code) {
@@ -1508,7 +1512,7 @@ class GenerateDemoData extends Command
             'Reviews' => ProductReview::count(),
             'Questions' => ProductQuestion::count(),
             'Returns' => ReturnRequest::count(),
-            'Loyalty Accounts' => \Nreljed\ShopModule\Models\LoyaltyAccount::count(),
+            'Loyalty Accounts' => LoyaltyAccount::count(),
             'Webhooks' => Webhook::count(),
             'Blog Posts' => Post::count(),
         ];
