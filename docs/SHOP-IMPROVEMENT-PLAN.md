@@ -57,7 +57,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       Done 2026-11-11 in shop-module.
 - [x] **Search autocomplete**: `GET /api/products/suggest?q=...` endpoint + dropdown in ProductGrid
       search input. Done 2026-11-12 in shop-module.
-- [ ] **Typo tolerance / Meilisearch**: replace DB LIKE with a Scout driver for fuzzy matching (still open).
+- [x] **Typo tolerance / fuzzy search**: `FuzzyProductSearchDriver` using Levenshtein distance. Works on shared hosting. Done 2026-11-15 in shop-module.
+- [ ] **Meilisearch (optional)**: swap to Scout/Meilisearch for larger catalogs via `SHOP_SEARCH_DRIVER` config.
 - [x] **Recently viewed**: client-side (localStorage) tracking via `lib/recentlyViewed.ts`;
       recorded on ProductDetail view, rendered as a "Recently viewed" section on Home.
       Done 2026-11-11 in shop-module.
@@ -83,7 +84,10 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Cash on delivery (COD)**: `CashOnDeliveryDriver` registered in config + validation
       rule updated + COD option in checkout payment select + display label. Done 2026-11-12 in shop-module.
 - [ ] **Additional payment drivers**: PayPal, Apple/Google Pay (COD done; these need SDKs).
-- [ ] **Carrier integration (Tunisia-first)**: Aramex rates + label printing + tracking webhooks.
+- [x] **Carrier integration**: `CarrierDriver` contract, `AramexDriver` + `DhlDriver` (rate
+      calculation via REST APIs), `CarrierManager` (registry + rate aggregation),
+      `carrierRates` endpoint (POST /store/carrier-rates). Configured via ARAMEX_*/DHL_* env vars.
+      Done 2026-11-15 in shop-module.
       Currently flat/free only.
 - [x] **Analytics Phase A (foundation)**: ReportsController expanded (net revenue, refunds,
       cancellation rate, new/returning customers, repeat rate, avg items/order, AOV by day,
@@ -142,7 +146,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
-- [ ] **Automatic tax**: country-rate auto-lookup (or TaxJar/Avalara integration).
+- [x] **Automatic tax**: `TaxProvider` contract, `TaxJarDriver` + `AvalaraDriver` + `ManualTaxProvider`,
+      `TaxManager` (registry + fallback), `TaxService` refactored. Done 2026-11-15 in shop-module.
 
 ### B2B / wholesale (WooCommerce-style, in scope)
 - [ ] **Company accounts**: B2B customer type with tax-exempt flag, approval workflow.
