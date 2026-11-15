@@ -237,7 +237,7 @@ class GenerateDemoData extends Command
     private function downloadAvatar(string $seed): ?string
     {
         try {
-            $response = Http::timeout(15)->get("https://picsum.photos/seed/{$seed}/200/200");
+            $response = Http::timeout(15)->withoutVerifying()->get("https://picsum.photos/seed/{$seed}/200/200");
 
             if (! $response->successful()) {
                 return null;
