@@ -249,8 +249,7 @@ class GenerateDemoData extends Command
 
             return $filename;
         } catch (\Throwable $e) {
-            report($e);
-
+            // picsum.photos is best-effort for demo avatars; don't log
             return null;
         }
     }
