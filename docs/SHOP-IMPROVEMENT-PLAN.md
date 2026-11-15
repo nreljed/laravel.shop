@@ -146,7 +146,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
-- [ ] **Automatic tax**: country-rate auto-lookup (or TaxJar/Avalara integration).
+- [x] **Automatic tax**: `TaxProvider` contract, `TaxJarDriver` + `AvalaraDriver` + `ManualTaxProvider`,
+      `TaxManager` (registry + fallback), `TaxService` refactored. Done 2026-11-15 in shop-module.
 
 ### B2B / wholesale (WooCommerce-style, in scope)
 - [ ] **Company accounts**: B2B customer type with tax-exempt flag, approval workflow.
