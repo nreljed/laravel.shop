@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "80ca4a8d408fb190fac5f55462623238",
+    "content-hash": "749860fe55d653eba7b65bea959657cf",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -3822,16 +3822,16 @@
         },
         {
             "name": "nreljed/shop-module",
-            "version": "0.1.100",
+            "version": "0.1.103",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "92c7fda"
+                "reference": "b0303c97239460c087f516c0676a04f364fe5884"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/722df1600d62b31e03d83d2e9959330e0e8b829f",
-                "reference": "92c7fda",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/b0303c97239460c087f516c0676a04f364fe5884",
+                "reference": "b0303c97239460c087f516c0676a04f364fe5884",
                 "shasum": ""
             },
             "require": {
@@ -3839,7 +3839,7 @@
                 "laravel/framework": "^13.0",
                 "nreljed/platform": "^1.0",
                 "php": "^8.4",
-                "stripe/stripe-php": "^22.0"
+                "stripe/stripe-php": "^23.0"
             },
             "require-dev": {
                 "fakerphp/faker": "^1.23",
@@ -3875,10 +3875,10 @@
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
             "support": {
-                "source": "https://github.com/nreljed/shop-module/tree/v0.1.91",
+                "source": "https://github.com/nreljed/shop-module/tree/v0.1.103",
                 "issues": "https://github.com/nreljed/shop-module/issues"
             },
-            "time": "2026-11-05T16:56:55+00:00"
+            "time": "2026-11-16T16:39:06+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -5754,16 +5754,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v22.1.0",
+            "version": "v23.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "24ffd4c5708bdd490362baedb1df8efe4bf76484"
+                "reference": "f29b7a44597531c304360c3d42959aaf52e33618"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/24ffd4c5708bdd490362baedb1df8efe4bf76484",
-                "reference": "24ffd4c5708bdd490362baedb1df8efe4bf76484",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/f29b7a44597531c304360c3d42959aaf52e33618",
+                "reference": "f29b7a44597531c304360c3d42959aaf52e33618",
                 "shasum": ""
             },
             "require": {
@@ -5810,9 +5810,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v22.1.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v23.0.0"
             },
-            "time": "2026-10-29T19:51:41+00:00"
+            "time": "2026-11-11T19:52:56+00:00"
         },
         {
             "name": "symfony/clock",
