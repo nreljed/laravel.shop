@@ -3822,16 +3822,16 @@
         },
         {
             "name": "nreljed/shop-module",
-            "version": "0.1.100",
+            "version": "0.1.91",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "92c7fda"
+                "reference": "722df1600d62b31e03d83d2e9959330e0e8b829f"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/nreljed/shop-module/zipball/722df1600d62b31e03d83d2e9959330e0e8b829f",
-                "reference": "92c7fda",
+                "reference": "722df1600d62b31e03d83d2e9959330e0e8b829f",
                 "shasum": ""
             },
             "require": {
