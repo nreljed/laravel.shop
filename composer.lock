@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "80ca4a8d408fb190fac5f55462623238",
+    "content-hash": "749860fe55d653eba7b65bea959657cf",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -791,7 +791,7 @@
             ],
             "authors": [
                 {
-                    "name": "Fran\u00e7ois Zaninotto"
+                    "name": "François Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -1098,7 +1098,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1298,7 +1298,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1308,7 +1308,7 @@
                     "homepage": "https://github.com/Tobion"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -1504,26 +1504,25 @@
         },
         {
             "name": "intervention/gif",
-            "version": "5.0.1",
+            "version": "5.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/gif.git",
-                "reference": "bb395af960deffe64d70c976b4df9283f68e762d"
+                "reference": "1a7ff8a0784a32d97f9374fbe625ea5db5f8ef12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/gif/zipball/bb395af960deffe64d70c976b4df9283f68e762d",
-                "reference": "bb395af960deffe64d70c976b4df9283f68e762d",
+                "url": "https://api.github.com/repos/Intervention/gif/zipball/1a7ff8a0784a32d97f9374fbe625ea5db5f8ef12",
+                "reference": "1a7ff8a0784a32d97f9374fbe625ea5db5f8ef12",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.3"
             },
             "require-dev": {
+                "intervention/coding-standard": "^1",
                 "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^12.0",
-                "slevomat/coding-standard": "~8.0",
-                "squizlabs/php_codesniffer": "^4"
+                "phpunit/phpunit": "^12.0"
             },
             "type": "library",
             "autoload": {
@@ -1552,7 +1551,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Intervention/gif/issues",
-                "source": "https://github.com/Intervention/gif/tree/5.0.1"
+                "source": "https://github.com/Intervention/gif/tree/5.0.2"
             },
             "funding": [
                 {
@@ -1568,7 +1567,7 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2026-05-03T06:04:47+00:00"
+            "time": "2026-11-15T07:30:24+00:00"
         },
         {
             "name": "intervention/image",
@@ -3213,16 +3212,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "3.12.1",
+            "version": "3.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "d7059e4c691d05ea1222b5124bed0f961be46e15"
+                "reference": "1f5f55bb4a9a230ff6d8a4ceccea31d10b0142ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/d7059e4c691d05ea1222b5124bed0f961be46e15",
-                "reference": "d7059e4c691d05ea1222b5124bed0f961be46e15",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1f5f55bb4a9a230ff6d8a4ceccea31d10b0142ac",
+                "reference": "1f5f55bb4a9a230ff6d8a4ceccea31d10b0142ac",
                 "shasum": ""
             },
             "require": {
@@ -3302,7 +3301,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/3.12.1"
+                "source": "https://github.com/Seldaek/monolog/tree/3.13.0"
             },
             "funding": [
                 {
@@ -3314,7 +3313,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-29T19:21:12+00:00"
+            "time": "2026-11-16T10:43:05+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -3473,7 +3472,7 @@
                     "homepage": "https://davidgrudl.com"
                 }
             ],
-            "description": "\ud83d\udcd0 Nette Schema: validates and normalizes data such as configuration or API input against a schema described in a few readable lines of PHP, with precise error messages.",
+            "description": "📐 Nette Schema: validates and normalizes data such as configuration or API input against a schema described in a few readable lines of PHP, with precise error messages.",
             "homepage": "https://doc.nette.org/schema",
             "keywords": [
                 "configuration",
@@ -3556,7 +3555,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "\ud83d\udee0  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
+            "description": "🛠  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
             "homepage": "https://nette.org",
             "keywords": [
                 "array",
@@ -3758,16 +3757,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
-                "url": "git@github.com:nreljed/platform.git",
-                "reference": "7c8a753"
+                "url": "https://github.com/nreljed/platform.git",
+                "reference": "aaef72683c5851fe1a919476347db227ff729d24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/602a47f9c087eff560b6bea648805521ca96bc3a",
-                "reference": "7c8a753",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/aaef72683c5851fe1a919476347db227ff729d24",
+                "reference": "aaef72683c5851fe1a919476347db227ff729d24",
                 "shasum": ""
             },
             "require": {
@@ -3814,21 +3813,24 @@
                 }
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
-            "time": "2026-11-09T15:01:51+00:00",
-            "version_normalized": "1.0.2.0"
+            "support": {
+                "source": "https://github.com/nreljed/platform/tree/v1.0.3",
+                "issues": "https://github.com/nreljed/platform/issues"
+            },
+            "time": "2026-11-16T16:18:19+00:00"
         },
         {
             "name": "nreljed/shop-module",
-            "version": "0.1.100",
+            "version": "0.1.103",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/shop-module.git",
-                "reference": "92c7fda"
+                "reference": "b0303c97239460c087f516c0676a04f364fe5884"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/722df1600d62b31e03d83d2e9959330e0e8b829f",
-                "reference": "92c7fda",
+                "url": "https://api.github.com/repos/nreljed/shop-module/zipball/b0303c97239460c087f516c0676a04f364fe5884",
+                "reference": "b0303c97239460c087f516c0676a04f364fe5884",
                 "shasum": ""
             },
             "require": {
@@ -3836,7 +3838,7 @@
                 "laravel/framework": "^13.0",
                 "nreljed/platform": "^1.0",
                 "php": "^8.4",
-                "stripe/stripe-php": "^22.0"
+                "stripe/stripe-php": "^23.0"
             },
             "require-dev": {
                 "fakerphp/faker": "^1.23",
@@ -3872,11 +3874,10 @@
             ],
             "description": "E-commerce shop feature for the Nreljed dashboard platform (products, orders, cart, checkout, coupons, reviews, shipping, taxes, webhooks, storefront).",
             "support": {
-                "source": "https://github.com/nreljed/shop-module/tree/v0.1.91",
+                "source": "https://github.com/nreljed/shop-module/tree/v0.1.103",
                 "issues": "https://github.com/nreljed/shop-module/issues"
             },
-            "time": "2026-11-05T16:56:55+00:00",
-            "version_normalized": "0.1.100.0"
+            "time": "2026-11-16T16:39:06+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -4169,7 +4170,7 @@
             ],
             "authors": [
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com"
                 }
             ],
@@ -4231,7 +4232,7 @@
                     "email": "geloen.eric@gmail.com"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -4285,7 +4286,7 @@
                     "email": "joel.wurtz@gmail.com"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com"
                 }
             ],
@@ -4435,7 +4436,7 @@
                     "role": "Developer"
                 },
                 {
-                    "name": "Hans-J\u00fcrgen Petrich",
+                    "name": "Hans-Jürgen Petrich",
                     "email": "petrich@tronic-media.com",
                     "role": "Developer"
                 },
@@ -5060,16 +5061,16 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "4.9.4",
+            "version": "4.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "75d73f48d02797c2c285a7e9f348fadc0102ffe2"
+                "reference": "f9aa3efc8015fcbc013d84d699583b268ccb593a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/75d73f48d02797c2c285a7e9f348fadc0102ffe2",
-                "reference": "75d73f48d02797c2c285a7e9f348fadc0102ffe2",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/f9aa3efc8015fcbc013d84d699583b268ccb593a",
+                "reference": "f9aa3efc8015fcbc013d84d699583b268ccb593a",
                 "shasum": ""
             },
             "require": {
@@ -5081,23 +5082,22 @@
                 "rhumsaa/uuid": "self.version"
             },
             "require-dev": {
-                "captainhook/captainhook": "^5.25",
-                "captainhook/plugin-composer": "^5.3",
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-                "ergebnis/composer-normalize": "^2.47",
-                "mockery/mockery": "^1.6",
-                "paragonie/random-lib": "^2",
-                "php-mock/php-mock": "^2.6",
-                "php-mock/php-mock-mockery": "^1.5",
+                "captainhook/captainhook": "^5.29.3",
+                "captainhook/plugin-composer": "^5.3.3",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+                "mockery/mockery": "^1.6.15",
+                "paragonie/random-lib": "^2.0.3",
+                "php-mock/php-mock": "^2.7.0",
+                "php-mock/php-mock-mockery": "^1.5.0",
                 "php-parallel-lint/php-parallel-lint": "^1.4.0",
                 "phpbench/phpbench": "^1.2.14",
-                "phpstan/extension-installer": "^1.4",
-                "phpstan/phpstan": "^2.1",
-                "phpstan/phpstan-mockery": "^2.0",
-                "phpstan/phpstan-phpunit": "^2.0",
-                "phpunit/phpunit": "^9.6",
-                "slevomat/coding-standard": "^8.18",
-                "squizlabs/php_codesniffer": "^3.13"
+                "phpstan/extension-installer": "^1.4.3",
+                "phpstan/phpstan": "^2.3.5",
+                "phpstan/phpstan-mockery": "^2.0.0",
+                "phpstan/phpstan-phpunit": "^2.1.2",
+                "phpunit/phpunit": "^9.6.39",
+                "slevomat/coding-standard": "^8.31.3",
+                "squizlabs/php_codesniffer": "^4.0.4"
             },
             "suggest": {
                 "ext-bcmath": "Enables faster math with arbitrary-precision integers using BCMath.",
@@ -5132,9 +5132,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ramsey/uuid/issues",
-                "source": "https://github.com/ramsey/uuid/tree/4.9.4"
+                "source": "https://github.com/ramsey/uuid/tree/4.10.0"
             },
-            "time": "2026-09-16T11:39:30+00:00"
+            "time": "2026-11-14T23:23:20+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",
@@ -5752,16 +5752,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v22.1.0",
+            "version": "v23.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "24ffd4c5708bdd490362baedb1df8efe4bf76484"
+                "reference": "f29b7a44597531c304360c3d42959aaf52e33618"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/24ffd4c5708bdd490362baedb1df8efe4bf76484",
-                "reference": "24ffd4c5708bdd490362baedb1df8efe4bf76484",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/f29b7a44597531c304360c3d42959aaf52e33618",
+                "reference": "f29b7a44597531c304360c3d42959aaf52e33618",
                 "shasum": ""
             },
             "require": {
@@ -5808,9 +5808,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v22.1.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v23.0.0"
             },
-            "time": "2026-10-29T19:51:41+00:00"
+            "time": "2026-11-11T19:52:56+00:00"
         },
         {
             "name": "symfony/clock",
@@ -6025,7 +6025,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Jean-Fran\u00e7ois Simon",
+                    "name": "Jean-François Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -7620,16 +7620,16 @@
         },
         {
             "name": "symfony/polyfill-php85",
-            "version": "v1.43.0",
+            "version": "v1.44.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php85.git",
-                "reference": "86a42cbcc07adc331481a5ab310a4024bfc227f6"
+                "reference": "94c794cb5ba51784bc259f11e9f128593297d8dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php85/zipball/86a42cbcc07adc331481a5ab310a4024bfc227f6",
-                "reference": "86a42cbcc07adc331481a5ab310a4024bfc227f6",
+                "url": "https://api.github.com/repos/symfony/polyfill-php85/zipball/94c794cb5ba51784bc259f11e9f128593297d8dc",
+                "reference": "94c794cb5ba51784bc259f11e9f128593297d8dc",
                 "shasum": ""
             },
             "require": {
@@ -7676,7 +7676,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php85/tree/v1.43.0"
+                "source": "https://github.com/symfony/polyfill-php85/tree/v1.44.0"
             },
             "funding": [
                 {
@@ -7696,7 +7696,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-25T15:46:47+00:00"
+            "time": "2026-10-30T15:20:09+00:00"
         },
         {
             "name": "symfony/polyfill-php86",
@@ -7820,7 +7820,7 @@
                     "email": "nyamsprod@gmail.com"
                 },
                 {
-                    "name": "Tim D\u00fcsterhus",
+                    "name": "Tim Düsterhus",
                     "email": "tim@tideways-gmbh.com"
                 },
                 {
@@ -7905,7 +7905,7 @@
             ],
             "authors": [
                 {
-                    "name": "Gr\u00e9goire Pineau",
+                    "name": "Grégoire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -8564,7 +8564,7 @@
             ],
             "authors": [
                 {
-                    "name": "Gr\u00e9goire Pineau",
+                    "name": "Grégoire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -8771,16 +8771,16 @@
         },
         {
             "name": "tightenco/ziggy",
-            "version": "v2.6.5",
+            "version": "v2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tighten/ziggy.git",
-                "reference": "d250c158c75bb10d33e6ebc9b67d65872593ae1a"
+                "reference": "332b33cdffae2a110312a19932f7344374653855"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tighten/ziggy/zipball/d250c158c75bb10d33e6ebc9b67d65872593ae1a",
-                "reference": "d250c158c75bb10d33e6ebc9b67d65872593ae1a",
+                "url": "https://api.github.com/repos/tighten/ziggy/zipball/332b33cdffae2a110312a19932f7344374653855",
+                "reference": "332b33cdffae2a110312a19932f7344374653855",
                 "shasum": ""
             },
             "require": {
@@ -8835,9 +8835,9 @@
             ],
             "support": {
                 "issues": "https://github.com/tighten/ziggy/issues",
-                "source": "https://github.com/tighten/ziggy/tree/v2.6.5"
+                "source": "https://github.com/tighten/ziggy/tree/v2.7.0"
             },
-            "time": "2026-10-10T22:16:55+00:00"
+            "time": "2026-11-14T21:30:33+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -9276,7 +9276,7 @@
             ],
             "authors": [
                 {
-                    "name": "Th\u00e9o FIDRY",
+                    "name": "Théo FIDRY",
                     "email": "theo.fidry@gmail.com"
                 }
             ],
@@ -9946,7 +9946,7 @@
             ],
             "authors": [
                 {
-                    "name": "P\u00e1draic Brady",
+                    "name": "Pádraic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "https://github.com/padraic",
                     "role": "Author"
@@ -11947,12 +11947,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.4"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.9.0"
 }
