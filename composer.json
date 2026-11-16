@@ -40,7 +40,7 @@
         "nreljed/blog": "^0.1",
         "nreljed/marketing-module": "^0.14",
         "nreljed/platform": "1.0.4",
-        "nreljed/shop-module": "0.1.103",
+        "nreljed/shop-module": "0.1.104",
         "stripe/stripe-php": "^23.0",
         "tightenco/ziggy": "^2.6.4"
     },
