@@ -791,7 +791,7 @@
             ],
             "authors": [
                 {
-                    "name": "Fran\u00e7ois Zaninotto"
+                    "name": "François Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -1098,7 +1098,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1298,7 +1298,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -1308,7 +1308,7 @@
                     "homepage": "https://github.com/Tobion"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -3473,7 +3473,7 @@
                     "homepage": "https://davidgrudl.com"
                 }
             ],
-            "description": "\ud83d\udcd0 Nette Schema: validates and normalizes data such as configuration or API input against a schema described in a few readable lines of PHP, with precise error messages.",
+            "description": "📐 Nette Schema: validates and normalizes data such as configuration or API input against a schema described in a few readable lines of PHP, with precise error messages.",
             "homepage": "https://doc.nette.org/schema",
             "keywords": [
                 "configuration",
@@ -3556,7 +3556,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "\ud83d\udee0  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
+            "description": "🛠  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
             "homepage": "https://nette.org",
             "keywords": [
                 "array",
@@ -3758,16 +3758,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
-                "url": "git@github.com:nreljed/platform.git",
-                "reference": "7c8a753"
+                "url": "https://github.com/nreljed/platform.git",
+                "reference": "aaef72683c5851fe1a919476347db227ff729d24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/602a47f9c087eff560b6bea648805521ca96bc3a",
-                "reference": "7c8a753",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/aaef72683c5851fe1a919476347db227ff729d24",
+                "reference": "aaef72683c5851fe1a919476347db227ff729d24",
                 "shasum": ""
             },
             "require": {
@@ -3814,8 +3814,11 @@
                 }
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
-            "time": "2026-11-09T15:01:51+00:00",
-            "version_normalized": "1.0.2.0"
+            "support": {
+                "source": "https://github.com/nreljed/platform/tree/v1.0.3",
+                "issues": "https://github.com/nreljed/platform/issues"
+            },
+            "time": "2026-11-16T16:18:19+00:00"
         },
         {
             "name": "nreljed/shop-module",
@@ -3875,8 +3878,7 @@
                 "source": "https://github.com/nreljed/shop-module/tree/v0.1.91",
                 "issues": "https://github.com/nreljed/shop-module/issues"
             },
-            "time": "2026-11-05T16:56:55+00:00",
-            "version_normalized": "0.1.100.0"
+            "time": "2026-11-05T16:56:55+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -4169,7 +4171,7 @@
             ],
             "authors": [
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com"
                 }
             ],
@@ -4231,7 +4233,7 @@
                     "email": "geloen.eric@gmail.com"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -4285,7 +4287,7 @@
                     "email": "joel.wurtz@gmail.com"
                 },
                 {
-                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com"
                 }
             ],
@@ -4435,7 +4437,7 @@
                     "role": "Developer"
                 },
                 {
-                    "name": "Hans-J\u00fcrgen Petrich",
+                    "name": "Hans-Jürgen Petrich",
                     "email": "petrich@tronic-media.com",
                     "role": "Developer"
                 },
@@ -6025,7 +6027,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Jean-Fran\u00e7ois Simon",
+                    "name": "Jean-François Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -7820,7 +7822,7 @@
                     "email": "nyamsprod@gmail.com"
                 },
                 {
-                    "name": "Tim D\u00fcsterhus",
+                    "name": "Tim Düsterhus",
                     "email": "tim@tideways-gmbh.com"
                 },
                 {
@@ -7905,7 +7907,7 @@
             ],
             "authors": [
                 {
-                    "name": "Gr\u00e9goire Pineau",
+                    "name": "Grégoire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -8564,7 +8566,7 @@
             ],
             "authors": [
                 {
-                    "name": "Gr\u00e9goire Pineau",
+                    "name": "Grégoire Pineau",
                     "email": "lyrixx@lyrixx.info"
                 },
                 {
@@ -9276,7 +9278,7 @@
             ],
             "authors": [
                 {
-                    "name": "Th\u00e9o FIDRY",
+                    "name": "Théo FIDRY",
                     "email": "theo.fidry@gmail.com"
                 }
             ],
@@ -9946,7 +9948,7 @@
             ],
             "authors": [
                 {
-                    "name": "P\u00e1draic Brady",
+                    "name": "Pádraic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "https://github.com/padraic",
                     "role": "Author"
@@ -11947,12 +11949,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.4"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.9.0"
 }
