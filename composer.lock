@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0eb6f140c58ce8c17f71b50ac03735d",
+    "content-hash": "59c81295f011f81921e1111042b94852",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -3758,16 +3758,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "1.0.5",
+            "version": "1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nreljed/platform.git",
-                "reference": "7b93f5edd20fbfb9a4b5c494c1486c2079b5ae74"
+                "reference": "b00ec7526dfab3e9c650613d076fd3608660c383"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/7b93f5edd20fbfb9a4b5c494c1486c2079b5ae74",
-                "reference": "7b93f5edd20fbfb9a4b5c494c1486c2079b5ae74",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/b00ec7526dfab3e9c650613d076fd3608660c383",
+                "reference": "b00ec7526dfab3e9c650613d076fd3608660c383",
                 "shasum": ""
             },
             "require": {
@@ -3815,10 +3815,10 @@
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
             "support": {
-                "source": "https://github.com/nreljed/platform/tree/v1.0.5",
+                "source": "https://github.com/nreljed/platform/tree/v1.0.6",
                 "issues": "https://github.com/nreljed/platform/issues"
             },
-            "time": "2026-11-16T21:45:23+00:00"
+            "time": "2026-11-16T22:47:23+00:00"
         },
         {
             "name": "nreljed/shop-module",
