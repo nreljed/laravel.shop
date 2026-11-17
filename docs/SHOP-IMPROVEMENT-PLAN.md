@@ -178,8 +178,24 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 
 ## Cross-cutting
 
+- [x] **Route-level code splitting + eager-graph hygiene**: done 2026-11-17 (PR #253) — the
+      `manualChunks` generic rule `id.includes('node_modules/react')` was a *prefix* match that
+      swept `react-phone-number-input`/`react-day-picker` into the eagerly-loaded react chunk,
+      dragging `phone-vendor` (203 kB) onto every page. Specific vendor rules now run first and
+      the generic rule matches the react core exactly. Verified live: storefront preloads 18
+      chunks with no phone-vendor/zxcvbn/editor; zxcvbn (1.66 MB) and the Lexical editor (661 kB)
+      were already lazy and stay lazy.
+- [x] **Consumer auto-update freeze — root cause recorded (2026-11-17)**: the auto-updates
+      silently no-oped because a manual bump (`composer require nreljed/x:<exact>`) rewrote the
+      composer.json constraint to that exact version, and `composer update` can never move past
+      an exact pin — every dispatch run resolved the previous release and reported "already up
+      to date" *successfully*. NOT a composer VCS-cache race (first theory, wrong). Fixed in
+      PR #254: caret constraints restored (`^1.0` / `^0.1` — never `composer require` an exact
+      version again; use `composer update pkg` after widening the constraint) and both
+      `core-update.yml` + `shop-update.yml` hard-fail on a dispatch whose tag didn't resolve
+      ("Assert dispatched version resolved").
 - [ ] **Performance**: CDN for assets/images, image optimization pipeline (already webp),
-      lazy hydration, route-level code splitting.
+      lazy hydration.
 - [ ] **Testing**: add Playwright flows for checkout (guest + registered), cart merge,
       returns, review submission. Currently only auth + admin smoke.
 - [ ] **Observability**: Sentry already wired; add business metrics (conversion rate,
