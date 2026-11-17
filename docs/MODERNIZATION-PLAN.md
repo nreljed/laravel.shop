@@ -111,15 +111,21 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       boxes, badges and form errors all use semantic tokens now. Manual `dark:`
       pairs retained but reference the same token (tokens adapt via CSS vars).
 - [ ] **B2. Introduce backed enums for status fields** (G3). Candidates: `ReturnRequest`
-      (requested/approved/rejected/received/refunded) and the other 11 const groups
-      (order/payment/subscription status families in Models). Plan per model:
+      (requested/approved/rejected/received/refunded) — **done (returns domain)** and
+      the other 11 const groups (order/payment/subscription status families in
+      Models). Plan per model:
       1. Add `enum XStatus: string { case ... }` mirroring existing const values.
-      2. Add `#[ExpectedValues]`/casts: `protected $casts = ['status' => XStatus::class]`
+      2. Add casts: `protected $casts = ['status' => XStatus::class]`
          (Laravel 13 native enum casting), keep the const aliases as
          `case names` → update call sites via Pint-safe search/replace; keep DB values
          unchanged (no migration risk — strings match).
       3. Update FormRequest validation rules (`in:` lists → `Rule::enum(XStatus::class)`).
       4. Ship in one PR per domain (returns first — smallest surface), not one mega-PR.
+      **Returns domain done 2026-11-17**: shop-module #74 (v0.1.112) added
+      `Nreljed\ShopModule\Enums\ReturnStatus`, cast on `ReturnRequest`, controller
+      call sites updated; host #275. No FormRequest exists for returns (validation
+      is inline and status is not part of it). 549 phpunit tests pass. Next domain:
+      order/payment status family (larger surface — separate PR).
 - [ ] **B3. Type the 26 `any`s** (G2): start with `analytics.ts` (9) and
       `AttributeSelector.tsx` (12) — define `AnalyticsEvent` and attribute-shape interfaces.
       The strict-gate typecheck (already in shop-module CI since PR #67) enforces it once
