@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
+use Nreljed\Platform\Models\User as PlatformUser;
 use Nreljed\ShopModule\Events\CartAbandoned;
 use Nreljed\ShopModule\Events\ProductReviewed;
 use Nreljed\ShopModule\Models\Order;
@@ -33,7 +34,9 @@ class AppServiceProvider extends ServiceProvider
         // who added items while anonymous keeps them after signing in (not only at
         // checkout). Best-effort: never block the login flow on a cart merge failure.
         Event::listen(LoginEvent::class, function (LoginEvent $event): void {
-            if (! $event->user) {
+            // Login::$user is any Authenticatable; the merge service needs the
+            // platform user. Anything else has no guest cart to merge.
+            if (! $event->user instanceof PlatformUser) {
                 return;
             }
 

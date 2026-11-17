@@ -1,0 +1,10 @@
+parameters:
+	ignoreErrors:
+		# Package-typing gap (docs/MODERNIZATION-PLAN.md B4): Product::variations()
+		# needs a "@method active()" scope annotation in the shop-module repo.
+		# Delete this entry when that package PR ships.
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Console/Commands/GenerateDemoData.php

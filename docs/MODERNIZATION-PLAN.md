@@ -41,17 +41,31 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
 
 ### Phase A — Standards enforcement (host, ~half a day) — P1
 
-- [ ] **A1. Ban legacy APIs in ESLint** (host `eslint.config.js`, then mirror into
+- [x] **A1. Ban legacy APIs in ESLint** (host `eslint.config.js`, then mirror into
       shop-module's strict-gate config when convenient):
       `no-restricted-imports` → `@radix-ui/*`, `radix-ui`, `sonner`, `clsx`,
-      `tailwind-merge`, `react-dom/server` in client code;
-      `no-restricted-syntax` → `ForwardRef` calls, `React.FC`, `defaultProps`,
-      `WithStatement`, `var`; `no-restricted-globals` → `process` (frontend).
+      `tailwind-merge`, `tailwindcss-animate`;
+      `no-restricted-syntax` → `forwardRef` calls, `React.FC`/`FunctionComponent`,
+      `defaultProps`, `var`; `no-restricted-globals` → `process` (frontend,
+      playwright/vite configs exempt).
       The codebase is already compliant (0 hits) — this codifies it so regressions fail CI.
-- [ ] **A2. Adopt PHPStan (Larastan) at a modest level** in the host and shop-module
-      (level 5 to start; the packages are well-typed so it should pass with few baselines).
-      Add to composer `require --dev`, wire a `analyze` script and a CI step. Static
-      analysis is the single biggest standards-alignment lever still missing.
+      **Done 2026-11-17.**
+- [x] **A2. Adopt PHPStan (Larastan) at a modest level** — **Done 2026-11-17.**
+      `larastan/larastan v3.15.0`, level 5, `composer analyze` script,
+      `phpstan.neon` + `phpstan-baseline.neon` (1 baseline entry, see B4).
+      Key discovery: **`databaseMigrationsPath`** — Larastan infers model columns
+      from migrations, so the config must point at the package migrations
+      (`vendor/nreljed/*/database/migrations`) too, or every package-model
+      property access is `property.notFound` (this took the count 106 → 40).
+      Migrations themselves stay out of `paths` (one shop-module migration
+      chains `->after()` on a `ForeignKeyDefinition` — legacy smell to fix in
+      the package, not worth analyzing here).
+      Genuine host bugs it caught and fixed: `$item->price` → `unit_price` in
+      GenerateDemoData (silent 0.0 refunds in demo data), string-typed
+      `number_format` arg, dead nullsafe/ternary patterns, speculative
+      `?->value` on plain-string statuses, dead `@extends` tag on UserFactory.
+      Remaining host-side package-typing gaps handled with targeted
+      `@var` docblocks (Shipment, ProductVariation, OrderItem, User).
 - [ ] **A3. Pint preset check**: confirm `vendor/bin/pint --test` covers both package
       checkouts in consumer CI (it does for platform; verify shop-module) — keep PSR-12 +
       Laravel preset only, no custom legacy rules.
@@ -76,6 +90,17 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       `AttributeSelector.tsx` (12) — define `AnalyticsEvent` and attribute-shape interfaces.
       The strict-gate typecheck (already in shop-module CI since PR #67) enforces it once
       typed.
+- [ ] **B4. Package model annotations for static analysis** (shop-module + platform
+      PRs, discovered during A2): the packages' Eloquent models lack relation and
+      scope type information, so every consumer-side use of a relation degrades to
+      `Illuminate\Database\Eloquent\Model`. Needed in `shop-module`
+      (`Order::items/shipments/variations` + `Product::variations` with a
+      `@method active()` scope annotation, `ProductReview::user`) and `platform`
+      (any untyped relations the host touches). Once shipped, delete the single
+      baseline entry in `phpstan-baseline.neon` and the `@var` docblock casts the
+      host added in A2. The shared `consumer-ci.yml` PHPStan step (added in the
+      platform repo) is `hashFiles('phpstan.neon') != ''`-conditional, so each
+      consumer opts in by shipping its own `phpstan.neon`.
 
 ### Phase C — Docs & standards alignment (host, quick) — P2
 

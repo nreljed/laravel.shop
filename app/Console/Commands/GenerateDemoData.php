@@ -53,8 +53,6 @@ class GenerateDemoData extends Command
 
     private array $coupons = [];
 
-    private array $orderStatuses = ['pending', 'confirmed', 'processing', 'completed', 'cancelled', 'refunded', 'on-hold', 'failed'];
-
     private array $paymentMethods = ['stripe', 'bank_transfer', 'cash_on_delivery'];
 
     private array $addresses = [
@@ -783,7 +781,7 @@ class GenerateDemoData extends Command
                 'order_id' => $order->id,
                 'action_type' => 'refund',
                 'old_value' => null,
-                'new_value' => number_format($refund->total, 2),
+                'new_value' => number_format((float) $refund->total, 2), // decimal column comes back as string
                 'user_id' => $this->adminUser->id,
                 'notes' => $scenario['refund_reason'] ?? null,
                 'created_at' => $refundedAt ?? $createdAt->copy()->addDays(3),
@@ -901,17 +899,20 @@ class GenerateDemoData extends Command
             $carrier = $carriers[array_rand($carriers)];
             $trackingNumber = strtoupper($carrier[0]).rand(1000, 9999).'-'.Str::upper(Str::random(6));
 
+            /** @var Shipment $shipment */
             $shipment = $order->shipments()->create([
                 'carrier' => $carrier,
                 'tracking_number' => $trackingNumber,
-                'tracking_url' => $trackingNumber ? 'https://track.example.com/'.$trackingNumber : null,
+                'tracking_url' => 'https://track.example.com/'.$trackingNumber, // $trackingNumber is always generated
                 'status' => $status,
                 'shipped_at' => $shippedAt,
-                'delivered_at' => $status === 'delivered' ? $shippedAt?->copy()->addDays(2) : null,
+                // delivered implies shippedAt is set (narrowed by the diffInDays ternary above)
+                'delivered_at' => $status === 'delivered' ? $shippedAt->copy()->addDays(2) : null,
                 'notes' => 'Demo shipment generated from order fulfillment.',
                 'created_by' => $this->adminUser->id,
             ]);
 
+            /** @var OrderItem $item */
             foreach ($order->items as $item) {
                 $shipment->items()->create([
                     'order_item_id' => $item->id,
@@ -1120,11 +1121,14 @@ class GenerateDemoData extends Command
         $statuses = [ReturnRequest::STATUS_REQUESTED, ReturnRequest::STATUS_APPROVED, ReturnRequest::STATUS_REFUNDED];
 
         foreach ($completedOrders->take(3) as $i => $order) {
-            $items = $order->items->take(1)->map(fn ($item) => [
-                'order_item_id' => $item->id,
+            /** @var OrderItem|null $firstItem */
+            $firstItem = $order->items->first();
+
+            $items = $firstItem !== null ? [[
+                'order_item_id' => $firstItem->id,
                 'quantity' => 1,
                 'reason' => $reasons[array_rand($reasons)],
-            ])->values()->toArray();
+            ]] : [];
 
             if (empty($items)) {
                 $bar->advance();
@@ -1139,7 +1143,7 @@ class GenerateDemoData extends Command
                     'reason' => $reasons[array_rand($reasons)],
                     'items' => $items,
                     'status' => $statuses[$i % count($statuses)],
-                    'refund_amount' => $i === 2 ? (float) $order->items->first()->price : null,
+                    'refund_amount' => $i === 2 ? (float) $firstItem->unit_price : null,
                     'admin_notes' => $i > 0 ? 'Approved by admin' : null,
                     'approved_by' => $i > 0 ? $this->adminUser->id : null,
                     'approved_at' => $i > 0 ? now()->subDays(rand(1, 3)) : null,
@@ -1359,7 +1363,7 @@ class GenerateDemoData extends Command
         // Create tags
         $tags = [];
         foreach ($tagsData as $tagName) {
-            $tags[] = PostTag::firstOrCreate(
+            $tags[$tagName] = PostTag::firstOrCreate(
                 ['slug' => Str::slug($tagName)],
                 ['name' => $tagName]
             );
@@ -1411,7 +1415,7 @@ class GenerateDemoData extends Command
             );
 
             // Attach tags
-            $tagIds = array_map(fn ($tagName) => ($tags[array_search($tagName, $tagsData)] ?? null)?->id, $postData['tags']);
+            $tagIds = array_map(fn ($tagName) => $tags[$tagName]->id, $postData['tags']);
             $tagIds = array_filter($tagIds);
             if ($tagIds) {
                 $post->tags()->syncWithoutDetaching($tagIds);

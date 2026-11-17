@@ -46,6 +46,7 @@
     },
     "require-dev": {
         "brianium/paratest": "^7.0",
+        "larastan/larastan": "^3.15",
         "laravel/breeze": "^2.4",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
@@ -84,6 +85,9 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
+        "analyze": [
+            "@php vendor/bin/phpstan analyse --no-progress"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -119,4 +123,3 @@
     "minimum-stability": "stable",
     "prefer-stable": true
 }
-
