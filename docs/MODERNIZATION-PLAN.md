@@ -90,16 +90,21 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       `AttributeSelector.tsx` (12) — define `AnalyticsEvent` and attribute-shape interfaces.
       The strict-gate typecheck (already in shop-module CI since PR #67) enforces it once
       typed.
-- [ ] **B4. Package model annotations for static analysis** (shop-module + platform
-      PRs, discovered during A2): the packages' Eloquent models lack relation and
-      scope type information, so every consumer-side use of a relation degrades to
-      `Illuminate\Database\Eloquent\Model`. Needed in `shop-module`
-      (`Order::items/shipments/variations` + `Product::variations` with a
-      `@method active()` scope annotation, `ProductReview::user`) and `platform`
-      (any untyped relations the host touches). Once shipped, delete the single
-      baseline entry in `phpstan-baseline.neon` and the `@var` docblock casts the
-      host added in A2. The shared `consumer-ci.yml` PHPStan step (added in the
-      platform repo) is `hashFiles('phpstan.neon') != ''`-conditional, so each
+- [x] **B4. Package model annotations for static analysis** — **Done 2026-11-17.**
+      shop-module #69 (v0.1.108) added Larastan 3.x `@return` generics
+      (`HasMany<X, $this>` / `BelongsTo<X, $this>` / `BelongsToMany<X, $this>`)
+      to the relations consumers touch most: `Order` (user, shippingMethod,
+      cart, items, processor, actions, refunds, notes, shipments), `Product`
+      (attributeTerms, variations, priceRows), `ProductReview` (product, user,
+      approver). Host follow-up laravel.shop #260: deleted
+      `phpstan-baseline.neon` (the `HasMany::active()` entry resolves through
+      the typed relation + `scopeActive`), removed all four temporary `@var`
+      casts, bumped the lock to 0.1.108. PHPStan now runs at level 5 with
+      **0 errors and no baseline**. Platform `User` needed no annotations (the
+      host's `instanceof PlatformUser` guard covers it). Remaining untyped
+      relations across the package surface can be annotated opportunistically
+      when consumers trip over them — the shared `consumer-ci.yml` PHPStan step
+      (platform #66) is `hashFiles('phpstan.neon') != ''`-conditional, so each
       consumer opts in by shipping its own `phpstan.neon`.
 
 ### Phase C — Docs & standards alignment (host, quick) — P2
