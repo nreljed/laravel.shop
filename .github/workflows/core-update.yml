@@ -64,6 +64,26 @@ jobs:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer update nreljed/platform nreljed/blog --with-dependencies --no-scripts --no-interaction
 
+      # Guard against silent no-ops. `composer require nreljed/x:<exact>` pins
+      # the constraint to that exact version in composer.json, which freezes
+      # every future auto-update ("already up to date") — v1.0.7 no-oped this
+      # way on 2026-11-17 after such a pin. The constraint must stay a caret
+      # range. The dispatch payload names the expected tag; schedule /
+      # workflow_dispatch paths carry no payload and are skipped.
+      - name: Assert dispatched version resolved
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
+        run: |
+          EXPECTED="${{ github.event.client_payload.version }}"
+          if [ -n "$EXPECTED" ]; then
+            RESOLVED=$(php -r '$l=json_decode(file_get_contents("composer.lock"),true);foreach($l["packages"] as $p)if($p["name"]==="nreljed/platform"){echo "v".$p["version"];}')
+            if [ "$RESOLVED" != "$EXPECTED" ]; then
+              echo "::error::dispatch expected platform $EXPECTED but composer resolved $RESOLVED — check composer.json for an exact-version pin and the VCS tag list"
+              exit 1
+            fi
+            echo "Resolved platform $RESOLVED as dispatched."
+          fi
+
       - name: Check for changes
         id: check
         run: |
