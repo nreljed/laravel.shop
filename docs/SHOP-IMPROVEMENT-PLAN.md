@@ -49,7 +49,27 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       `$899.00` for USD shoppers at rate 1.08). Fallback rows are now converted via
       `CurrencyService::convert()`. Legacy-column fallback intentionally unchanged (no ledger ⇒ no
       currencies-table guarantee).
-- [ ] Report-only: verify `storefront` hero config keys match what `StorefrontController` passes.
+- [x] Report-only: verify `storefront` hero config keys match what `StorefrontController` passes.
+      Verified 2026-11-17 — `config('shop.storefront.hero')` passes exactly the three keys
+      `Home.tsx` consumes (`title`, `subtitle`, `cta_label`), env-overridable
+      (`STORE_HERO_TITLE`/`SUBTITLE`/`CTA`); all three render on the live storefront.
+
+### shadcn/ui audit vs latest docs (2026-11-17, shadcn 4.23 installed / 4.21 docs)
+- [x] **Conventions current**: Tailwind v4 CSS-first (`@theme inline`, `@custom-variant dark
+      (&:is(.dark *))`), oklch tokens, `data-slot` on components, Base UI primitives with
+      `render` prop + `data-open`/`data-closed`, `tw-animate-css`, React 19, no
+      `clsx`/`tailwind-merge` (official `cn` package ^0.5.0). Deps current: shadcn CLI 4.23.0,
+      `@base-ui/react` 1.9.0, `@shadcn/react` 0.3.1 (official headless kit — required by the
+      platform `message-scroller` primitive), `cn` 0.5.2, `lucide-react` 1.66.0.
+- [x] **Deliberate divergences confirmed** (keep): Base UI `toast.add()` over the docs' sonner
+      default (platform decision); `style: "base-vega"` still selects the Base-UI registry
+      (never rename to a bare theme — that fetches Radix); buttons already use the default
+      cursor (matches the 4.x change).
+- [x] **Latent trap documented** in `docs/integration/shadcn-ui.md`: the host's
+      `components.json` aliases (`@/components`) are inert — the host registers no `@/` alias
+      and all primitives are vendored from `nreljed/platform` (whose own components.json uses
+      the correct capital-`C` `@/Components`). Never run `shadcn add` in the host.
+- [x] Stale version table in `docs/integration/shadcn-ui.md` refreshed.
 
 ## Phase 2 — Conversion & trust (package PRs, ~2–3 weeks)
 
