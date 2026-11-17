@@ -93,20 +93,23 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       **Audit correction:** the original "23 occurrences" came from a
       PowerShell glob (`Select-String -Path dir\**\*.tsx`) that silently misses
       nested files — a recursive sweep found far more (see B1b).
-- [ ] **B1b. Full palette-color sweep (non-status surfaces)** — batched per
-      package with browser verification (LocalWP must be running; the B1 batch
-      was verified via compiled-CSS inspection because LocalWP was down).
-      Corrected counts as of 2026-11-17 (recursive sweep,
-      `(text|bg|border|ring|stroke|fill)-(green|red|amber|blue|emerald|rose|yellow|orange|gray)-\d`):
-      shop-module **41** (Index 17, Show 7, ProductDetail 5, Form 3,
-      ProductCard 2, ShoppingCart 2, + 7 singletons), platform **~166**
-      (system-health 27, admin index 25, password-input 15, map-debug-panel 10,
-      NotificationItem 9, TemplateSimulationSection 8, form.tsx 7,
-      Reset-Password 6, SerpPreview 5, EmailSection 4, logs 4, manage 3, …),
-      blog **~203**. Many are non-status (charts, password-strength meters,
-      debug panels) — decide per-surface: token where semantic, chart palette
-      or decorative accent where not. Known first targets: DataBackupSection:146,
-      OrphanCleanupDialog:158, platform system-health:774, blog SeoPanel:261.
+- [x] **B1b. Full palette-color sweep** — **Done 2026-11-17.**
+      All three packages now have **0 hardcoded palette colors** in their frontend
+      sources (recursive sweep), and the host bundle emits 0 palette color class
+      rules (verified on the live production CSS, app-CBW0E055.css).
+      - shop-module #72 (v0.1.111): 44 replacements; `src/Resources/js` 0 palette.
+      - platform #68 (v1.0.10): 475 replacements across 41 files; `resources/js`
+        0 palette (charts/sparklines untouched — no palette there).
+      - platform #69 (v1.0.11): starter theme preview banner.
+      - blog #16 (v0.1.14): 553 replacements across src; `src/Resources/js` 0
+        palette.
+      - Host fan-out #272 (v0.19.18): platform 1.0.11, blog 0.1.14,
+        shop-module 0.1.111; host-local `Blog/Public/Show.tsx` preview banner
+        converted to `warning` tokens (was the last host-side palette usage).
+      Password-strength meters keep 4 distinct hues (destructive -> warning ->
+      accent-cyan -> status-success); notification icons, status borders, info
+      boxes, badges and form errors all use semantic tokens now. Manual `dark:`
+      pairs retained but reference the same token (tokens adapt via CSS vars).
 - [ ] **B2. Introduce backed enums for status fields** (G3). Candidates: `ReturnRequest`
       (requested/approved/rejected/received/refunded) and the other 11 const groups
       (order/payment/subscription status families in Models). Plan per model:
@@ -162,7 +165,7 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
 
 1. A1 (ESLint bans) + C1/C2 (docs) — host PR, zero-risk, immediate standard codification.
 2. A2 (PHPStan) — host + shop-module PRs, level 5 first.
-3. B1 (status tokens) — package PRs (done: shop-module #70/#71, platform #67, blog #15); B1b full sweep next.
+3. B1 + B1b (status + palette tokens) — done: shop-module #70/#71/#72, platform #67/#68/#69, blog #15/#16; host #263/#266/#267/#269/#272; production v0.19.18; live bundle 0 palette rules.
 4. B2 (enums, returns domain first) — 2–3 small shop-module PRs.
 5. B3 (any-typing) — 1–2 shop-module PRs riding the strict gate.
 
