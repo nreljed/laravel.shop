@@ -126,10 +126,14 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       call sites updated; host #275. No FormRequest exists for returns (validation
       is inline and status is not part of it). 549 phpunit tests pass. Next domain:
       order/payment status family (larger surface — separate PR).
-- [ ] **B3. Type the 26 `any`s** (G2): start with `analytics.ts` (9) and
-      `AttributeSelector.tsx` (12) — define `AnalyticsEvent` and attribute-shape interfaces.
-      The strict-gate typecheck (already in shop-module CI since PR #67) enforces it once
-      typed.
+- [x] **B3. Type the `any`s** (G2) — **Done 2026-11-17.**
+      `src/Resources/js` now has **0 type `any`** (the only remaining `any` word is in
+      a test description string, not a type). Strict-gate typecheck passes.
+      - shop-module #76 (v0.1.114): analytics.ts (typed env + Window augmentation),
+        AttributeSelector.tsx (12 casts), QuickView, VariationsManager (Promise<unknown>
+        + typed record), WishlistButton, Settings ToggleRow, Compare, Returns
+        (STATUS_COLORS variant union).
+      - Host fan-out #279 (v0.19.20 pending deploy): shop-module 0.1.114.
 - [x] **B4. Package model annotations for static analysis** — **Done 2026-11-17.**
       shop-module #69 (v0.1.108) added Larastan 3.x `@return` generics
       (`HasMany<X, $this>` / `BelongsTo<X, $this>` / `BelongsToMany<X, $this>`)
