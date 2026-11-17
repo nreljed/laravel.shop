@@ -72,10 +72,41 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
 
 ### Phase B — shop-module package PRs (~1–2 days) — P1/P2
 
-- [ ] **B1. Replace the 23 hardcoded status colors with `status-*` tokens** (G1). The
-      platform kit ships `status-success/error/info/warning` + `status-badge.tsx`; shop
-      pages should consume them. Verify against the skill's Dark Mode Text Rule while
-      touching each file.
+- [x] **B1. Semantic status colors → `status-*` tokens** — **Done 2026-11-17.**
+      The platform kit ships `status-success/error/info/warning` + `status-badge.tsx`;
+      all status-semantic surfaces across the three packages now consume the tokens
+      (manual `dark:` pairs deleted — the CSS variables adapt in dark mode):
+      - shop-module #70 (v0.1.109): ProductSeoPanel severity map + over-length
+        counters, VariationsManager stock badges/info box/sale-price/chips,
+        StarRating fill (`warning`), WishlistButton heart (`accent-rose`),
+        Dashboard KPI deltas + low-stock card.
+      - platform #67 (v1.0.9): SeoScore gauge (text+stroke), SerpPreview
+        over-limit counter, NotificationItem `account.deleted`, system-health
+        SeverityIcon.
+      - blog #15 (v0.1.13): SeoPanel severityColor map.
+      - shop-module #71 (v0.1.110): Wishlist/Index page-heading heart
+        (`accent-rose`) — straggler found when the host bundle still emitted
+        `text-red-500`.
+      - Host fan-out: laravel.shop #263 (shop-module 0.1.109) + #266 (platform
+        1.0.9, blog 0.1.13, shop-module 0.1.110) → production v0.19.15;
+        live CSS verified (`stroke-red-500` gone, token rules emitted).
+      **Audit correction:** the original "23 occurrences" came from a
+      PowerShell glob (`Select-String -Path dir\**\*.tsx`) that silently misses
+      nested files — a recursive sweep found far more (see B1b).
+- [ ] **B1b. Full palette-color sweep (non-status surfaces)** — batched per
+      package with browser verification (LocalWP must be running; the B1 batch
+      was verified via compiled-CSS inspection because LocalWP was down).
+      Corrected counts as of 2026-11-17 (recursive sweep,
+      `(text|bg|border|ring|stroke|fill)-(green|red|amber|blue|emerald|rose|yellow|orange|gray)-\d`):
+      shop-module **41** (Index 17, Show 7, ProductDetail 5, Form 3,
+      ProductCard 2, ShoppingCart 2, + 7 singletons), platform **~166**
+      (system-health 27, admin index 25, password-input 15, map-debug-panel 10,
+      NotificationItem 9, TemplateSimulationSection 8, form.tsx 7,
+      Reset-Password 6, SerpPreview 5, EmailSection 4, logs 4, manage 3, …),
+      blog **~203**. Many are non-status (charts, password-strength meters,
+      debug panels) — decide per-surface: token where semantic, chart palette
+      or decorative accent where not. Known first targets: DataBackupSection:146,
+      OrphanCleanupDialog:158, platform system-health:774, blog SeoPanel:261.
 - [ ] **B2. Introduce backed enums for status fields** (G3). Candidates: `ReturnRequest`
       (requested/approved/rejected/received/refunded) and the other 11 const groups
       (order/payment/subscription status families in Models). Plan per model:
@@ -131,7 +162,7 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
 
 1. A1 (ESLint bans) + C1/C2 (docs) — host PR, zero-risk, immediate standard codification.
 2. A2 (PHPStan) — host + shop-module PRs, level 5 first.
-3. B1 (status tokens) — one shop-module PR.
+3. B1 (status tokens) — package PRs (done: shop-module #70/#71, platform #67, blog #15); B1b full sweep next.
 4. B2 (enums, returns domain first) — 2–3 small shop-module PRs.
 5. B3 (any-typing) — 1–2 shop-module PRs riding the strict gate.
 
