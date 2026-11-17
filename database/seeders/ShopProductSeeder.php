@@ -736,7 +736,6 @@ class ShopProductSeeder extends Seeder
             );
 
             foreach ($product->variations as $variation) {
-                /** @var ProductVariation $variation */
                 ProductPrice::updateOrCreate(
                     [
                         'product_id' => $product->id,

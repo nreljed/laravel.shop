@@ -899,7 +899,6 @@ class GenerateDemoData extends Command
             $carrier = $carriers[array_rand($carriers)];
             $trackingNumber = strtoupper($carrier[0]).rand(1000, 9999).'-'.Str::upper(Str::random(6));
 
-            /** @var Shipment $shipment */
             $shipment = $order->shipments()->create([
                 'carrier' => $carrier,
                 'tracking_number' => $trackingNumber,
@@ -912,7 +911,6 @@ class GenerateDemoData extends Command
                 'created_by' => $this->adminUser->id,
             ]);
 
-            /** @var OrderItem $item */
             foreach ($order->items as $item) {
                 $shipment->items()->create([
                     'order_item_id' => $item->id,
@@ -1121,7 +1119,6 @@ class GenerateDemoData extends Command
         $statuses = [ReturnRequest::STATUS_REQUESTED, ReturnRequest::STATUS_APPROVED, ReturnRequest::STATUS_REFUNDED];
 
         foreach ($completedOrders->take(3) as $i => $order) {
-            /** @var OrderItem|null $firstItem */
             $firstItem = $order->items->first();
 
             $items = $firstItem !== null ? [[
