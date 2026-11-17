@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Nreljed\MarketingModule\Enums\ContactStatus;
 use Nreljed\MarketingModule\Models\Contact;
@@ -28,10 +29,11 @@ class MarketingProductReviewedListener
         $contact = null;
 
         if ($review->user_id) {
+            /** @var User|null $user */
             $user = $review->user;
             if ($user && $user->email) {
                 $contact = Contact::where('email', $user->email)->first();
-                if (! $contact && $user->email) {
+                if (! $contact) {
                     $contact = Contact::firstOrCreate(
                         ['email' => $user->email],
                         [

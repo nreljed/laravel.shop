@@ -37,7 +37,7 @@ class OrderMarketingObserver
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
                 'total' => (float) $order->total,
-                'status' => $order->status?->value ?? (string) $order->status,
+                'status' => (string) $order->status, // order status is a plain string today; becomes a backed enum in MODERNIZATION-PLAN B2
                 'currency' => $order->currency,
                 'item_count' => $order->items()->count(),
             ]);
