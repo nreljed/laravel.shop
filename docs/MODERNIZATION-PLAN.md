@@ -1,0 +1,114 @@
+# Modernization & Standards Alignment Plan
+
+Evidence-based audit of legacy patterns and standards gaps across the shop app and its
+packages, with prioritized actions. Findings were grepped (not estimated) on 2026-11-17
+against `laravel.shop` main, vendored `platform` 1.0.8 and `shop-module` 0.1.107.
+
+> Ownership rules from SHOP-IMPROVEMENT-PLAN.md apply: package items are PRs in
+> `nreljed/platform` / `nreljed/shop-module`, never edits in `vendor/`. Host items are PRs
+> here.
+
+## 1. Audit snapshot (grep evidence)
+
+### Already modern — no action
+
+| Area | Evidence |
+|------|----------|
+| React 19 / shadcn 4.x conventions | 0× `forwardRef`, 0× `asChild`, 0× `React.FC`, 0× `defaultProps`, 0× `import React from "react"` (platform ui + shop-module + host) |
+| Toast | 0× `sonner` anywhere (Base UI `toast.add()` everywhere) |
+| Styling | 0× `clsx`/`tailwind-merge` imports (official `cn` pkg), 0× `ring-3`, 0× `process.env` in frontend, 0 PostCSS/tailwind.config leftovers |
+| Hardcoded colors in platform + host | 0× `text-green-500`-style (status tokens used) |
+| PHP syntax | 0× old `array(` syntax, 0× `list(`, 0× `dd(`/`dump(`, 0 legacy patterns in host `app/` |
+| PHP 8.4 features in shop-module | 23× readonly promoted props, 82× first-class callables |
+| Migrations | 82 migrations, all `foreignId()`/`id()` style — 0 legacy `unsignedInteger` FK patterns |
+| Tooling files | `postcss.config.*` / `tailwind.config.js` correctly absent; ESLint flat config present |
+
+### Gaps found (actions below)
+
+| # | Gap | Where | Count |
+|---|-----|-------|-------|
+| G1 | Hardcoded status colors (`text-red-500`-style) instead of `status-*` tokens | **shop-module** | 23 |
+| G2 | `any` types eroding TS strictness | **shop-module** 26 (AttributeSelector.tsx ×12, analytics.ts ×9), **platform** 7 | 33 |
+| G3 | String `const STATUS_*` groups instead of backed enums | **shop-module** models | 12 const groups |
+| G4 | ESLint doesn't *enforce* the modern-API rules (no bans on legacy patterns) | host (and package CI copies) | — |
+| G5 | No PHPStan/Larastan static analysis in host or shop-module composer | host + shop-module | — |
+| G6 | Stale stack claims in docs (tailwindcss-animate, Radix UI, old versions) | laravel.shop AGENTS.md, docs/integration/* | 2+ rows |
+
+Note: the 6 `isset(...) ? ... :` hits in shop-module are *correct* usage (Stripe SDK
+dynamic objects, cast-after-null-check), not legacy — do not mechanically rewrite to `??`.
+
+## 2. Recommended actions
+
+### Phase A — Standards enforcement (host, ~half a day) — P1
+
+- [ ] **A1. Ban legacy APIs in ESLint** (host `eslint.config.js`, then mirror into
+      shop-module's strict-gate config when convenient):
+      `no-restricted-imports` → `@radix-ui/*`, `radix-ui`, `sonner`, `clsx`,
+      `tailwind-merge`, `react-dom/server` in client code;
+      `no-restricted-syntax` → `ForwardRef` calls, `React.FC`, `defaultProps`,
+      `WithStatement`, `var`; `no-restricted-globals` → `process` (frontend).
+      The codebase is already compliant (0 hits) — this codifies it so regressions fail CI.
+- [ ] **A2. Adopt PHPStan (Larastan) at a modest level** in the host and shop-module
+      (level 5 to start; the packages are well-typed so it should pass with few baselines).
+      Add to composer `require --dev`, wire a `analyze` script and a CI step. Static
+      analysis is the single biggest standards-alignment lever still missing.
+- [ ] **A3. Pint preset check**: confirm `vendor/bin/pint --test` covers both package
+      checkouts in consumer CI (it does for platform; verify shop-module) — keep PSR-12 +
+      Laravel preset only, no custom legacy rules.
+
+### Phase B — shop-module package PRs (~1–2 days) — P1/P2
+
+- [ ] **B1. Replace the 23 hardcoded status colors with `status-*` tokens** (G1). The
+      platform kit ships `status-success/error/info/warning` + `status-badge.tsx`; shop
+      pages should consume them. Verify against the skill's Dark Mode Text Rule while
+      touching each file.
+- [ ] **B2. Introduce backed enums for status fields** (G3). Candidates: `ReturnRequest`
+      (requested/approved/rejected/received/refunded) and the other 11 const groups
+      (order/payment/subscription status families in Models). Plan per model:
+      1. Add `enum XStatus: string { case ... }` mirroring existing const values.
+      2. Add `#[ExpectedValues]`/casts: `protected $casts = ['status' => XStatus::class]`
+         (Laravel 13 native enum casting), keep the const aliases as
+         `case names` → update call sites via Pint-safe search/replace; keep DB values
+         unchanged (no migration risk — strings match).
+      3. Update FormRequest validation rules (`in:` lists → `Rule::enum(XStatus::class)`).
+      4. Ship in one PR per domain (returns first — smallest surface), not one mega-PR.
+- [ ] **B3. Type the 26 `any`s** (G2): start with `analytics.ts` (9) and
+      `AttributeSelector.tsx` (12) — define `AnalyticsEvent` and attribute-shape interfaces.
+      The strict-gate typecheck (already in shop-module CI since PR #67) enforces it once
+      typed.
+
+### Phase C — Docs & standards alignment (host, quick) — P2
+
+- [x] **C1. Fix stale stack claims** in `AGENTS.md` (line 36–37): `tailwindcss-animate` →
+      `tw-animate-css` (v4-native), `Radix UI` → `Base UI` (`@base-ui/react` 1.9, never
+      Radix). Done 2026-11-17 (this PR).
+- [x] **C2. Refresh stale version tables** in `docs/integration/shadcn-ui.md` (done
+      2026-11-17 in #256) and record the shadcn 4.x audit results (done in #256).
+- [ ] **C3. Add a "docs age check" habit**: when a package release bumps a dependency's
+      minor/major, the same PR must touch the owning package's `docs/integration/*` table —
+      prevents the 2-version staleness this audit found twice in one week.
+
+### Phase D — Deferred / not legacy (context) — P3
+
+- [ ] **D1. PHP property hooks (8.4)** and `#[\Override]`: not yet needed by any code
+      path; adopt opportunistically in new code rather than as a sweep.
+- [ ] **D2.isset-ternaries**: leave as-is (correct semantics for Stripe SDK objects) —
+      recorded here so a future sweep doesn't "modernize" them into bugs.
+- [ ] **D3. `data-state=` hits**: audited — all five are legitimate (TanStack table's own
+      API, sidebar's internal convention, attachment passthrough). Not Base UI violations.
+
+## 3. Execution order
+
+1. A1 (ESLint bans) + C1/C2 (docs) — host PR, zero-risk, immediate standard codification.
+2. A2 (PHPStan) — host + shop-module PRs, level 5 first.
+3. B1 (status tokens) — one shop-module PR.
+4. B2 (enums, returns domain first) — 2–3 small shop-module PRs.
+5. B3 (any-typing) — 1–2 shop-module PRs riding the strict gate.
+
+## 4. Success metrics
+
+- 0 hardcoded status colors in all trees (grep-verified)
+- 0 `any` in shop-module/platform `Resources/js`
+- `composer analyze` (PHPStan) green in all three repos' CI
+- ESLint bans green with zero suppression comments
+- `AGENTS.md` / integration docs versions match installed dependency versions on every release

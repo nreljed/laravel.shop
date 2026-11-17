@@ -33,8 +33,8 @@ Shared packages are **products**; this repo is a **consumer**. Golden rules:
 - **Backend**: Laravel 13 (PHP 8.4)
 - **Frontend**: React 19.2 + Inertia.js 3.4
 - **Build Tool**: Vite 8, TypeScript 6
-- **Styling**: Tailwind CSS v4 + tailwindcss-animate
-- **UI**: shadcn/ui (new-york, neutral base) + Radix UI + Lucide icons
+- **Styling**: Tailwind CSS v4 (CSS-first) + tw-animate-css
+- **UI**: shadcn/ui 4.x (`base-vega` style on Base UI `@base-ui/react` 1.9 — never Radix) + Lucide icons; `cn` pkg for class merging (not clsx)
 - **Forms**: Inertia `useForm` (server-side validation) + optional Zod client-side
 - **Auth**: Laravel Breeze (session-based), Sanctum
 - **Database**: SQLite (local), MySQL (production)
