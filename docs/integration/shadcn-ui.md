@@ -13,7 +13,13 @@
 | Aliases | `@/components`, `@/lib/utils`, `@/components/ui`, `@/lib`, `@/hooks` |
 | Registries | `@wds`, `@diceui` (+ default shadcn registry) |
 
-`components.json` uses `"style": "base-vega"` — the `base-` prefix selects the Base UI primitive registry, `vega` is the theme style. This is the official shadcn mechanism so `npx shadcn add/view` resolves Base UI components (from `{@base-ui/react}`) instead of Radix. Do NOT rename to a bare theme name (`nova`/`vega`) — that drops the Base UI base and fetches Radix components. Do NOT run `npx shadcn apply --preset` — it overwrites all UI components + theme CSS.
+`components.json` uses `"style": "base-vega"` - the `base-` prefix selects the Base UI primitive registry, `vega` is the theme style. This is the official shadcn mechanism so `npx shadcn add/view` resolves Base UI components (from `{@base-ui/react}`) instead of Radix. Do NOT rename to a bare theme name (`nova`/`vega`) - that drops the Base UI base and fetches Radix components. Do NOT run `npx shadcn apply --preset` - it overwrites all UI components + theme CSS.
+
+> **Do not run `shadcn add` in this host.** The `@/components` aliases in the host's
+> `components.json` are inert: the host registers no `@/` path alias in `vite.config.js` or
+> `tsconfig.json` (all imports are relative or `@nreljed/*`), and every ui/ primitive is
+> vendored from `nreljed/platform` — whose own `components.json` uses the correct
+> capital-`C` `@/Components` aliases. New components belong in a package PR, never in the host.
 
 ## Where Components Live
 
@@ -32,15 +38,15 @@ Editing UI components = package change → PR in `nreljed/platform` → tag → 
 
 | Package | Version | Notes |
 |---------|---------|-------|
-| `@base-ui/react` | ^1.5.0 (installed 1.7.x) | Unstyled primitives — used by ALL 67 ui/ components |
-| `shadcn` (devDep) | ^4.19.1 (installed 4.21.0) | Component generator / `npx shadcn diff` |
-| `@shadcn/react` | ^0.3.0 | shadcn unstyled React kit (`message-scroller`) |
-| `tailwindcss` | ^4.0.0 (installed 4.3.x) | v4 — no config file, CSS-first |
+| `@base-ui/react` | ^1.8.0 (installed 1.9.0) | Unstyled primitives — used by ALL 67 ui/ components |
+| `shadcn` (devDep) | ^4.21.1 (installed 4.23.0) | Component generator / `npx shadcn diff` — 4.x `init --base base|radix|aria` + presets |
+| `@shadcn/react` | ^0.3.1 (installed 0.3.1) | Official shadcn unstyled React kit — `message-scroller` primitive imports `@shadcn/react/message-scroller` |
+| `tailwindcss` | ^4.0.0 (installed 4.3.3) | v4 — no config file, CSS-first |
 | `@tailwindcss/vite` | ^4.0.0 (installed 4.3.x) | Vite plugin (NOT PostCSS) |
-| `tw-animate-css` | ^1.4.0 | Animation utilities (`animate-in`, `fade-in-0`, …) |
+| `tw-animate-css` | ^1.4.0 | Animation utilities (`animate-in`, `fade-in-0`, …) — still the v4 convention |
 | `class-variance-authority` | ^0.7.1 | Variants (`cva`) |
-| `clsx` + `tailwind-merge` | ^2.1.1 / ^3.6.0 | `cn()` composition |
-| `lucide-react` | ^1.35.0 | Icons |
+| `cn` | ^0.5.0 (installed 0.5.2) | `cn()` composition (replaces `clsx` + `tailwind-merge` — both absent) |
+| `lucide-react` | ^1.64.0 (installed 1.66.0) | Icons |
 | `embla-carousel-react` | ^8.6.0 | `carousel.tsx` |
 | `input-otp` | ^1.5.0 | `input-otp.tsx` |
 | `sonner` | removed (^2.0.8) | Migrated to Base UI toast — see Toast below (2026-09-08) |
