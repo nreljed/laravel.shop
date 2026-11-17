@@ -55,16 +55,23 @@ export default defineConfig({
             output: {
                 manualChunks(id) {
                     if (id.includes('Components/ui/')) return 'ui-kit';
-                    if (id.includes('node_modules/react')) return 'react-vendor';
-                    if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
-                    if (id.includes('node_modules/@inertiajs')) return 'inertia-vendor';
-                    if (id.includes('node_modules/leaflet')) return 'leaflet-vendor';
-                    if (id.includes('node_modules/@dnd-kit')) return 'dnd-vendor';
-                    if (id.includes('node_modules/date-fns')) return 'date-vendor';
-                    if (id.includes('node_modules/@zxcvbn-ts')) return 'zxcvbn-vendor';
+                    // Specific matches MUST come before the generic react-vendor
+                    // rule: `node_modules/react` is a prefix of
+                    // `react-phone-number-input` / `react-day-picker` etc., and
+                    // matching them into the eagerly-loaded react chunk drags
+                    // their own heavy deps (libphonenumber-js, date-fns) into the
+                    // static import graph of every page.
                     if (id.includes('node_modules/react-phone-number-input') || id.includes('node_modules/libphonenumber-js')) return 'phone-vendor';
                     if (id.includes('node_modules/react-hook-form')) return 'forms-vendor';
+                    if (id.includes('node_modules/date-fns')) return 'date-vendor';
+                    if (id.includes('node_modules/@zxcvbn-ts')) return 'zxcvbn-vendor';
+                    if (id.includes('node_modules/leaflet')) return 'leaflet-vendor';
+                    if (id.includes('node_modules/@dnd-kit')) return 'dnd-vendor';
+                    if (id.includes('node_modules/@inertiajs')) return 'inertia-vendor';
+                    if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
                     if (id.includes('node_modules/@base-ui')) return 'baseui-vendor';
+                    // Exact react core only (not react-* packages).
+                    if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return 'react-vendor';
                 },
             },
         },
