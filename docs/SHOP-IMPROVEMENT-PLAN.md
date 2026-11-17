@@ -34,11 +34,21 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [~] Run `npm audit fix --force` — reverted: bumped eslint to v9 and broke the unicorn rule config.
       Remaining 15 advisories (2 low, 13 moderate) are dev-only (@typescript-eslint, minimatch).
       Track upstream eslint-plugin-unicorn compatibility; do not force. Deferred.
-- [ ] Truncate `storage/logs/laravel.log` (19 MB of test noise) — done 2026-11-11.
+- [x] Truncate `storage/logs/laravel.log` (19 MB of test noise) — done 2026-11-11.
 
 ### Package PRs (shop-module)
-- [ ] `ProductDetail` JSON-LD `priceCurrency` should use the selected currency, not hardcoded `'EUR'`.
-- [ ] `ProductVariation` display-price mojibake: `config('shop.currency_symbol', '�')` → `'€'`.
+- [x] `ProductDetail` JSON-LD `priceCurrency` should use the selected currency, not hardcoded `'EUR'`.
+      Verified fixed 2026-11-17 — switching the storefront currency selector EUR→USD updates both
+      JSON-LD `offers.priceCurrency` and `product:price:currency` meta to USD (live check on
+      `/store/xiaomi-14-pro`, 0 console errors).
+- [x] `ProductVariation` display-price mojibake: `config('shop.currency_symbol', '�')` → `'€'`.
+      Verified fixed 2026-11-17 — variations render `€` on the live storefront; no `??` anywhere.
+- [x] **PriceResolver fallback conversion** (found while verifying, fixed 2026-11-17 in shop-module
+      0.1.107): when no ledger row exists in the shopper's currency, the default-currency row's
+      amounts were shown unchanged under the requested currency's symbol (EUR 899 product rendered
+      `$899.00` for USD shoppers at rate 1.08). Fallback rows are now converted via
+      `CurrencyService::convert()`. Legacy-column fallback intentionally unchanged (no ledger ⇒ no
+      currencies-table guarantee).
 - [ ] Report-only: verify `storefront` hero config keys match what `StorefrontController` passes.
 
 ## Phase 2 — Conversion & trust (package PRs, ~2–3 weeks)
@@ -150,11 +160,15 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       `TaxManager` (registry + fallback), `TaxService` refactored. Done 2026-11-15 in shop-module.
 
 ### B2B / wholesale (WooCommerce-style, in scope)
-- [ ] **Company accounts**: B2B customer type with tax-exempt flag, approval workflow.
-- [ ] **Tiered pricing**: quantity-based price breaks per product/variant.
-- [ ] **Net terms / invoicing**: pay later (Net 30/60), invoice PDF with PO number.
-- [ ] **Quotes / RFQ**: request-for-quote flow → admin converts to order.
-- [ ] **Quantity rules**: min/max order quantities, pack sizes, step increments.
+> **Deferred 2026-11-17** — the plan guidance says these ship "only when a concrete client demands
+> it; do not build speculatively". No client needs them yet. Note the underlying primitives already
+> exist: `CustomerGroup.allows_business_pricing` + group-scoped `product_prices` rows (tiered
+> pricing can ride the existing `min_quantity` column) and `QuoteService` (RFQ → quote).
+- [ ] **Company accounts**: B2B customer type with tax-exempt flag, approval workflow. *deferred*
+- [ ] **Tiered pricing**: quantity-based price breaks per product/variant. *deferred*
+- [ ] **Net terms / invoicing**: pay later (Net 30/60), invoice PDF with PO number. *deferred*
+- [ ] **Quotes / RFQ**: request-for-quote flow → admin converts to order. *deferred*
+- [ ] **Quantity rules**: min/max order quantities, pack sizes, step increments. *deferred*
 
 ### Out of scope (explicitly excluded)
 - Multi-vendor marketplace (vendor accounts, commissions, payouts).
