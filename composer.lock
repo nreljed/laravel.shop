@@ -3639,16 +3639,16 @@
         },
         {
             "name": "nreljed/blog",
-            "version": "0.1.12",
+            "version": "0.1.13",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/blog.git",
-                "reference": "1c215be7ce3957eb89b4d3a10b83504be9609e22"
+                "reference": "a3cc1e276bb06e133cf3cb22b94860e754829acf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/blog/zipball/1c215be7ce3957eb89b4d3a10b83504be9609e22",
-                "reference": "1c215be7ce3957eb89b4d3a10b83504be9609e22",
+                "url": "https://api.github.com/repos/nreljed/blog/zipball/a3cc1e276bb06e133cf3cb22b94860e754829acf",
+                "reference": "a3cc1e276bb06e133cf3cb22b94860e754829acf",
                 "shasum": ""
             },
             "require": {
@@ -3689,10 +3689,10 @@
             ],
             "description": "Blog feature for the Nreljed dashboard platform (posts, categories, tags, public blog, SEO generation).",
             "support": {
-                "source": "https://github.com/nreljed/blog/tree/v0.1.12",
+                "source": "https://github.com/nreljed/blog/tree/v0.1.13",
                 "issues": "https://github.com/nreljed/blog/issues"
             },
-            "time": "2026-11-05T16:56:31+00:00"
+            "time": "2026-11-17T13:55:47+00:00"
         },
         {
             "name": "nreljed/marketing-module",
@@ -3758,16 +3758,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "1.0.8",
+            "version": "1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nreljed/platform.git",
-                "reference": "806de3eddb3c7d59840ea1f12be0ed6a60da2703"
+                "reference": "1068ba2ec3f749208cf3db6cd1c0711388a48dab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/806de3eddb3c7d59840ea1f12be0ed6a60da2703",
-                "reference": "806de3eddb3c7d59840ea1f12be0ed6a60da2703",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/1068ba2ec3f749208cf3db6cd1c0711388a48dab",
+                "reference": "1068ba2ec3f749208cf3db6cd1c0711388a48dab",
                 "shasum": ""
             },
             "require": {
@@ -3815,10 +3815,10 @@
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
             "support": {
-                "source": "https://github.com/nreljed/platform/tree/v1.0.8",
+                "source": "https://github.com/nreljed/platform/tree/v1.0.9",
                 "issues": "https://github.com/nreljed/platform/issues"
             },
-            "time": "2026-11-17T00:28:18+00:00"
+            "time": "2026-11-17T13:55:43+00:00"
         },
         {
             "name": "nreljed/shop-module",
