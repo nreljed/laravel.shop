@@ -66,9 +66,15 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       `?->value` on plain-string statuses, dead `@extends` tag on UserFactory.
       Remaining host-side package-typing gaps handled with targeted
       `@var` docblocks (Shipment, ProductVariation, OrderItem, User).
-- [ ] **A3. Pint preset check**: confirm `vendor/bin/pint --test` covers both package
-      checkouts in consumer CI (it does for platform; verify shop-module) — keep PSR-12 +
-      Laravel preset only, no custom legacy rules.
+- [x] **A3. Pint preset check** — **Done 2026-11-17.**
+      Platform already ran `vendor/bin/pint --test` in its CI. Shop-module now does
+      too: added `laravel/pint: ^1.32` to `require-dev` and a `Laravel Pint (style
+      gate)` step (`vendor/bin/pint --test`) to `.github/workflows/ci.yml`. Ran
+      Pint over the entire shop-module tree (src, config, database, scripts, tests)
+      — ~120 files fixed; `vendor/bin/pint --test` now passes. Default preset
+      (PSR-12 + Laravel) only, no custom legacy rules.
+      - shop-module #77 (v0.1.115): pint dep + CI step + full source cleanup.
+      - Host fan-out #282 (v0.19.21 pending deploy): shop-module 0.1.115.
 
 ### Phase B — shop-module package PRs (~1–2 days) — P1/P2
 
@@ -173,11 +179,12 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
 
 ## 3. Execution order
 
-1. A1 (ESLint bans) + C1/C2 (docs) — host PR, zero-risk, immediate standard codification.
-2. A2 (PHPStan) — host + shop-module PRs, level 5 first.
-3. B1 + B1b (status + palette tokens) — done: shop-module #70/#71/#72, platform #67/#68/#69, blog #15/#16; host #263/#266/#267/#269/#272; production v0.19.18; live bundle 0 palette rules.
-4. B2 (enums, returns domain first) — 2–3 small shop-module PRs.
-5. B3 (any-typing) — 1–2 shop-module PRs riding the strict gate.
+1. A1 (ESLint bans) + C1/C2 (docs) - host PR, zero-risk, immediate standard codification. (done)
+2. A2 (PHPStan) - host + shop-module PRs, level 5 first. (done)
+3. A3 (Pint) - shop-module #77 (v0.1.115): pint dep + CI step + full source cleanup. (done)
+4. B1 + B1b (status + palette tokens) - done.
+5. B2 (enums) - returns (#74) + const groups (#75) done; order/payment/subscription status families remain.
+6. B3 (any-typing) - done (#76).
 
 ## 4. Success metrics
 
