@@ -4,10 +4,10 @@
 
 | Package | Version (installed) | Range in package.json | Status |
 |---------|-------------------|----------------------|--------|
-| `react` | 19.2.7 | `^19.0.0` | Up to date |
-| `react-dom` | 19.2.7 | `^19.0.0` | Up to date |
-| `@types/react` | ^19.0.0 | `^19.0.0` | Up to date |
-| `@types/react-dom` | ^19.0.0 | `^19.0.0` | Up to date |
+| `react` | 19.3.1 | `^19.2.8` | Up to date |
+| `react-dom` | 19.3.1 | `^19.2.8` | Up to date |
+| `@types/react` | 19.3.0 | `^19.0.0` | Up to date |
+| `@types/react-dom` | 19.3.0 | `^19.3.0` | Up to date |
 
 CRM-dashboard reference: `react@^19.2.7`, same major.
 

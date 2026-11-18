@@ -157,9 +157,14 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       Radix). Done 2026-11-17 (this PR).
 - [x] **C2. Refresh stale version tables** in `docs/integration/shadcn-ui.md` (done
       2026-11-17 in #256) and record the shadcn 4.x audit results (done in #256).
-- [ ] **C3. Add a "docs age check" habit**: when a package release bumps a dependency's
+- [x] **C3. Add a "docs age check" habit**: when a package release bumps a dependency's
       minor/major, the same PR must touch the owning package's `docs/integration/*` table —
       prevents the 2-version staleness this audit found twice in one week.
+      **Done 2026-11-18.** `scripts/check-docs-versions.mjs` parses the version tables
+      in `docs/integration/*.md` and fails if any claim ≠ the installed version in
+      `package-lock.json`. Wired into `ci.yml` as a `docs-age-check` job; the habit is
+      documented in AGENTS.md. Stale claims fixed in the same PR (react 19.2.7→19.3.1,
+      react-dom, @inertiajs/react 3.4.0→3.9.1, @tailwindcss/vite 4.3.x→4.3.3).
 
 ### Phase D — Deferred / not legacy (context) — P3
 
