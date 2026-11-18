@@ -31,7 +31,7 @@ class MarketingProductReviewedListener
             $user = $review->user;
             if ($user && $user->email) {
                 $contact = Contact::where('email', $user->email)->first();
-                if (! $contact && $user->email) {
+                if (! $contact) {
                     $contact = Contact::firstOrCreate(
                         ['email' => $user->email],
                         [

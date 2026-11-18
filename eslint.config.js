@@ -157,6 +157,53 @@ export default [
       "@typescript-eslint/no-require-imports": "off",
     },
   },
+  // Modern-API enforcement (MODERNIZATION-PLAN.md Phase A1): the codebase is
+  // already compliant — these bans make the regressions fail CI. Base UI
+  // primitives (render prop) replaced Radix; the `cn` npm package replaced
+  // clsx+tailwind-merge; toast.add() replaced sonner; tw-animate-css replaced
+  // the v3-era tailwindcss-animate plugin.
+  {
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: ["@radix-ui/*", "radix-ui"], message: "Use Base UI primitives (@base-ui/react) — composition is the render prop, never asChild." },
+            { group: ["sonner"], message: "Use toast.add() from the platform toast module (Base UI toast manager)." },
+            { group: ["clsx", "tailwind-merge"], message: "Use the `cn` package (re-exports @/lib/utils)." },
+            { group: ["tailwindcss-animate"], message: "Legacy v3 plugin — tw-animate-css is the v4-native replacement." },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        { selector: "VariableDeclaration[kind='var']", message: "Use const/let — var is function-scoped legacy." },
+        { selector: "CallExpression[callee.name='forwardRef']", message: "React 19: ref is a regular prop — drop forwardRef (shadcn 4.x components do)." },
+        { selector: "CallExpression[callee.property.name='forwardRef']", message: "React 19: ref is a regular prop — drop React.forwardRef (shadcn 4.x components do)." },
+        { selector: "TSTypeReference[typeName.name='FC']", message: "Annotate props explicitly instead of React.FC — avoids implicit children and generics friction." },
+        { selector: "TSTypeReference[typeName.property.name='FC']", message: "Annotate props explicitly instead of React.FC — avoids implicit children and generics friction." },
+        { selector: "TSTypeReference[typeName.name='FunctionComponent']", message: "Annotate props explicitly instead of FunctionComponent." },
+        { selector: "TSTypeReference[typeName.property.name='FunctionComponent']", message: "Annotate props explicitly instead of React.FunctionComponent." },
+        { selector: "PropertyDefinition[key.name='defaultProps']", message: "defaultProps is deprecated in React 19 — use default parameter values." },
+        { selector: "Property[key.name='defaultProps']", message: "defaultProps is deprecated in React 19 — use default parameter values." },
+      ],
+      "no-restricted-globals": [
+        "error",
+        { name: "process", message: "Frontend code uses import.meta.env (Vite) — process.env is a Node global that breaks the browser bundle." },
+      ],
+    },
+  },
+  {
+    files: ["playwright.config.ts", "vite.config.js"],
+    rules: {
+      "no-restricted-globals": "off",
+    },
+  },
   // The e2e harness drives local sites (shop-laravel.local, 127.0.0.1) that
   // Local serves over plain HTTP, so the http URLs in its defaults and docs
   // are by design and eslint --fix must not rewrite them to https. Kept last

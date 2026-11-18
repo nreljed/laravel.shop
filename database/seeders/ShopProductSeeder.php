@@ -525,21 +525,19 @@ class ShopProductSeeder extends Seeder
         }
 
         // Attach grouped items to the bundle (Xiaomi Smart Life Bundle)
-        $bundle = $createdProducts['xiaomi-smart-life-bundle'] ?? null;
-        $charger = $createdProducts['xiaomi-67w-turbo-charger'] ?? null;
-        $powerbank = $createdProducts['xiaomi-20000mah-power-bank-3'] ?? null;
+        $bundle = $createdProducts['xiaomi-smart-life-bundle'];
+        $charger = $createdProducts['xiaomi-67w-turbo-charger'];
+        $powerbank = $createdProducts['xiaomi-20000mah-power-bank-3'];
 
-        if ($bundle && $charger && $powerbank) {
-            $bundle->groupedItems()->sync([
-                $charger->id => ['quantity' => 1, 'sort_order' => 1],
-                $powerbank->id => ['quantity' => 1, 'sort_order' => 2],
-            ]);
-        }
+        $bundle->groupedItems()->sync([
+            $charger->id => ['quantity' => 1, 'sort_order' => 1],
+            $powerbank->id => ['quantity' => 1, 'sort_order' => 2],
+        ]);
 
         // Set up variable product attributes and variations for Redmi Note 13 Pro
-        $redmiNote = $createdProducts['redmi-note-13-pro'] ?? null;
+        $redmiNote = $createdProducts['redmi-note-13-pro'];
 
-        if ($redmiNote && $attributeData['color'] && $attributeData['storage']) {
+        if ($attributeData['color'] && $attributeData['storage']) {
             $redmiNote->globalAttributes()->sync([
                 $attributeData['color']->id,
                 $attributeData['storage']->id,
@@ -688,33 +686,31 @@ class ShopProductSeeder extends Seeder
         }
 
         // Create downloads for the digital product (Xiaomi Pro Themes Pack)
-        $themesPack = $createdProducts['xiaomi-pro-themes-pack'] ?? null;
+        $themesPack = $createdProducts['xiaomi-pro-themes-pack'];
 
-        if ($themesPack) {
-            $downloads = [
-                [
-                    'name' => 'Xiaomi Pro Themes Pack v1.0',
-                    'file' => 'downloads/xiaomi-pro-themes-v1.zip',
-                    'download_limit' => 3,
-                    'download_expiry' => 365,
-                    'sort_order' => 1,
-                ],
-                [
-                    'name' => 'Xiaomi Wallpaper Collection',
-                    'file' => 'downloads/xiaomi-wallpapers-hd.zip',
-                    'download_limit' => -1,
-                    'download_expiry' => null,
-                    'sort_order' => 2,
-                ],
-            ];
+        $downloads = [
+            [
+                'name' => 'Xiaomi Pro Themes Pack v1.0',
+                'file' => 'downloads/xiaomi-pro-themes-v1.zip',
+                'download_limit' => 3,
+                'download_expiry' => 365,
+                'sort_order' => 1,
+            ],
+            [
+                'name' => 'Xiaomi Wallpaper Collection',
+                'file' => 'downloads/xiaomi-wallpapers-hd.zip',
+                'download_limit' => -1,
+                'download_expiry' => null,
+                'sort_order' => 2,
+            ],
+        ];
 
-            foreach ($downloads as $dlData) {
-                $dlData['product_id'] = $themesPack->id;
-                ProductDownload::firstOrCreate(
-                    ['product_id' => $themesPack->id, 'name' => $dlData['name']],
-                    $dlData
-                );
-            }
+        foreach ($downloads as $dlData) {
+            $dlData['product_id'] = $themesPack->id;
+            ProductDownload::firstOrCreate(
+                ['product_id' => $themesPack->id, 'name' => $dlData['name']],
+                $dlData
+            );
         }
     }
 

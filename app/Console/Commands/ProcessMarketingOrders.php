@@ -79,7 +79,7 @@ class ProcessMarketingOrders extends Command
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
                 'total' => (float) $order->total,
-                'status' => $order->status?->value ?? (string) $order->status,
+                'status' => $order->status->value, // backed enum in MODERNIZATION-PLAN B2
                 'currency' => $order->currency,
                 'item_count' => $order->items()->count(),
             ]);

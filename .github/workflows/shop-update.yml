@@ -76,6 +76,27 @@ jobs:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
         run: composer update nreljed/shop-module --with-dependencies --no-scripts --no-interaction
 
+      # Guard against silent no-ops. `composer require nreljed/x:<exact>` pins
+      # the constraint to that exact version in composer.json, which freezes
+      # every future auto-update ("already up to date") — v1.0.7 and v0.1.107
+      # both no-oped this way on 2026-11-17 after such a pin. The constraint
+      # must stay a caret range (see the assertion in ci.yml of the packages:
+      # versions and tags must agree). The dispatch payload names the expected
+      # tag; schedule/workflow_dispatch paths carry no payload and are skipped.
+      - name: Assert dispatched version resolved
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GH_TOKEN }}"}}'
+        run: |
+          EXPECTED="${{ github.event.client_payload.version }}"
+          if [ -n "$EXPECTED" ]; then
+            RESOLVED=$(php -r '$l=json_decode(file_get_contents("composer.lock"),true);foreach($l["packages"] as $p)if($p["name"]==="nreljed/shop-module"){echo "v".$p["version"];}')
+            if [ "$RESOLVED" != "$EXPECTED" ]; then
+              echo "::error::dispatch expected shop-module $EXPECTED but composer resolved $RESOLVED — check composer.json for an exact-version pin and the VCS tag list"
+              exit 1
+            fi
+            echo "Resolved shop-module $RESOLVED as dispatched."
+          fi
+
       - name: Check for changes
         id: check
         run: |
@@ -155,8 +176,9 @@ jobs:
 
           # Clean up a stale branch left behind by a previously failed run.
           git push origin --delete "$BRANCH" 2>/dev/null || true
+          git branch -D "$BRANCH" 2>/dev/null || true
 
-          git checkout -b "$BRANCH"
+          git checkout -B "$BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add composer.lock

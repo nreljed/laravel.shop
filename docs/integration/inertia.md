@@ -4,8 +4,8 @@
 
 | Package | Version (installed) | Latest available | Status |
 |---------|-------------------|-----------------|--------|
-| `@inertiajs/react` | 3.4.0 | ^3.5.0 (CRM) | Outdated by 1 minor |
-| `@inertiajs/vite` | **Not installed** | ^3.5.0 (CRM) | **Missing** |
+| `@inertiajs/react` | 3.9.1 | ^3.9.1 | Up to date |
+| `@inertiajs/vite` | **Not installed** | ^3.9.1 | **Missing** |
 
 ---
 

@@ -11,9 +11,12 @@ use Illuminate\Support\Str;
 use Nreljed\Blog\Models\Post;
 use Nreljed\Blog\Models\PostCategory;
 use Nreljed\Blog\Models\PostTag;
+use Nreljed\ShopModule\Enums\OrderStatus;
 use Nreljed\ShopModule\Events\WebhookEvents;
 use Nreljed\ShopModule\Models\Coupon;
 use Nreljed\ShopModule\Models\CouponUsage;
+use Nreljed\ShopModule\Models\LoyaltyAccount;
+use Nreljed\ShopModule\Models\LoyaltyTransaction;
 use Nreljed\ShopModule\Models\Order;
 use Nreljed\ShopModule\Models\OrderAction;
 use Nreljed\ShopModule\Models\OrderItem;
@@ -21,13 +24,16 @@ use Nreljed\ShopModule\Models\OrderNote;
 use Nreljed\ShopModule\Models\OrderRefund;
 use Nreljed\ShopModule\Models\Product;
 use Nreljed\ShopModule\Models\ProductPrice;
+use Nreljed\ShopModule\Models\ProductQuestion;
 use Nreljed\ShopModule\Models\ProductReview;
+use Nreljed\ShopModule\Models\ReturnRequest;
 use Nreljed\ShopModule\Models\Shipment;
 use Nreljed\ShopModule\Models\ShippingMethod;
 use Nreljed\ShopModule\Models\StockAdjustment;
 use Nreljed\ShopModule\Models\TaxRate;
 use Nreljed\ShopModule\Models\Webhook;
 use Nreljed\ShopModule\Services\CurrencyService;
+use Nreljed\ShopModule\Services\LoyaltyService;
 use Nreljed\ShopModule\Services\PriceResolver;
 
 class GenerateDemoData extends Command
@@ -47,8 +53,6 @@ class GenerateDemoData extends Command
     private array $taxRates = [];
 
     private array $coupons = [];
-
-    private array $orderStatuses = ['pending', 'confirmed', 'processing', 'completed', 'cancelled', 'refunded', 'on-hold', 'failed'];
 
     private array $paymentMethods = ['stripe', 'bank_transfer', 'cash_on_delivery'];
 
@@ -154,6 +158,9 @@ class GenerateDemoData extends Command
         $this->createShipments();
         $this->createWebhooks();
         $this->createProductReviews();
+        $this->createProductQuestions();
+        $this->createReturnRequests();
+        $this->createLoyaltyData();
         $this->createStockHistory();
         $this->createBlogPosts();
 
@@ -229,7 +236,7 @@ class GenerateDemoData extends Command
     private function downloadAvatar(string $seed): ?string
     {
         try {
-            $response = Http::timeout(15)->get("https://picsum.photos/seed/{$seed}/200/200");
+            $response = Http::timeout(15)->withoutVerifying()->get("https://picsum.photos/seed/{$seed}/200/200");
 
             if (! $response->successful()) {
                 return null;
@@ -241,8 +248,7 @@ class GenerateDemoData extends Command
 
             return $filename;
         } catch (\Throwable $e) {
-            report($e);
-
+            // picsum.photos is best-effort for demo avatars; don't log
             return null;
         }
     }
@@ -776,7 +782,7 @@ class GenerateDemoData extends Command
                 'order_id' => $order->id,
                 'action_type' => 'refund',
                 'old_value' => null,
-                'new_value' => number_format($refund->total, 2),
+                'new_value' => number_format((float) $refund->total, 2), // decimal column comes back as string
                 'user_id' => $this->adminUser->id,
                 'notes' => $scenario['refund_reason'] ?? null,
                 'created_at' => $refundedAt ?? $createdAt->copy()->addDays(3),
@@ -890,17 +896,18 @@ class GenerateDemoData extends Command
 
             $shippedAt = $order->shipped_at;
             $daysSince = $shippedAt ? $shippedAt->diffInDays(now()) : 0;
-            $status = $daysSince >= 3 && ! in_array($order->status, ['cancelled', 'refunded']) ? 'delivered' : 'shipped';
+            $status = $daysSince >= 3 && ! in_array($order->status, [OrderStatus::Cancelled, OrderStatus::Refunded]) ? 'delivered' : 'shipped';
             $carrier = $carriers[array_rand($carriers)];
             $trackingNumber = strtoupper($carrier[0]).rand(1000, 9999).'-'.Str::upper(Str::random(6));
 
             $shipment = $order->shipments()->create([
                 'carrier' => $carrier,
                 'tracking_number' => $trackingNumber,
-                'tracking_url' => $trackingNumber ? 'https://track.example.com/'.$trackingNumber : null,
+                'tracking_url' => 'https://track.example.com/'.$trackingNumber, // $trackingNumber is always generated
                 'status' => $status,
                 'shipped_at' => $shippedAt,
-                'delivered_at' => $status === 'delivered' ? $shippedAt?->copy()->addDays(2) : null,
+                // delivered implies shippedAt is set (narrowed by the diffInDays ternary above)
+                'delivered_at' => $status === 'delivered' ? $shippedAt->copy()->addDays(2) : null,
                 'notes' => 'Demo shipment generated from order fulfillment.',
                 'created_by' => $this->adminUser->id,
             ]);
@@ -1036,6 +1043,138 @@ class GenerateDemoData extends Command
                 ]
             );
 
+            $bar->advance();
+        }
+
+        $bar->finish();
+        $this->newLine();
+    }
+
+    private function createProductQuestions(): void
+    {
+        $this->info('Creating product Q&A...');
+
+        if (empty($this->customerUsers) || empty($this->products)) {
+            return;
+        }
+
+        $questions = [
+            ['product' => 0, 'user' => 0, 'question' => 'Does this phone support wireless charging?', 'answer' => 'Yes, it supports 50W wireless charging.', 'answered' => true],
+            ['product' => 0, 'user' => 1, 'question' => 'What is the battery life like?', 'answer' => null, 'answered' => false],
+            ['product' => 1, 'user' => 2, 'question' => 'Is there a 5G version available?', 'answer' => 'Yes, all variants support 5G connectivity.', 'answered' => true],
+            ['product' => 2, 'user' => 3, 'question' => 'Can I use this with my existing charger?', 'answer' => 'It supports USB-C PD, so most modern chargers work.', 'answered' => true],
+            ['product' => 3, 'user' => 4, 'question' => 'What colors are available?', 'answer' => null, 'answered' => false],
+            ['product' => 4, 'user' => 5, 'question' => 'Is this waterproof?', 'answer' => 'Yes, it has IP68 water resistance rating.', 'answered' => true],
+        ];
+
+        $bar = $this->output->createProgressBar(count($questions));
+        $bar->start();
+
+        foreach ($questions as $data) {
+            $product = Product::skip($data['product'])->first() ?? $this->products[array_rand($this->products)];
+            if (! $product) {
+                continue;
+            }
+
+            $userIdx = $data['user'] % count($this->customerUsers);
+            $user = $this->customerUsers[$userIdx] ?? $this->customerUsers[0];
+
+            ProductQuestion::firstOrCreate(
+                ['product_id' => $product->id, 'user_id' => $user->id, 'question' => $data['question']],
+                [
+                    'answer' => $data['answer'],
+                    'answered_by' => $data['answered'] ? $this->adminUser->id : null,
+                    'answered_at' => $data['answered'] ? now()->subDays(rand(1, 5)) : null,
+                    'is_visible' => true,
+                ]
+            );
+
+            $bar->advance();
+        }
+
+        $bar->finish();
+        $this->newLine();
+    }
+
+    private function createReturnRequests(): void
+    {
+        $this->info('Creating return requests...');
+
+        $completedOrders = Order::where('status', 'completed')->take(3)->get();
+        if ($completedOrders->isEmpty()) {
+            $this->line('[SKIP] No completed orders for returns');
+
+            return;
+        }
+
+        $reasons = [
+            'Product arrived damaged',
+            'Not as described',
+            'Changed my mind',
+            'Wrong item received',
+        ];
+
+        $bar = $this->output->createProgressBar(min(3, $completedOrders->count()));
+        $bar->start();
+
+        $statuses = [ReturnRequest::STATUS_REQUESTED, ReturnRequest::STATUS_APPROVED, ReturnRequest::STATUS_REFUNDED];
+
+        foreach ($completedOrders->take(3) as $i => $order) {
+            $firstItem = $order->items->first();
+
+            $items = $firstItem !== null ? [[
+                'order_item_id' => $firstItem->id,
+                'quantity' => 1,
+                'reason' => $reasons[array_rand($reasons)],
+            ]] : [];
+
+            if (empty($items)) {
+                $bar->advance();
+
+                continue;
+            }
+
+            ReturnRequest::firstOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'user_id' => $order->user_id,
+                    'reason' => $reasons[array_rand($reasons)],
+                    'items' => $items,
+                    'status' => $statuses[$i % count($statuses)],
+                    'refund_amount' => $i === 2 ? (float) $firstItem->unit_price : null,
+                    'admin_notes' => $i > 0 ? 'Approved by admin' : null,
+                    'approved_by' => $i > 0 ? $this->adminUser->id : null,
+                    'approved_at' => $i > 0 ? now()->subDays(rand(1, 3)) : null,
+                ]
+            );
+
+            $bar->advance();
+        }
+
+        $bar->finish();
+        $this->newLine();
+    }
+
+    private function createLoyaltyData(): void
+    {
+        $this->info('Creating loyalty data...');
+
+        if (empty($this->customerUsers)) {
+            return;
+        }
+
+        $loyaltyService = app(LoyaltyService::class);
+
+        $completedOrders = Order::where('status', 'completed')->get();
+        $bar = $this->output->createProgressBar($completedOrders->count());
+        $bar->start();
+
+        foreach ($completedOrders as $order) {
+            try {
+                $loyaltyService->earnForOrder($order);
+            } catch (\Throwable $e) {
+                // ignore
+            }
             $bar->advance();
         }
 
@@ -1222,7 +1361,7 @@ class GenerateDemoData extends Command
         // Create tags
         $tags = [];
         foreach ($tagsData as $tagName) {
-            $tags[] = PostTag::firstOrCreate(
+            $tags[$tagName] = PostTag::firstOrCreate(
                 ['slug' => Str::slug($tagName)],
                 ['name' => $tagName]
             );
@@ -1274,7 +1413,7 @@ class GenerateDemoData extends Command
             );
 
             // Attach tags
-            $tagIds = array_map(fn ($tagName) => ($tags[array_search($tagName, $tagsData)] ?? null)?->id, $postData['tags']);
+            $tagIds = array_map(fn ($tagName) => $tags[$tagName]->id, $postData['tags']);
             $tagIds = array_filter($tagIds);
             if ($tagIds) {
                 $post->tags()->syncWithoutDetaching($tagIds);
@@ -1328,6 +1467,16 @@ class GenerateDemoData extends Command
         // Delete reviews by demo users
         ProductReview::whereIn('user_id', $demoUsers)->delete();
 
+        // Delete questions by demo users
+        ProductQuestion::whereIn('user_id', $demoUsers)->delete();
+
+        // Delete return requests by demo users
+        ReturnRequest::whereIn('user_id', $demoUsers)->delete();
+
+        // Delete loyalty data for demo users
+        LoyaltyTransaction::whereIn('user_id', $demoUsers)->delete();
+        LoyaltyAccount::whereIn('user_id', $demoUsers)->delete();
+
         // Delete demo user created coupons
         foreach (['WELCOME10', 'FLAT5', 'FREESHIP', 'VIP25', 'SUMMER20', 'EXPIRED10'] as $code) {
             Coupon::where('code', $code)->delete();
@@ -1361,6 +1510,10 @@ class GenerateDemoData extends Command
             'Tax Rates' => count($this->taxRates),
             'Orders' => Order::count(),
             'Shipments' => Shipment::count(),
+            'Reviews' => ProductReview::count(),
+            'Questions' => ProductQuestion::count(),
+            'Returns' => ReturnRequest::count(),
+            'Loyalty Accounts' => LoyaltyAccount::count(),
             'Webhooks' => Webhook::count(),
             'Blog Posts' => Post::count(),
         ];
