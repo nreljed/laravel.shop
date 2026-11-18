@@ -157,11 +157,14 @@ class ShopEnvCheckCommand extends Command
 
             $root = str_replace('/', '\\', $matches[1]);
 
-            if (basename($root) !== 'public') {
+            $parts = preg_split('#[\\\\/]#', rtrim($root, '\\/'));
+
+            if ($parts === false || end($parts) !== 'public') {
                 continue;
             }
 
-            $apps[] = dirname($root);
+            array_pop($parts);
+            $apps[] = implode('\\', $parts);
         }
 
         return array_values(array_unique($apps));
