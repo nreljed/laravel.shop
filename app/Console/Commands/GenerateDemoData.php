@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Nreljed\Blog\Models\Post;
 use Nreljed\Blog\Models\PostCategory;
 use Nreljed\Blog\Models\PostTag;
+use Nreljed\ShopModule\Enums\OrderStatus;
 use Nreljed\ShopModule\Events\WebhookEvents;
 use Nreljed\ShopModule\Models\Coupon;
 use Nreljed\ShopModule\Models\CouponUsage;
@@ -895,7 +896,7 @@ class GenerateDemoData extends Command
 
             $shippedAt = $order->shipped_at;
             $daysSince = $shippedAt ? $shippedAt->diffInDays(now()) : 0;
-            $status = $daysSince >= 3 && ! in_array($order->status, ['cancelled', 'refunded']) ? 'delivered' : 'shipped';
+            $status = $daysSince >= 3 && ! in_array($order->status, [OrderStatus::Cancelled, OrderStatus::Refunded]) ? 'delivered' : 'shipped';
             $carrier = $carriers[array_rand($carriers)];
             $trackingNumber = strtoupper($carrier[0]).rand(1000, 9999).'-'.Str::upper(Str::random(6));
 

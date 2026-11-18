@@ -784,7 +784,7 @@ class ShopCrudTest extends TestCase
         $response->assertSessionHasNoErrors();
         $response->assertStatus(302);
         $order->refresh();
-        $this->assertEquals('refunded', $order->status);
+        $this->assertEquals('refunded', $order->status->value);
         $product->refresh();
         $this->assertEquals(6, $product->stock_quantity);
     }
@@ -883,7 +883,7 @@ class ShopCrudTest extends TestCase
 
         $response->assertSessionHasNoErrors();
         $order->refresh();
-        $this->assertEquals('pending', $order->status);
+        $this->assertEquals('pending', $order->status->value);
     }
 
     public function test_admin_can_view_order_invoice(): void
@@ -940,7 +940,7 @@ class ShopCrudTest extends TestCase
 
         $response->assertSessionHasNoErrors();
         $order->refresh();
-        $this->assertEquals('confirmed', $order->status);
+        $this->assertEquals('confirmed', $order->status->value);
     }
 
     public function test_admin_cannot_make_invalid_status_transition(): void
