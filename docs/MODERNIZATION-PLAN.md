@@ -116,37 +116,15 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
       accent-cyan -> status-success); notification icons, status borders, info
       boxes, badges and form errors all use semantic tokens now. Manual `dark:`
       pairs retained but reference the same token (tokens adapt via CSS vars).
-- [ ] **B2. Introduce backed enums for status fields** (G3). Candidates: `ReturnRequest`
-      (requested/approved/rejected/received/refunded) — **done (returns domain)**,
-      `Order`/`Payment` status (draft/pending/on-hold/confirmed/processing/completed/
-      cancelled/refunded/failed/trash + pending/paid/failed/refunded/partially_refunded)
-      — **done (order domain)**, and the const-based type fields (address, product
-      relation, loyalty transaction, product field) — **done**.
-      Plan per model:
-      1. Add `enum XStatus: string { case ... }` mirroring existing const values.
-      2. Add casts: `protected $casts = ['status' => XStatus::class]`
-         (Laravel 13 native enum casting), keep the const aliases as
-         `case names` → update call sites via Pint-safe search/replace; keep DB values
-         unchanged (no migration risk — strings match).
-      3. Update FormRequest validation rules (`in:` lists → `Rule::enum(XStatus::class)`).
-      4. Ship in one PR per domain (returns first — smallest surface), not one mega-PR.
-      **Returns domain done 2026-11-17**: shop-module #74 (v0.1.112) added
-      `Nreljed\ShopModule\Enums\ReturnStatus`, cast on `ReturnRequest`, controller
-      call sites updated; host #275. No FormRequest exists for returns (validation
-      is inline and status is not part of it). 549 phpunit tests pass.
-      **Const groups done 2026-11-17**: shop-module #75 (v0.1.113) added
-      `AddressType`, `ProductRelationType`, `LoyaltyTransactionType`,
-      `ProductFieldType` enums + casts; `StoreProductFieldRequest` uses `Rule::enum`.
-      **Order domain done 2026-11-18**: shop-module #78 (v0.1.116) added
-      `OrderStatus` + `PaymentStatus` enums + casts on `Order`; updated
-      `OrderStatusService`, `UpdateOrderStatusRequest`, controllers (Orders,
-      Checkout, StripeWebhook, ReturnRequests), resources (OrderResource,
-      StorefrontOrderResource), MyOrderController, ShopDashboardController,
-      WebhookService, SyncsLoyalty, LoyaltyService; host ProcessMarketingOrders +
-      OrderMarketingObserver + GenerateDemoData + ShopCrudTest (assertions use
-      `->value`). 549 phpunit tests pass. Remaining B2: subscription status
-      family (none found — the `Statuses/Types` state machine is unused dead code)
-      and any other status families; consider removing the dead state machine.
+- [x] **B2. Introduce backed enums for status fields** (G3) — **Done 2026-11-18.**
+      All status/type fields now have backed enums:
+      - Returns: `ReturnStatus` (#74, v0.1.112)
+      - Const groups: `AddressType`, `ProductRelationType`, `LoyaltyTransactionType`,
+        `ProductFieldType` (#75, v0.1.113)
+      - Order/Payment: `OrderStatus`, `PaymentStatus` (#78, v0.1.116) — OrderStatusService,
+        UpdateOrderStatusRequest, controllers, resources, host code updated.
+      - Dead `Statuses/Types` state machine removed (#79, v0.1.117) — was unused.
+      Remaining: none (subscription status family did not exist as a separate system).
 - [x] **B3. Type the `any`s** (G2) — **Done 2026-11-17.**
       `src/Resources/js` now has **0 type `any`** (the only remaining `any` word is in
       a test description string, not a type). Strict-gate typecheck passes.
@@ -198,7 +176,7 @@ dynamic objects, cast-after-null-check), not legacy — do not mechanically rewr
 2. A2 (PHPStan) - host + shop-module PRs, level 5 first. (done)
 3. A3 (Pint) - shop-module #77 (v0.1.115): pint dep + CI step + full source cleanup. (done)
 4. B1 + B1b (status + palette tokens) - done.
-5. B2 (enums) - returns (#74) + const groups (#75) + order/payment (#78) done; subscription status family (none found).
+5. B2 (enums) - returns (#74) + const groups (#75) + order/payment (#78) + dead state machine removal (#79) done. All B2 complete.
 6. B3 (any-typing) - done (#76).
 
 ## 4. Success metrics
