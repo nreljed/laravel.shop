@@ -41,12 +41,12 @@ Editing UI components = package change → PR in `nreljed/platform` → tag → 
 | `@base-ui/react` | ^1.8.0 (installed 1.9.0) | Unstyled primitives — used by ALL 67 ui/ components |
 | `shadcn` (devDep) | ^4.21.1 (installed 4.23.0) | Component generator / `npx shadcn diff` — 4.x `init --base base|radix|aria` + presets |
 | `@shadcn/react` | ^0.3.1 (installed 0.3.1) | Official shadcn unstyled React kit — `message-scroller` primitive imports `@shadcn/react/message-scroller` |
-| `tailwindcss` | ^4.0.0 (installed 4.3.3) | v4 — no config file, CSS-first |
-| `@tailwindcss/vite` | ^4.0.0 (installed 4.3.3) | Vite plugin (NOT PostCSS) |
+| `tailwindcss` | ^4.0.0 (installed 4.3.5) | v4 - no config file, CSS-first |
+| `@tailwindcss/vite` | ^4.3.5 (installed 4.3.5) | Vite plugin (NOT PostCSS) |
 | `tw-animate-css` | ^1.4.0 | Animation utilities (`animate-in`, `fade-in-0`, …) — still the v4 convention |
 | `class-variance-authority` | ^0.7.1 | Variants (`cva`) |
 | `cn` | ^0.5.0 (installed 0.5.2) | `cn()` composition (replaces `clsx` + `tailwind-merge` — both absent) |
-| `lucide-react` | ^1.64.0 (installed 1.66.0) | Icons |
+| `lucide-react` | ^1.73.0 (installed 1.73.0) | Icons |
 | `embla-carousel-react` | ^8.6.0 | `carousel.tsx` |
 | `input-otp` | ^1.5.0 | `input-otp.tsx` |
 | `sonner` | removed (^2.0.8) | Migrated to Base UI toast — see Toast below (2026-09-08) |
