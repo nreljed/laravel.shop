@@ -1,0 +1,22 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    # Level 5 first run (MODERNIZATION-PLAN.md Phase A2); raise incrementally —
+    # the package repos adopt the same baseline when they add Larastan.
+    level: 5
+    paths:
+        - app
+        - config
+        - database
+        - routes
+    excludePaths:
+        - database/migrations/*
+    # Model-property inference source: the shop/platform models live in the
+    # packages, so their migrations — not the host's — define their columns.
+    databaseMigrationsPath:
+        - database/migrations
+        - vendor/nreljed/shop-module/database/migrations
+        - vendor/nreljed/platform/database/migrations
+        - vendor/nreljed/blog/database/migrations
+        - vendor/nreljed/marketing-module/database/migrations

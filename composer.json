@@ -41,11 +41,12 @@
         "nreljed/marketing-module": "^0.14",
         "nreljed/platform": "^1.0",
         "nreljed/shop-module": "^0.1",
-        "stripe/stripe-php": "^22.0",
+        "stripe/stripe-php": "^23.0",
         "tightenco/ziggy": "^2.6.4"
     },
     "require-dev": {
         "brianium/paratest": "^7.0",
+        "larastan/larastan": "^3.15",
         "laravel/breeze": "^2.4",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
@@ -83,6 +84,9 @@
         "test": [
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
+        ],
+        "analyze": [
+            "@php vendor/bin/phpstan analyse --no-progress"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

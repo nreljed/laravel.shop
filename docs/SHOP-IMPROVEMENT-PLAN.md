@@ -34,12 +34,42 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [~] Run `npm audit fix --force` — reverted: bumped eslint to v9 and broke the unicorn rule config.
       Remaining 15 advisories (2 low, 13 moderate) are dev-only (@typescript-eslint, minimatch).
       Track upstream eslint-plugin-unicorn compatibility; do not force. Deferred.
-- [ ] Truncate `storage/logs/laravel.log` (19 MB of test noise) — done 2026-11-11.
+- [x] Truncate `storage/logs/laravel.log` (19 MB of test noise) — done 2026-11-11.
 
 ### Package PRs (shop-module)
-- [ ] `ProductDetail` JSON-LD `priceCurrency` should use the selected currency, not hardcoded `'EUR'`.
-- [ ] `ProductVariation` display-price mojibake: `config('shop.currency_symbol', '�')` → `'€'`.
-- [ ] Report-only: verify `storefront` hero config keys match what `StorefrontController` passes.
+- [x] `ProductDetail` JSON-LD `priceCurrency` should use the selected currency, not hardcoded `'EUR'`.
+      Verified fixed 2026-11-17 — switching the storefront currency selector EUR→USD updates both
+      JSON-LD `offers.priceCurrency` and `product:price:currency` meta to USD (live check on
+      `/store/xiaomi-14-pro`, 0 console errors).
+- [x] `ProductVariation` display-price mojibake: `config('shop.currency_symbol', '�')` → `'€'`.
+      Verified fixed 2026-11-17 — variations render `€` on the live storefront; no `??` anywhere.
+- [x] **PriceResolver fallback conversion** (found while verifying, fixed 2026-11-17 in shop-module
+      0.1.107): when no ledger row exists in the shopper's currency, the default-currency row's
+      amounts were shown unchanged under the requested currency's symbol (EUR 899 product rendered
+      `$899.00` for USD shoppers at rate 1.08). Fallback rows are now converted via
+      `CurrencyService::convert()`. Legacy-column fallback intentionally unchanged (no ledger ⇒ no
+      currencies-table guarantee).
+- [x] Report-only: verify `storefront` hero config keys match what `StorefrontController` passes.
+      Verified 2026-11-17 — `config('shop.storefront.hero')` passes exactly the three keys
+      `Home.tsx` consumes (`title`, `subtitle`, `cta_label`), env-overridable
+      (`STORE_HERO_TITLE`/`SUBTITLE`/`CTA`); all three render on the live storefront.
+
+### shadcn/ui audit vs latest docs (2026-11-17, shadcn 4.23 installed / 4.21 docs)
+- [x] **Conventions current**: Tailwind v4 CSS-first (`@theme inline`, `@custom-variant dark
+      (&:is(.dark *))`), oklch tokens, `data-slot` on components, Base UI primitives with
+      `render` prop + `data-open`/`data-closed`, `tw-animate-css`, React 19, no
+      `clsx`/`tailwind-merge` (official `cn` package ^0.5.0). Deps current: shadcn CLI 4.23.0,
+      `@base-ui/react` 1.9.0, `@shadcn/react` 0.3.1 (official headless kit — required by the
+      platform `message-scroller` primitive), `cn` 0.5.2, `lucide-react` 1.66.0.
+- [x] **Deliberate divergences confirmed** (keep): Base UI `toast.add()` over the docs' sonner
+      default (platform decision); `style: "base-vega"` still selects the Base-UI registry
+      (never rename to a bare theme — that fetches Radix); buttons already use the default
+      cursor (matches the 4.x change).
+- [x] **Latent trap documented** in `docs/integration/shadcn-ui.md`: the host's
+      `components.json` aliases (`@/components`) are inert — the host registers no `@/` alias
+      and all primitives are vendored from `nreljed/platform` (whose own components.json uses
+      the correct capital-`C` `@/Components`). Never run `shadcn add` in the host.
+- [x] Stale version table in `docs/integration/shadcn-ui.md` refreshed.
 
 ## Phase 2 — Conversion & trust (package PRs, ~2–3 weeks)
 
@@ -57,7 +87,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
       Done 2026-11-11 in shop-module.
 - [x] **Search autocomplete**: `GET /api/products/suggest?q=...` endpoint + dropdown in ProductGrid
       search input. Done 2026-11-12 in shop-module.
-- [ ] **Typo tolerance / Meilisearch**: replace DB LIKE with a Scout driver for fuzzy matching (still open).
+- [x] **Typo tolerance / fuzzy search**: `FuzzyProductSearchDriver` using Levenshtein distance. Works on shared hosting. Done 2026-11-15 in shop-module.
+- [ ] **Meilisearch (optional)**: swap to Scout/Meilisearch for larger catalogs via `SHOP_SEARCH_DRIVER` config.
 - [x] **Recently viewed**: client-side (localStorage) tracking via `lib/recentlyViewed.ts`;
       recorded on ProductDetail view, rendered as a "Recently viewed" section on Home.
       Done 2026-11-11 in shop-module.
@@ -83,7 +114,10 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Cash on delivery (COD)**: `CashOnDeliveryDriver` registered in config + validation
       rule updated + COD option in checkout payment select + display label. Done 2026-11-12 in shop-module.
 - [ ] **Additional payment drivers**: PayPal, Apple/Google Pay (COD done; these need SDKs).
-- [ ] **Carrier integration (Tunisia-first)**: Aramex rates + label printing + tracking webhooks.
+- [x] **Carrier integration**: `CarrierDriver` contract, `AramexDriver` + `DhlDriver` (rate
+      calculation via REST APIs), `CarrierManager` (registry + rate aggregation),
+      `carrierRates` endpoint (POST /store/carrier-rates). Configured via ARAMEX_*/DHL_* env vars.
+      Done 2026-11-15 in shop-module.
       Currently flat/free only.
 - [x] **Analytics Phase A (foundation)**: ReportsController expanded (net revenue, refunds,
       cancellation rate, new/returning customers, repeat rate, avg items/order, AOV by day,
@@ -131,7 +165,8 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [x] **Loyalty/rewards**: `LoyaltyAccount` + `LoyaltyTransaction` models, migrations, `LoyaltyService`
       (earn on order completion, redeem for discount), `SyncsLoyalty` observer, `LoyaltyController`,
       customer portal routes, loyalty page (balance + redeem + history). Done 2026-11-13 in shop-module.
-- [ ] **Loyalty tiers/referrals**: tier upgrades + referral codes (still open).
+- [x] **Loyalty tiers/referrals**: tier upgrades (bronze/silver/gold based on lifetime points)
+      + referral codes (generate, share, reward both parties). Done 2026-11-14 in shop-module.
 - [x] **i18n extraction (Customers Index)**: converted title, subtitle, export, search. Done 2026-11-13.
 - [x] **i18n extraction (Coupons Index)**: converted title, empty state, copy code, activate/deactivate. Done 2026-11-13.
 - [x] **i18n extraction (Attributes Index)**: converted title, empty state. Done 2026-11-13.
@@ -141,14 +176,19 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 - [ ] **Multi-address book**: `addresses` table (type + is_default), migrate existing
       billing/shipping JSON; update checkout + account portal.
 - [ ] **Inventory multi-location**: locations + transfers + per-location availability.
-- [ ] **Automatic tax**: country-rate auto-lookup (or TaxJar/Avalara integration).
+- [x] **Automatic tax**: `TaxProvider` contract, `TaxJarDriver` + `AvalaraDriver` + `ManualTaxProvider`,
+      `TaxManager` (registry + fallback), `TaxService` refactored. Done 2026-11-15 in shop-module.
 
 ### B2B / wholesale (WooCommerce-style, in scope)
-- [ ] **Company accounts**: B2B customer type with tax-exempt flag, approval workflow.
-- [ ] **Tiered pricing**: quantity-based price breaks per product/variant.
-- [ ] **Net terms / invoicing**: pay later (Net 30/60), invoice PDF with PO number.
-- [ ] **Quotes / RFQ**: request-for-quote flow → admin converts to order.
-- [ ] **Quantity rules**: min/max order quantities, pack sizes, step increments.
+> **Deferred 2026-11-17** — the plan guidance says these ship "only when a concrete client demands
+> it; do not build speculatively". No client needs them yet. Note the underlying primitives already
+> exist: `CustomerGroup.allows_business_pricing` + group-scoped `product_prices` rows (tiered
+> pricing can ride the existing `min_quantity` column) and `QuoteService` (RFQ → quote).
+- [ ] **Company accounts**: B2B customer type with tax-exempt flag, approval workflow. *deferred*
+- [ ] **Tiered pricing**: quantity-based price breaks per product/variant. *deferred*
+- [ ] **Net terms / invoicing**: pay later (Net 30/60), invoice PDF with PO number. *deferred*
+- [ ] **Quotes / RFQ**: request-for-quote flow → admin converts to order. *deferred*
+- [ ] **Quantity rules**: min/max order quantities, pack sizes, step increments. *deferred*
 
 ### Out of scope (explicitly excluded)
 - Multi-vendor marketplace (vendor accounts, commissions, payouts).
@@ -158,8 +198,24 @@ clients (WooCommerce-style, not Shopify Plus marketplace).
 
 ## Cross-cutting
 
+- [x] **Route-level code splitting + eager-graph hygiene**: done 2026-11-17 (PR #253) — the
+      `manualChunks` generic rule `id.includes('node_modules/react')` was a *prefix* match that
+      swept `react-phone-number-input`/`react-day-picker` into the eagerly-loaded react chunk,
+      dragging `phone-vendor` (203 kB) onto every page. Specific vendor rules now run first and
+      the generic rule matches the react core exactly. Verified live: storefront preloads 18
+      chunks with no phone-vendor/zxcvbn/editor; zxcvbn (1.66 MB) and the Lexical editor (661 kB)
+      were already lazy and stay lazy.
+- [x] **Consumer auto-update freeze — root cause recorded (2026-11-17)**: the auto-updates
+      silently no-oped because a manual bump (`composer require nreljed/x:<exact>`) rewrote the
+      composer.json constraint to that exact version, and `composer update` can never move past
+      an exact pin — every dispatch run resolved the previous release and reported "already up
+      to date" *successfully*. NOT a composer VCS-cache race (first theory, wrong). Fixed in
+      PR #254: caret constraints restored (`^1.0` / `^0.1` — never `composer require` an exact
+      version again; use `composer update pkg` after widening the constraint) and both
+      `core-update.yml` + `shop-update.yml` hard-fail on a dispatch whose tag didn't resolve
+      ("Assert dispatched version resolved").
 - [ ] **Performance**: CDN for assets/images, image optimization pipeline (already webp),
-      lazy hydration, route-level code splitting.
+      lazy hydration.
 - [ ] **Testing**: add Playwright flows for checkout (guest + registered), cart merge,
       returns, review submission. Currently only auth + admin smoke.
 - [ ] **Observability**: Sentry already wired; add business metrics (conversion rate,
