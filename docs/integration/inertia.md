@@ -4,8 +4,8 @@
 
 | Package | Version (installed) | Latest available | Status |
 |---------|-------------------|-----------------|--------|
-| `@inertiajs/react` | 3.9.1 | ^3.9.1 | Up to date |
-| `@inertiajs/vite` | **Not installed** | ^3.9.1 | **Missing** |
+| `@inertiajs/react` | 3.11.0 | ^3.11.0 | Up to date |
+| `@inertiajs/vite` | 3.11.0 | ^3.11.0 | Up to date |
 
 ---
 
