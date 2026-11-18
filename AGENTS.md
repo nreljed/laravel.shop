@@ -196,7 +196,12 @@ vendor/bin/pint          # Laravel Pint (PSR-12)
 php artisan permissions:list         # List all permissions
 php artisan demo:generate            # Create realistic demo data (--fresh to clear first)
 php artisan demo:generate --fresh    # Clear all demo data and regenerate
+node scripts/check-docs-versions.mjs # Docs version age check (C3) — also runs in CI
 ```
+
+> **C3 — Docs age habit:** when a PR bumps a dependency's minor/major, the same PR
+> must update the owning `docs/integration/*` version table. CI enforces this via
+> `scripts/check-docs-versions.mjs` (fails if a documented version ≠ installed version).
 
 ## Deployment
 

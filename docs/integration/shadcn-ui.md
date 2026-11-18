@@ -42,7 +42,7 @@ Editing UI components = package change → PR in `nreljed/platform` → tag → 
 | `shadcn` (devDep) | ^4.21.1 (installed 4.23.0) | Component generator / `npx shadcn diff` — 4.x `init --base base|radix|aria` + presets |
 | `@shadcn/react` | ^0.3.1 (installed 0.3.1) | Official shadcn unstyled React kit — `message-scroller` primitive imports `@shadcn/react/message-scroller` |
 | `tailwindcss` | ^4.0.0 (installed 4.3.3) | v4 — no config file, CSS-first |
-| `@tailwindcss/vite` | ^4.0.0 (installed 4.3.x) | Vite plugin (NOT PostCSS) |
+| `@tailwindcss/vite` | ^4.0.0 (installed 4.3.3) | Vite plugin (NOT PostCSS) |
 | `tw-animate-css` | ^1.4.0 | Animation utilities (`animate-in`, `fade-in-0`, …) — still the v4 convention |
 | `class-variance-authority` | ^0.7.1 | Variants (`cva`) |
 | `cn` | ^0.5.0 (installed 0.5.2) | `cn()` composition (replaces `clsx` + `tailwind-merge` — both absent) |
