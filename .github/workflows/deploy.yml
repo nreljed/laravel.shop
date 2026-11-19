@@ -283,7 +283,9 @@ jobs:
       # The server restores its own .env from backup after every zip extract,
       # so runtime values only stick if pushed through this endpoint (which
       # backs up the current .env first). SESSION_SECURE_COOKIE must match the
-      # HTTPS-only redirect added to public/.htaccess.
+      # HTTPS-only redirect added to public/.htaccess. SESSION_DOMAIN is pushed
+      # empty (the repo variable was deleted) so cookies are host-only instead
+      # of domain-wide .tunispromo.tn - the main site shares the same server.
       - name: Push runtime env to server .env
         if: always()
         continue-on-error: true
@@ -291,12 +293,12 @@ jobs:
           ENV_URL="${{ vars.APP_URL }}/deploy/env?token=${{ secrets.DEPLOY_TOKEN }}"
           for i in 1 2 3; do
             RESP=$(curl -s -X POST --max-time 60 -H "Content-Type: application/json" \
-              -d "{\"values\":{\"GITHUB_TOKEN\":\"${{ secrets.GH_TOKEN }}\",\"SESSION_SECURE_COOKIE\":\"true\"}}" \
+              -d "{\"values\":{\"GITHUB_TOKEN\":\"${{ secrets.GH_TOKEN }}\",\"SESSION_SECURE_COOKIE\":\"true\",\"SESSION_DOMAIN\":\"${{ vars.SESSION_DOMAIN }}\"}}" \
               "$ENV_URL" 2>&1)
             FIRST="${RESP%%$'\n'*}"
             echo "[env $i/3] $FIRST"
             if echo "$FIRST" | grep -q '"success":true'; then
-              echo "GITHUB_TOKEN + SESSION_SECURE_COOKIE pushed to server .env"
+              echo "GITHUB_TOKEN + SESSION_SECURE_COOKIE + SESSION_DOMAIN pushed to server .env"
               exit 0
             fi
             [ "$i" -lt 3 ] && sleep 20
