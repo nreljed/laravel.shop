@@ -38,4 +38,4 @@
 
 ## Manual Deploy Check
 
-The server auto-deploys via the `deploy:auto` command (every 5 min in `routes/console.php`). To jump the queue, hit `/deploy/check?token=...` once. The former `.github/workflows/cron-deploy.yml` manual trigger was removed in the 2026-09-10 workflow audit.
+The server auto-deploys via the `deploy:auto` command (every 5 min, scheduled by the platform package's `PlatformServiceProvider::configureSchedules()`, gated by `deploy.auto_enabled`). To jump the queue, hit `/deploy/check?token=...` once. The former `.github/workflows/cron-deploy.yml` manual trigger was removed in the 2026-09-10 workflow audit.
