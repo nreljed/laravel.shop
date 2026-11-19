@@ -1226,16 +1226,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "3.4.0",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "180bd6fcebd1dc289cbec5c576135f4b6f576e02"
+                "reference": "b7d9cd94918e1f042d22cf188a7a866e5906bf1d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/180bd6fcebd1dc289cbec5c576135f4b6f576e02",
-                "reference": "180bd6fcebd1dc289cbec5c576135f4b6f576e02",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/b7d9cd94918e1f042d22cf188a7a866e5906bf1d",
+                "reference": "b7d9cd94918e1f042d22cf188a7a866e5906bf1d",
                 "shasum": ""
             },
             "require": {
@@ -1258,6 +1258,7 @@
                 "phpunit/phpunit": "^9.6.34"
             },
             "suggest": {
+                "ext-intl": "Convert internationalized hosts with Idna",
                 "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
             },
             "type": "library",
@@ -1326,7 +1327,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/3.4.0"
+                "source": "https://github.com/guzzle/psr7/tree/3.5.0"
             },
             "funding": [
                 {
@@ -1342,7 +1343,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-13T03:03:24+00:00"
+            "time": "2026-11-18T15:29:09+00:00"
         },
         {
             "name": "guzzlehttp/uri-template",
@@ -3758,16 +3759,16 @@
         },
         {
             "name": "nreljed/platform",
-            "version": "1.0.12",
+            "version": "1.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nreljed/platform.git",
-                "reference": "49a2dd811f398f33a58b77167c45b65543f3d0f0"
+                "reference": "9a31cd8bf1540f54147877791949859d9390c99d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/platform/zipball/49a2dd811f398f33a58b77167c45b65543f3d0f0",
-                "reference": "49a2dd811f398f33a58b77167c45b65543f3d0f0",
+                "url": "https://api.github.com/repos/nreljed/platform/zipball/9a31cd8bf1540f54147877791949859d9390c99d",
+                "reference": "9a31cd8bf1540f54147877791949859d9390c99d",
                 "shasum": ""
             },
             "require": {
@@ -3815,10 +3816,10 @@
             ],
             "description": "SaaS platform kernel for Laravel apps (auth, RBAC, admin, settings, media, deploy, AI, notifications).",
             "support": {
-                "source": "https://github.com/nreljed/platform/tree/v1.0.12",
+                "source": "https://github.com/nreljed/platform/tree/v1.0.13",
                 "issues": "https://github.com/nreljed/platform/issues"
             },
-            "time": "2026-11-18T12:30:29+00:00"
+            "time": "2026-11-19T14:33:29+00:00"
         },
         {
             "name": "nreljed/shop-module",
@@ -5218,16 +5219,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "4.37.0",
+            "version": "4.38.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "635a94908528ca5c4f0804640a0ec578e51639b3"
+                "reference": "9e5f09ccb8f741dde2717f48b1c6df820f95b7c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/635a94908528ca5c4f0804640a0ec578e51639b3",
-                "reference": "635a94908528ca5c4f0804640a0ec578e51639b3",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/9e5f09ccb8f741dde2717f48b1c6df820f95b7c5",
+                "reference": "9e5f09ccb8f741dde2717f48b1c6df820f95b7c5",
                 "shasum": ""
             },
             "require": {
@@ -5244,7 +5245,7 @@
                 "raven/raven": "*"
             },
             "require-dev": {
-                "carthage-software/mago": "1.30.0",
+                "carthage-software/mago": "1.60.2",
                 "friendsofphp/php-cs-fixer": "^3.4",
                 "guzzlehttp/guzzle": "^7.0|^8.0",
                 "guzzlehttp/promises": "^2.0.3|^3.0.0",
@@ -5299,7 +5300,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/4.37.0"
+                "source": "https://github.com/getsentry/sentry-php/tree/4.38.0"
             },
             "funding": [
                 {
@@ -5311,27 +5312,27 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-11-11T15:29:22+00:00"
+            "time": "2026-11-19T10:49:48+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "4.30.0",
+            "version": "4.31.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "001f8c7eeeb0d512491c4a22c5a4880c833bd036"
+                "reference": "f40666aad6261a7cbc94bca061b3514ba09eeaa1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/001f8c7eeeb0d512491c4a22c5a4880c833bd036",
-                "reference": "001f8c7eeeb0d512491c4a22c5a4880c833bd036",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/f40666aad6261a7cbc94bca061b3514ba09eeaa1",
+                "reference": "f40666aad6261a7cbc94bca061b3514ba09eeaa1",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "^6.0 | ^7.0 | ^8.0 | ^9.0 | ^10.0 | ^11.0 | ^12.0 | ^13.0",
                 "nyholm/psr7": "^1.0",
                 "php": "^7.2 | ^8.0",
-                "sentry/sentry": "^4.34.0",
+                "sentry/sentry": "^4.38.0",
                 "symfony/psr-http-message-bridge": "^1.0 | ^2.0 | ^6.0 | ^7.0 | ^8.0"
             },
             "require-dev": {
@@ -5391,7 +5392,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-laravel/issues",
-                "source": "https://github.com/getsentry/sentry-laravel/tree/4.30.0"
+                "source": "https://github.com/getsentry/sentry-laravel/tree/4.31.0"
             },
             "funding": [
                 {
@@ -5403,7 +5404,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-11-11T19:17:46+00:00"
+            "time": "2026-11-19T14:23:20+00:00"
         },
         {
             "name": "socialiteproviders/instagram",
