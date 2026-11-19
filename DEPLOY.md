@@ -245,7 +245,7 @@ On every deploy, the server runs `app:create-admin` after `migrate`. On the firs
 
 ### Cron-Based Fallback
 
-The server auto-deploys via `deploy:auto` (every 5 min in `routes/console.php`). If a Release exists but the server hasn't deployed yet, hit `/deploy/check?token=...` once (or wait ≤5 min for `deploy:auto`). This replaces the former `.github/workflows/cron-deploy.yml` manual trigger, which was removed.
+The server auto-deploys via `deploy:auto` (every 5 min, scheduled by `PlatformServiceProvider::configureSchedules()` in the `nreljed/platform` package — not in this repo's `routes/console.php`; gated by `deploy.auto_enabled`). If a Release exists but the server hasn't deployed yet, hit `/deploy/check?token=...` once (or wait ≤5 min for `deploy:auto`). This replaces the former `.github/workflows/cron-deploy.yml` manual trigger, which was removed.
 
 ## Automated Quality Gates
 

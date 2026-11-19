@@ -5,6 +5,14 @@
 
     RewriteEngine On
 
+    # Force HTTPS: plain-http requests get a 301 to the https origin before
+    # anything else (the app also sends HSTS from its middleware). ACME/SSL
+    # renewal challenges under /.well-known/ stay reachable over http.
+    # mod_rewrite appends the original query string to the substitution.
+    RewriteCond %{HTTPS} off
+    RewriteCond %{REQUEST_URI} !^/\.well-known/
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
