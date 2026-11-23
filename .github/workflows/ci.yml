@@ -37,6 +37,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
       - name: Check docs/integration version tables against installed versions
         run: node scripts/check-docs-versions.mjs
