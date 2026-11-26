@@ -1,11 +1,9 @@
 import { Head, Link, usePage } from "@inertiajs/react";
-import { useEffect } from "react";
 import { Eye, Pencil } from "lucide-react";
 import PublicLayout from "@nreljed/platform/Layouts/PublicLayout";
 import { Badge } from "@nreljed/platform/Components/ui/badge";
-import ProseContent from "@nreljed/platform/Components/blog/ProseContent";
 import { useAuth } from "@nreljed/platform/hooks/use-auth";
-import { highlightAllCodeBlocks } from "@nreljed/platform/lib/shiki-highlight";
+import ProseContent from "../../../Components/blog/ProseContent";
 
 interface Author {
   id: number;
@@ -54,10 +52,6 @@ export default function BlogShow({ post, preview = false }: BlogShowProps) {
   const ogImageUrl = post.og_image || post.featured_image || undefined;
   const { user, capabilities } = useAuth();
   const canEdit = user && (user.id === post.user.id || capabilities.can["posts.edit"]);
-
-  useEffect(() => {
-    highlightAllCodeBlocks();
-  }, [post.content]);
 
   const jsonLd = {
     "@context": "https://schema.org",
