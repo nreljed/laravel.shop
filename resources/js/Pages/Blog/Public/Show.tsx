@@ -3,7 +3,7 @@ import { Eye, Pencil } from "lucide-react";
 import PublicLayout from "@nreljed/platform/Layouts/PublicLayout";
 import { Badge } from "@nreljed/platform/Components/ui/badge";
 import { useAuth } from "@nreljed/platform/hooks/use-auth";
-import ProseContent from "@/Components/blog/ProseContent";
+import ProseContent from "../../../Components/blog/ProseContent";
 
 interface Author {
   id: number;
