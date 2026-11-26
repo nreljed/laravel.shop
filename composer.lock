@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6fa547dd9e16e04c15897eb6516b8371",
+    "content-hash": "41146990afd1ffff6d11813609aaa86e",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -2431,16 +2431,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.10.9",
+            "version": "2.10.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "ab5ff8c80fd69abaeb4d57d7711d389248f219e4"
+                "reference": "3e956235b26ea34ea721a302e27eae9a32cb9ef0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/ab5ff8c80fd69abaeb4d57d7711d389248f219e4",
-                "reference": "ab5ff8c80fd69abaeb4d57d7711d389248f219e4",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/3e956235b26ea34ea721a302e27eae9a32cb9ef0",
+                "reference": "3e956235b26ea34ea721a302e27eae9a32cb9ef0",
                 "shasum": ""
             },
             "require": {
@@ -2534,7 +2534,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-25T20:08:31+00:00"
+            "time": "2026-11-26T14:08:53+00:00"
         },
         {
             "name": "league/config",
@@ -3697,16 +3697,16 @@
         },
         {
             "name": "nreljed/marketing-module",
-            "version": "0.15.1",
+            "version": "0.15.2",
             "source": {
                 "type": "git",
                 "url": "git@github.com:nreljed/marketing-module.git",
-                "reference": "f2f3dcc9a3afbb1f13db7075998930d0bc1ac69e"
+                "reference": "156b652f981ab55843f460bd9bcd45251eef65af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nreljed/marketing-module/zipball/f2f3dcc9a3afbb1f13db7075998930d0bc1ac69e",
-                "reference": "f2f3dcc9a3afbb1f13db7075998930d0bc1ac69e",
+                "url": "https://api.github.com/repos/nreljed/marketing-module/zipball/156b652f981ab55843f460bd9bcd45251eef65af",
+                "reference": "156b652f981ab55843f460bd9bcd45251eef65af",
                 "shasum": ""
             },
             "require": {
@@ -3752,10 +3752,10 @@
             ],
             "description": "Marketing automation and social publishing feature for the Nreljed dashboard platform (social accounts, scheduled posts, campaigns, audience segments, contact tagging, workflow automation and engagement analytics).",
             "support": {
-                "source": "https://github.com/nreljed/marketing-module/tree/v0.15.1",
+                "source": "https://github.com/nreljed/marketing-module/tree/v0.15.2",
                 "issues": "https://github.com/nreljed/marketing-module/issues"
             },
-            "time": "2026-11-26T16:31:18+00:00"
+            "time": "2026-11-26T20:27:41+00:00"
         },
         {
             "name": "nreljed/platform",
