@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { Eye, Pencil } from "lucide-react";
 import PublicLayout from "@nreljed/platform/Layouts/PublicLayout";
 import { Badge } from "@nreljed/platform/Components/ui/badge";
-import ProseContent from "@nreljed/platform/Components/blog/ProseContent";
+import ProseContent from "../../../Components/blog/ProseContent";
 import { useAuth } from "@nreljed/platform/hooks/use-auth";
-import { highlightAllCodeBlocks } from "@nreljed/platform/lib/shiki-highlight";
+import { highlightAllCodeBlocks } from "../../../lib/shiki-highlight";
 
 interface Author {
   id: number;
